@@ -1,0 +1,47 @@
+# EditorConfig
+
+root = true
+
+# Generic files
+[*]
+end_of_line = lf
+insert_final_newline = true
+
+# Generic text files
+[*.{md,yaml,yml,txt,json}]
+indent_size = 2
+indent_style = space
+trim_trailing_whitespace = false
+
+# Generic source code files
+[*.{c,ex,exs,gradle,java,js,jsx,py,sh,sql,xml,xsd,xsl,cls,cmp}]
+charset = utf-8
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Elixir files
+[*.{ex,exs}]
+indent_size = 2
+
+# Gradle
+[*.gradle]
+continuation_indent_size = 2
+max_line_length = 132
+
+# Java files and Apex
+[*.{java,cls}]
+continuation_indent_size = 2
+max_line_length = 132
+
+# Shell files
+[*.sh]
+continuation_indent_size = 2
+max_line_length = 132
+
+# XML-based files
+[*.{xml,xsd,xsl,cmp}]
+continuation_indent_size = 2
+max_line_length = 132
+

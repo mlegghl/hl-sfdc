@@ -1,5 +1,23 @@
 public with sharing class HLSessionController {
 
+    /**
+     * Look up all the calls associated with
+     *  a case in Salesforce
+     */
+    @AuraEnabled
+    public static List<HLCall__c> getCalls(Id caseId) {
+        return [ SELECT Id, Session_Id__c,
+                 Start_Time__c from HLCall__c where Case__c = :caseId];
+    }
+
+    @AuraEnabled
+    public static HLCall__c saveCall(HLCall__c call) {
+        upsert call;
+
+        return [SELECT Id, Session_Id__c,
+                Start_Time__c from HLCall__c where Id = :call.id];
+    }
+
     @AuraEnabled
     public static String makeSessionWith(String otherUsersEmail) {
         System.debug('makeSessionWith');

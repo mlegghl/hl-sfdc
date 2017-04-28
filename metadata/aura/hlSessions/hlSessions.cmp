@@ -3,7 +3,7 @@
     <aura:attribute name="authInfo" type="Object"/>
     <aura:attribute name="record" type="Object"/>
     <aura:attribute name="recordError" type="String"/>
-    <aura:attribute name="sessionId" type="String"/>
+    <aura:attribute name="calls" type="HLCall__c[]"/>
     
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
     
@@ -23,9 +23,16 @@
                            class="slds-button slds-button--brand"
                            press="{!c.clickCall}" />
             </div>
-            <div class="slds-col invisible" id="hl-call-details--div">
-                <p class="slds-text-heading--label">Call Details</p>
-                <p class="slds-text--label" id="hl-call-details"></p>
+            <div class="slds-col" aura:id="hl-call-details--div">
+                <p class="slds-text-heading--label">Call History</p>
+                <section class="slds-card__body">
+                  <div id="list" class="row">
+                    <aura:iteration items="{!v.calls}" var="call">
+                      <p>Session: <ui:outputText value="{!call.Session_Id__c}" /> </p>
+                      <p>Date: <ui:outputDateTime value="{!call.Start_Time__c}" /> </p>
+                    </aura:iteration>
+                  </div>
+                </section>
             </div>
         </div>
     </div>

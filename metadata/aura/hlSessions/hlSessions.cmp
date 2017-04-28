@@ -25,14 +25,14 @@
             </div>
             <div class="slds-col" aura:id="hl-call-details--div">
                 <p class="slds-text-heading--label">Call History</p>
-                <section class="slds-card__body">
-                  <div id="list" class="row">
-                    <aura:iteration items="{!v.calls}" var="call">
+                <aura:iteration items="{!v.calls}" var="call">
+                  <section class="slds-card__body">
+                    <div id="list" class="row">
                       <p>Session: <ui:outputText value="{!call.Session_Id__c}" /> </p>
                       <p>Date: <ui:outputDateTime value="{!call.Start_Time__c}" /> </p>
-                    </aura:iteration>
-                  </div>
-                </section>
+                    </div>
+                  </section>
+                </aura:iteration>
             </div>
         </div>
     </div>

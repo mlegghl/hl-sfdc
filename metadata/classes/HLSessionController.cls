@@ -1,7 +1,7 @@
 public with sharing class HLSessionController {
 
     @AuraEnabled
-    public static Boolean makeSessionWith(String otherUsersEmail) {
+    public static String makeSessionWith(String otherUsersEmail) {
         System.debug('makeSessionWith');
         
         final String apiKey = '689bda5bfbd85f10941e2af10a6b353d';
@@ -32,11 +32,11 @@ public with sharing class HLSessionController {
         if (response.getStatusCode() == 200) {
             Map<String, Object> results = (Map<String,Object>)JSON.deserializeUntyped(response.getBody());
             System.debug('results=' + results);
+            return (String)results.get('id');
         } else {
             System.debug('error with request');
+            return null;
         }
-        
-        return false;
     }
     
     @AuraEnabled

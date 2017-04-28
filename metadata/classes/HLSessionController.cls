@@ -189,7 +189,17 @@ public with sharing class HLSessionController {
             System.debug('closestObject=' + closestObject);
 
             // if our closest match is within 90 seconds, we'll consider this good
-            if (closestTime < 90000) {
+            if (closestTime == -1) {
+                // no match, if it has been more than 3 minutes
+                //  consider this a failure
+                DateTime now = DateTime.now();
+                if (now().getTime() - call.Start_Time__c.getTime() > 180000) {
+                    System.debug('couldn\'t find a match after 3 minutes, assuming a failure');
+                    call.Complete__c = false;
+                    call.Successful__c = false;
+                    call.Duration__c = 0;
+                }
+            } else if (closestTime < 90000) {
                 System.debug('found a match!');
 
                 // update everything we can

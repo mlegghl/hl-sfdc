@@ -3,6 +3,7 @@
     <aura:attribute name="authInfo" type="Object"/>
     <aura:attribute name="record" type="Object"/>
     <aura:attribute name="recordError" type="String"/>
+    <aura:attribute name="sessionId" type="String"/>
     
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
     
@@ -21,6 +22,10 @@
                 <ui:button label="{!'Call ' + v.record.Contact.Name}"
                            class="slds-button slds-button--brand"
                            press="{!c.clickCall}" />
+            </div>
+            <div class="slds-col invisible" id="hl-call-details--div">
+                <p class="slds-text-heading--label">Call Details</p>
+                <p class="slds-text--label" id="hl-call-details"></p>
             </div>
         </div>
     </div>

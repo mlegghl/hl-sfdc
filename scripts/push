@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+#
+# Push everything in the metadata folder
+#  to salesforce
+
+# all of our lightning components
+for i in metadata/aura/*/*.{cmp,js,app}
+do
+    echo "force push -f $i"
+    force push -f $i
+done
+
+# all of our controllers
+for i in metadata/classes/*.cls
+do
+    echo "force push -f $i"
+    force push -f $i
+done

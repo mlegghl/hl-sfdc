@@ -13,7 +13,8 @@
             var state = response.getState();
             if (component.isValid() && state == "SUCCESS") {
                 var sessions = component.get("v.calls");
-                sessions.push(response.getReturnValue());
+                // insert at the beginning
+                sessions.splice(0, 0, response.getReturnValue());
                 component.set("v.calls", sessions);
             }
         });

@@ -6,16 +6,23 @@ public with sharing class HLSessionController {
      */
     @AuraEnabled
     public static List<HLCall__c> getCalls(Id caseId) {
-        return [ SELECT Id, Session_Id__c,
-                 Start_Time__c from HLCall__c where Case__c = :caseId];
+        return [ SELECT Id, Session_Id__c, HLCall_Id__c,
+                 Complete__c, Successful__c,
+                 Start_Time__c, Duration__c from HLCall__c
+                 WHERE Case__c = :caseId
+                 ORDER BY Start_Time__c DESC
+                 ];
     }
 
     @AuraEnabled
     public static HLCall__c saveCall(HLCall__c call) {
         upsert call;
 
-        return [SELECT Id, Session_Id__c,
-                Start_Time__c from HLCall__c where Id = :call.id];
+        return [ SELECT Id, Session_Id__c, HLCall_Id__c,
+                 Complete__c, Successful__c,
+                 Start_Time__c, Duration__c from HLCall__c
+                 WHERE  Id = :call.id
+                 ];
     }
 
     /**
@@ -249,20 +256,19 @@ public with sharing class HLSessionController {
             // we have a known call id, just find
             //  the correct call then
 
-            Map<String,Object> match = null;
             for (Object c: hlCalls) {
                 Map<String,Object> cc = (Map<String,Object>)c;
                 String callId = (String)cc.get('call_id');
 
                 if (call.HLCall_Id__c.equals(callId)) {
                     // do an update
-                    if (match.get('end_time') != null && !match.get('end_time').equals('')) {
+                    if (cc.get('end_time') != null && !cc.get('end_time').equals('')) {
                         System.debug('setting call as complete');
-                        DateTime endTime = (DateTime)JSON.deserialize('"' + match.get('end_time') + '"', DateTime.class);
+                        DateTime endTime = (DateTime)JSON.deserialize('"' + cc.get('end_time') + '"', DateTime.class);
 
                         call.Complete__c = true;
-                        call.Successful__c = (Boolean)match.get('successful');
-                        call.Duration__c = (Decimal)match.get('duration');
+                        call.Successful__c = (Boolean)cc.get('successful');
+                        call.Duration__c = (Decimal)cc.get('duration');
                         call.End_time__c = endTime;
                     } else {
                         System.debug('call is still pending');

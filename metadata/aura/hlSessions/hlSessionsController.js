@@ -1,6 +1,6 @@
 ({
     doInit : function(component, event, helper) {
-	    console.log("doInit, revision 3");
+	    console.log("doInit, revision 19");
 
 //        var action = component.get("c.getAuthInfo");
 //        action.setCallback(this, function(response) {
@@ -23,7 +23,7 @@
         //console.log(r);
 
         // get all the known calls associated with this case
-        var action = component.get("c.getCalls");
+        var action = component.get("c.updateCalls");
         action.setParams({"caseId": r.Id});
         action.setCallback(this, function(response) {
             var state = response.getState();

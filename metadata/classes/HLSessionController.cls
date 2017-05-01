@@ -39,7 +39,11 @@ public with sharing class HLSessionController {
 
             if (results != null) {
                 // results is a list of calls, try to make matches
-                findCallMatchAndUpdate(call, (Object[])results);
+                if (findCallMatchAndUpdate(call, (Object[])results)) {
+                    // a match was found, we need to update the
+                    //  database with the changes.
+                    update call;
+                }
             }
 
         }
@@ -139,9 +143,20 @@ public with sharing class HLSessionController {
      *  and see if we have a match,
      *  if so, update the relevant
      *  information in the call object.
+     *
+     * @return true if this found a match
+     *  and updated the parameters.
+     * THIS DOES NOT DO A DATABASE UPDATE!
      */
     public static Boolean findCallMatchAndUpdate(HLCall__c call, Object[] hlCalls) {
         System.debug('findCallMatchAndUpdate');
+
+        // If we don't have an HLCall_Id, then we need to
+        //  search through the list and try to find a call
+        //  that was started at close to the same time
+        //  as our call record. This is a little fuzzy
+        //  and it just uses the closest match, not necessarily
+        //  the best call.
         if (call.HLCall_id__c == null || call.HLCall_Id__c.equals('')) {
             // we haven't found a matching help lightning call
             //  see if any of these are close based on time
@@ -174,6 +189,7 @@ public with sharing class HLSessionController {
                     continue;
                 }
 
+                // We parse the time by deserialize the time as a json string :-\
                 DateTime d = (DateTime)JSON.deserialize('"' + cc.get('start_time') + '"', DateTime.class);
                 System.debug('start_time=' + d);
 
@@ -193,25 +209,67 @@ public with sharing class HLSessionController {
                 // no match, if it has been more than 3 minutes
                 //  consider this a failure
                 DateTime now = DateTime.now();
-                if (now().getTime() - call.Start_Time__c.getTime() > 180000) {
+                if (now.getTime() - call.Start_Time__c.getTime() > 180000) {
                     System.debug('couldn\'t find a match after 3 minutes, assuming a failure');
-                    call.Complete__c = false;
+                    call.Complete__c = true;
                     call.Successful__c = false;
                     call.Duration__c = 0;
+                    call.End_Time__c = call.Start_Time__c;
+                    return true;
                 }
             } else if (closestTime < 90000) {
                 System.debug('found a match!');
 
                 // update everything we can
-                //  damn, we can't do this yet, we aren't getting
-                //  the correct information
-                //call.HLCall_id__c = ??
+                call.HLCall_id__c = (String)closestObject.get('call_id');
 
-                if (closestObject.get('end_time') != null) {
+                if (closestObject.get('end_time') != null && !closestObject.get('end_time').equals('')) {
                     System.debug('setting call as complete');
-                    //call.Complete__c = true;
-                    //call.Successful__c = closestObject.get('successful');
-                    //call.Duration__c = closestObject.get('duration');
+                    DateTime endTime = (DateTime)JSON.deserialize('"' + closestObject.get('end_time') + '"', DateTime.class);
+
+                    call.Complete__c = true;
+                    call.Successful__c = (Boolean)closestObject.get('successful');
+                    call.Duration__c = (Decimal)closestObject.get('duration');
+                    call.End_time__c = endTime;
+                } else {
+                    // The call is still pending.
+                    //  we have match the call_id, so
+                    //  future updates will be simpler.
+
+                    System.debug('call is still pending');
+                }
+                return true;
+            } else {
+                // we didn't find a good match, but
+                //  we haven't hit our upper limit yet
+                // we'll try again later.
+                return false;
+            }
+        } else {
+            // we have a known call id, just find
+            //  the correct call then
+
+            Map<String,Object> match = null;
+            for (Object c: hlCalls) {
+                Map<String,Object> cc = (Map<String,Object>)c;
+                String callId = (String)cc.get('call_id');
+
+                if (call.HLCall_Id__c.equals(callId)) {
+                    // do an update
+                    if (match.get('end_time') != null && !match.get('end_time').equals('')) {
+                        System.debug('setting call as complete');
+                        DateTime endTime = (DateTime)JSON.deserialize('"' + match.get('end_time') + '"', DateTime.class);
+
+                        call.Complete__c = true;
+                        call.Successful__c = (Boolean)match.get('successful');
+                        call.Duration__c = (Decimal)match.get('duration');
+                        call.End_time__c = endTime;
+                    } else {
+                        System.debug('call is still pending');
+                    }
+
+                    // stop execution
+                    return true;
                 }
             }
         }

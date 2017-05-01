@@ -114,6 +114,10 @@ public with sharing class HLSessionController {
         }
     }
 
+    /**
+     * Create a new HTTP Request
+     *  based on a route, type and params
+     */
     public static Object makeRequest(String route, String method, Map<String, String> params) {
         final String apiKey = '689bda5bfbd85f10941e2af10a6b353d';
         final String baseUrl = 'https://api-dev.helplightning.net:8080/api/v1';
@@ -145,6 +149,10 @@ public with sharing class HLSessionController {
         }
     }
 
+    /**
+     * Generate our
+     *  signed enterprise JWT token
+     */
     public static String makeToken() {
         // test small_admin user on docker
         final String pkcs8 = 'MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAL0EW5cFmnIXAX2FeDvHFM7/C+x10btM/+IfYKwZsWN5gdPCixZv0Zm9nxv/Ijarh6AgSNGW49TzH2owTY52qXPUuKq/QmnFovDpblPkeuKmWkybO4x6K/An4IxYHBh3hwM/YBT558PSTfBUOg3aK8wZVz4EIBqIRpIkUaF+pS+zAgMBAAECgYB3ZadNcJas9udUGNloOUtlriokBhCj1fHVLqjsTZaGFZzy3PLrC1tFWEiHcNR14Ehd18bnzf7A54qykyyKj15d3B8B8HIfV8BG0UvqRl6ySddBaS3vBH6HiqZMRM5DNsJ3E0mgtmS4z1wF29QWJ6VpLeZ95Ljf5Y6lko4YucTPAQJBAOyRg00Ww1svTiV0k2ATfzpdFffaoaFfbv1bMJOKkScEjAzBkyfiX/W5JPOFNSZCHga+yW3+1Xu7n2/L/XK3T/MCQQDMivL17HoXMcL8dF5XG28X+lLx/fY4+Sbi+Xk7vaTqo3OQKhoUYKTtiEIlanE2DIb1LLijfqeeBW5mYniselFBAkAfhgBmHFtp4jLaoN8mlVKF13Oe9H5HP61Ni4I8luFivqNe68iNLwg0eThoTt7XO0Y/BdtXkfamp0jGn/sk9zJrAkEAinR75e/+7PhoLo9u1LPjTW3K+7eXFhXBNt78K25B1fpyXWHCaYzJ12fmroEQxS9Ro2B0U2eGerbedjutx8K8gQJBANDexJydSnPxVWveNEjk1VQh8fudW+rNANHnbIq3P1yzYr3ZOTVhJ+cYzDnKCBprqJGFyx9ajxSIHVOT9aIaAKU=';
@@ -183,52 +191,11 @@ public with sharing class HLSessionController {
         if (call.HLCall_id__c == null || call.HLCall_Id__c.equals('')) {
             // we haven't found a matching help lightning call
             //  see if any of these are close based on time
-            Map<String,Object> closestObject = null;
-            Long closestTime = -1;
-
-            for (Object c: hlCalls) {
-                Map<String,Object> cc = (Map<String,Object>)c;
-                System.debug('checking call ' + cc);
-
-                String dialer = (String)((Map<String,Object>)cc.get('dialer')).get('email');
-                String receiver = (String)((Map<String,Object>)cc.get('receiver')).get('email');
-
-                // first make sure the receiver of this call
-                //  matches the reciever of our desired call
-                if (Userinfo.getUserEmail().equals(dialer)) {
-                    System.debug('we are the dialer');
-                    if (!call.Contact_Email__c.equals(receiver)) {
-                        System.debug('found a call with a mismatching receiver: ' + receiver);
-                        continue;
-                    }
-                } else if (Userinfo.getUserEmail().equals(receiver)) {
-                    System.debug('we are the receiver');
-                    if (!call.Contact_Email__c.equals(dialer)) {
-                        System.debug('found a call with a mismatching dialer: ' + dialer);
-                        continue;
-                    }
-                } else {
-                    System.debug('found a call where we aren\'t the dialer or receiver');
-                    continue;
-                }
-
-                // We parse the time by deserialize the time as a json string :-\
-                DateTime d = (DateTime)JSON.deserialize('"' + cc.get('start_time') + '"', DateTime.class);
-                System.debug('start_time=' + d);
-
-                // find the difference in time
-                Long timeDifference = Math.abs(call.Start_Time__c.getTime() - d.getTime());
-                if (closestTime == -1 || timeDifference < closestTime) {
-                    closestTime = timeDifference;
-                    closestObject = cc;
-                }
-            }
-
-            System.debug('closestTime=' + closestTime);
+            Map<String,Object> closestObject = findClosestCall(call, hlCalls, 90000);
             System.debug('closestObject=' + closestObject);
 
             // if our closest match is within 90 seconds, we'll consider this good
-            if (closestTime == -1) {
+            if (closestObject == null) {
                 // no match, if it has been more than 3 minutes
                 //  consider this a failure
                 DateTime now = DateTime.now();
@@ -239,8 +206,11 @@ public with sharing class HLSessionController {
                     call.Duration__c = 0;
                     call.End_Time__c = call.Start_Time__c;
                     return true;
+                } else {
+                    // no match, but hasn't been long enough yet
+                    return false;
                 }
-            } else if (closestTime < 90000) {
+            } else {
                 System.debug('found a match!');
 
                 // update everything we can
@@ -262,11 +232,6 @@ public with sharing class HLSessionController {
                     System.debug('call is still pending');
                 }
                 return true;
-            } else {
-                // we didn't find a good match, but
-                //  we haven't hit our upper limit yet
-                // we'll try again later.
-                return false;
             }
         } else {
             // we have a known call id, just find
@@ -297,5 +262,62 @@ public with sharing class HLSessionController {
         }
 
         return false;
+    }
+
+    /**
+     * Find an object that is closest to the
+     *  start time without going over
+     *  withingSeconds.
+     * If no match is found, NULL is returned
+     */
+    public static Map<String, Object> findClosestCall(HLCall__c call, Object[] hlCalls,
+                                                      Integer withinSeconds) {
+        Map<String,Object> closestObject = null;
+        Long closestTime = -1;
+
+        for (Object c: hlCalls) {
+            Map<String,Object> cc = (Map<String,Object>)c;
+            System.debug('checking call ' + cc);
+
+            String dialer = (String)((Map<String,Object>)cc.get('dialer')).get('email');
+            String receiver = (String)((Map<String,Object>)cc.get('receiver')).get('email');
+
+            // first make sure the receiver of this call
+            //  matches the reciever of our desired call
+            if (Userinfo.getUserEmail().equals(dialer)) {
+                System.debug('we are the dialer');
+                if (!call.Contact_Email__c.equals(receiver)) {
+                    System.debug('found a call with a mismatching receiver: ' + receiver);
+                    continue;
+                }
+            } else if (Userinfo.getUserEmail().equals(receiver)) {
+                System.debug('we are the receiver');
+                if (!call.Contact_Email__c.equals(dialer)) {
+                    System.debug('found a call with a mismatching dialer: ' + dialer);
+                    continue;
+                }
+            } else {
+                System.debug('found a call where we aren\'t the dialer or receiver');
+                continue;
+            }
+
+            // We parse the time by deserialize the time as a json string :- \
+            DateTime d = (DateTime)JSON.deserialize('"' + cc.get('start_time') + '"', DateTime.class);
+            System.debug('start_time=' + d);
+
+            // find the difference in time
+            Long timeDifference = Math.abs(call.Start_Time__c.getTime() - d.getTime());
+            if (closestTime == -1 || timeDifference < closestTime) {
+                closestTime = timeDifference;
+                closestObject = cc;
+            }
+        }
+
+        if (closestTime > withinSeconds) {
+            // no match
+            return null;
+        } else {
+            return closestObject;
+        }
     }
 }

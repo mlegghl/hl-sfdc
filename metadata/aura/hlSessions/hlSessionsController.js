@@ -1,6 +1,6 @@
 ({
     doInit : function(component, event, helper) {
-	    console.log("doInit, revision 19");
+	    console.log("doInit, revision 20");
 
 //        var action = component.get("c.getAuthInfo");
 //        action.setCallback(this, function(response) {

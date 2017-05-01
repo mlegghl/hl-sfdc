@@ -36,6 +36,13 @@ public with sharing class HLSessionController {
                              AND Complete__c = false];
 
 
+        /**
+         * !mwd - we cannot make callouts
+         *  in the middle of doing updates.
+         * Therefore we will make all our callouts
+         *  then check for updates in batch
+         */
+        Map<HLCall__c, Object> callMap = new Map<HLCall__c, Object>();
         for (HLCall__c call : calls) {
             System.debug('getting Info about call ' + call);
             Object results = makeRequest('/enterprise/sessions/' + call.Session_Id__c,
@@ -43,6 +50,15 @@ public with sharing class HLSessionController {
 
             // try to find a match based on a fuzzy start time
             System.debug('result of /sessions/calls/ ' + results);
+
+            if (results != null) {
+                callMap.put(call, results);
+            }
+        }
+
+        // no iterate through our map
+        for (HLCall__c call : callMap.keySet()) {
+            Object results = callMap.get(call);
 
             if (results != null) {
                 // results is a list of calls, try to make matches

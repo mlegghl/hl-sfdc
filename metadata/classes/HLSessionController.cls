@@ -230,7 +230,7 @@ public with sharing class HLSessionController {
                 // update everything we can
                 call.HLCall_id__c = (String)closestObject.get('call_id');
 
-                if (closestObject.get('end_time') != null && !closestObject.get('end_time').equals('')) {
+                if ((Boolean)closestObject.get('complete')) {
                     System.debug('setting call as complete');
                     DateTime endTime = (DateTime)JSON.deserialize('"' + closestObject.get('end_time') + '"', DateTime.class);
 
@@ -262,7 +262,7 @@ public with sharing class HLSessionController {
 
                 if (call.HLCall_Id__c.equals(callId)) {
                     // do an update
-                    if (cc.get('end_time') != null && !cc.get('end_time').equals('')) {
+                    if ((Boolean)cc.get('complete')) {
                         System.debug('setting call as complete');
                         DateTime endTime = (DateTime)JSON.deserialize('"' + cc.get('end_time') + '"', DateTime.class);
 

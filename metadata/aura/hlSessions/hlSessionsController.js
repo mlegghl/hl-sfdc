@@ -48,29 +48,9 @@
             var state = response.getState();
             if (component.isValid() && state == "SUCCESS") {
                 console.log("response is " + response.getReturnValue());
-                //component.set("v.sessionId", response.getReturnValue());
 
                 // create a new HLCall
                 helper.createNewCall(component, r, email, response.getReturnValue());
-
-                // show the call details
-                //console.log("remving invisible class");
-                //var d = component.find("hl-call-details--div");
-                //console.log("div=" + d);
-                //$A.util.removeClass(d, "invisible");
-                // add some call details
-                //component.find("hl-call-details").innerHTML("Call starting ...");
-                // $A.createComponent("ui:outputTextArea"
-                //                    {"value": ""
-                //                    },
-                //                    function(newLabel, status, errorMessage) {
-                //                        console.log("finished creating component");
-                //                        if (status == "SUCCESS") {
-                //                            var c = component.find("hl-call-details");
-                //                            c.push(newLabel);
-                //                        }
-                //                    });
-
             } else {
                 console.log("response failed: " + state);
             }

@@ -56,7 +56,7 @@ public with sharing class HLSessionController {
             }
         }
 
-        // no iterate through our map
+        // now iterate through our map
         for (HLCall__c call : callMap.keySet()) {
             Object results = callMap.get(call);
 

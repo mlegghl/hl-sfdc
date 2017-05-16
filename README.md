@@ -1,4 +1,4 @@
-= Salesforce + Galdr prototype
+# Salesforce + Galdr prototype
 
 This is a simple prototype to integrate salesforce.com with
 galdr. This creates a new "Help Lightning Session" component that can
@@ -22,3 +22,76 @@ To get this to work, you need to:
    associated with a help lightning user.
 1. Click the Call XXX Under the Help Lightning component.
 1. This will generate a galdr session and ring you and the contact.
+
+## Required Custom Objects
+
+This requires a new Object called `HLCall` with the following attributes:
+
+<table>
+  <tr>
+    <th>Field Label</th>
+    <th>Field Name</th>
+    <th>Data Type</th>
+    <th>Required</th>
+  </tr>
+  <tr>
+    <td>Case</td>
+    <td>Case__c</td>
+    <td>Master-Detail(Case)</td>
+    <td>y</td>
+  </tr>
+  <tr>
+    <td>Complete</td>
+    <td>Complete__c</td>
+    <td>Checkbox</td>
+    <td>n</td>
+  </tr>
+  <tr>
+    <td>Contact Email</td>
+    <td>Contact_Email__c</td>
+    <td>Email</td>
+    <td>y</td>
+  </tr>
+  <tr>
+    <td>Duration</td>
+    <td>Duration__c</td>
+    <td>Number(18,0)</td>
+    <td>n</td>
+  </tr>
+  <tr>
+    <td>End Time</td>
+    <td>End_Time__c</td>
+    <td>Date/Time</td>
+    <td>n</td>
+  </tr>
+  <tr>
+    <td>HLCall Id</td>
+    <td>HLCall_Id__c</td>
+    <td>Text Area(255)</td>
+    <td>n</td>
+  </tr>
+  <tr>
+    <td>Session Id</td>
+    <td>Session_Id__c</td>
+    <td>Text(255)</td>
+    <td>y</td>
+  </tr>
+  <tr>
+    <td>Start Time</td>
+    <td>Start_Time__c</td>
+    <td>Date/Time</td>
+    <td>y</td>
+  </tr>
+  <tr>
+    <td>Successful</td>
+    <td>Successful__c</td>
+    <td>Checkbox</td>
+    <td>n</td>
+  </tr>
+  <tr>
+    <td>Type</td>
+    <td>Type__c</td>
+    <td>Picklist with options [Direct, Invitation]</td>
+    <td>y</td>
+  </tr>
+</table>

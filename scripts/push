@@ -4,10 +4,10 @@
 #  to salesforce
 
 # all of our lightning components
-for i in metadata/aura/*/*.{cmp,js,app}
+for i in metadata/aura/*
 do
-    echo "force push -f $i"
-    force push -f $i
+    echo "force aura push -f $i"
+    force aura push -f $i
 done
 
 # all of our controllers

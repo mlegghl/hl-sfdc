@@ -1,6 +1,6 @@
 ({
     doInit : function(component, event, helper) {
-	    console.log("doInit, revision 23");
+	    console.log("doInit, revision 24");
     },
 
     recordUpdatedEvt : function(component, event, helper) {
@@ -51,6 +51,28 @@
                 helper.createNewCall(component, r, email, response.getReturnValue());
             } else {
                 console.log("response failed: " + state);
+            }
+        });
+
+        $A.enqueueAction(action);
+    },
+
+    clickInviteToPersonalRoom : function(component, event, helper) {
+        console.log("clickInviteToPersonalRoom");
+
+        var r = component.get("v.record");
+        var email = r.ContactEmail;
+
+        var action = component.get("c.inviteToPersonalRoom");
+        action.setParams({"otherUsersEmail": email});
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if (component.isValid() && state == "SUCCESS") {
+                console.log("successfully invited to personal room");
+
+                // !mwd - show a status update about this
+            } else {
+                console.log("failed to invite to personal room: " + state);
             }
         });
 

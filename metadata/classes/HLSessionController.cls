@@ -141,6 +141,20 @@ public with sharing class HLSessionController {
     }
 
     /**
+     * Invite a user to a personal room.
+     *  This will send out an email to them.
+     */
+    public static Boolean inviteToPersonalRoom(String otherUsersEmail) {
+        System.debug('inviteToPersonalRoom: ' + otherUsersEmail);
+
+        //Map<String,String> params = new Map<String,String>();
+        // !mwd - TODO, waiting on API
+
+
+        return false;
+    }
+
+    /**
      * Create a new HTTP Request
      *  based on a route, type and params
      */

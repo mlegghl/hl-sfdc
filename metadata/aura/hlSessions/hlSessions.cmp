@@ -19,11 +19,19 @@
     	<div class="slds-grid">
             <div class="slds-col">
             	<p class="slds-text-heading--label">Help Lightning</p>
-                <ui:button label="{!'Call ' + v.record.Contact.Name}"
-                           class="slds-button slds-button--brand"
-                           press="{!c.clickCall}"
-                           disabled="{!v.contactIsHLUser == false}"
-                           />
+                <div>
+                    <ui:button label="{!'Call ' + v.record.Contact.Name}"
+                               class="slds-button slds-button--brand"
+                               press="{!c.clickCall}"
+                               disabled="{!v.contactIsHLUser == false}"
+                               />
+                </div>
+                <div>
+                    <ui:button label="{!'Invite ' + v.record.Contact.Name + ' to Personal Room'}"
+                               class="slds-button slds-button--brand"
+                               press="{!c.clickInviteToPersonalRoom}"
+                               />
+                </div>
             </div>
             <div class="slds-col" aura:id="hl-call-details--div">
                 <p class="slds-text-heading--label">Call History</p>

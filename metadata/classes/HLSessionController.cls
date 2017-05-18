@@ -75,6 +75,32 @@ public with sharing class HLSessionController {
         return getCalls(caseId);
     }
 
+    /**
+     * Check if an email is associated with
+     * a registered help lightning user.
+     */
+    @AuraEnabled
+    public static Boolean isHLUser(String email) {
+        System.debug('isHLUser: ' + email);
+
+        Map<String,String> params = new Map<String,String>();
+        params.put('search_term', email);
+
+        Object[] results = (Object[])makeRequest('/search', 'POST', params);
+
+        // Unfortunately, the results don't include the email field
+        //  (for privacy reasons), so we can't 100% verify this is
+        //  a match (since the /search api actually matches on additional
+        //  fields outside of our control). Therefore, we'll just assume
+        //  that if our results list > 0, then this email is probably
+        //  a user.
+        if (results.size() > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
     @AuraEnabled
     public static String makeSessionWith(String otherUsersEmail) {
         System.debug('makeSessionWith');

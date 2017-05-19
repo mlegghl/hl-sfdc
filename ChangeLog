@@ -1,3 +1,6 @@
+2017-05-19  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-3 - Check if contact is HL User and allow sending a Personal Room Invite
+
 2017-05-16  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
 	* SFDC-1 - Add storing the call information in a custom object
 

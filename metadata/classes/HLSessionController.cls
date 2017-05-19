@@ -1,4 +1,14 @@
 public with sharing class HLSessionController {
+    private static final String API_KEY = '689bda5bfbd85f10941e2af10a6b353d';
+    private static final String PRIVATE_KEY = 'MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAL0EW5cFmnIXAX2FeDvHFM7/C+x10btM/+IfYKwZsWN5gdPCixZv0Zm9nxv/Ijarh6AgSNGW49TzH2owTY52qXPUuKq/QmnFovDpblPkeuKmWkybO4x6K/An4IxYHBh3hwM/YBT558PSTfBUOg3aK8wZVz4EIBqIRpIkUaF+pS+zAgMBAAECgYB3ZadNcJas9udUGNloOUtlriokBhCj1fHVLqjsTZaGFZzy3PLrC1tFWEiHcNR14Ehd18bnzf7A54qykyyKj15d3B8B8HIfV8BG0UvqRl6ySddBaS3vBH6HiqZMRM5DNsJ3E0mgtmS4z1wF29QWJ6VpLeZ95Ljf5Y6lko4YucTPAQJBAOyRg00Ww1svTiV0k2ATfzpdFffaoaFfbv1bMJOKkScEjAzBkyfiX/W5JPOFNSZCHga+yW3+1Xu7n2/L/XK3T/MCQQDMivL17HoXMcL8dF5XG28X+lLx/fY4+Sbi+Xk7vaTqo3OQKhoUYKTtiEIlanE2DIb1LLijfqeeBW5mYniselFBAkAfhgBmHFtp4jLaoN8mlVKF13Oe9H5HP61Ni4I8luFivqNe68iNLwg0eThoTt7XO0Y/BdtXkfamp0jGn/sk9zJrAkEAinR75e/+7PhoLo9u1LPjTW3K+7eXFhXBNt78K25B1fpyXWHCaYzJ12fmroEQxS9Ro2B0U2eGerbedjutx8K8gQJBANDexJydSnPxVWveNEjk1VQh8fudW+rNANHnbIq3P1yzYr3ZOTVhJ+cYzDnKCBprqJGFyx9ajxSIHVOT9aIaAKU=';
+
+    // dev-us
+    private static final String ENTERPRISE_ID = '12093';
+    private static final String API_URL = 'https://api-dev.helplightning.net:8080/api/v1';
+
+    // docker test
+    //private static final String ENTERPRISE_ID = '1055';
+    //private static final String API_URL = 'http://307da411.ngrok.io/api/v1';
 
     /**
      * Look up all the calls associated with
@@ -75,43 +85,98 @@ public with sharing class HLSessionController {
         return getCalls(caseId);
     }
 
+    /**
+     * Check if an email is associated with
+     * a registered help lightning user.
+     */
+    @AuraEnabled
+    public static Boolean isHLUser(String email) {
+        System.debug('isHLUser: ' + email);
+
+        Map<String,String> params = new Map<String,String>();
+        params.put('search_term', email);
+
+        Object[] results = (Object[])makeRequest('/search', 'POST', params);
+
+        // Unfortunately, the results don't include the email field
+        //  (for privacy reasons), so we can't 100% verify this is
+        //  a match (since the /search api actually matches on additional
+        //  fields outside of our control). Therefore, we'll just assume
+        //  that if our results list > 0, then this email is probably
+        //  a user.
+        if (results.size() > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
     @AuraEnabled
     public static String makeSessionWith(String otherUsersEmail) {
         System.debug('makeSessionWith');
 
-        final String apiKey = '689bda5bfbd85f10941e2af10a6b353d';
-        String enterpriseToken = makeToken();
-
-        final String url = 'https://api-dev.helplightning.net:8080/api/v1/enterprise/calls';
-
-        System.debug('enterpriseToken=' + enterpriseToken);
-
         String myUserEmail = Userinfo.getUserEmail();
         System.debug('myUserId=' + myUserEmail);
-
-        HttpRequest req = new HttpRequest();
-        req.setMethod('POST');
-        req.setHeader('content-type', 'application/json');
-        req.setHeader('Authorization', enterpriseToken);
-        req.setHeader('x-helplightning-api-key', apiKey);
-        req.setEndPoint(url);
 
         Map<String, String> bodyParams = new Map<String, String>();
         bodyParams.put('dialer_email', myUserEmail);
         bodyParams.put('receiver_email', otherUsersEmail);
-        String body = JSON.serialize(bodyParams);
-        req.setBody(body);
 
-        Http http = new Http();
-        HttpResponse response = http.send(req);
-        if (response.getStatusCode() == 200) {
-            Map<String, Object> results = (Map<String,Object>)JSON.deserializeUntyped(response.getBody());
-            System.debug('results=' + results);
-            return (String)results.get('id');
+        Object results = makeRequest('/enterprise/calls', 'POST', bodyParams);
+        if (results != null) {
+            Map<String, Object> resultsMap = (Map<String,Object>)results;
+            System.debug('results=' + resultsMap);
+            return (String)resultsMap.get('id');
         } else {
-            System.debug('error with request');
             return null;
         }
+    }
+
+    /**
+     * Invite a user to a personal room.
+     *  This will send out an email to them.
+     */
+    @AuraEnabled
+    public static Boolean inviteToPersonalRoom(String otherUsersName, String otherUsersEmail) {
+        System.debug('inviteToPersonalRoom: ' + otherUsersName + ' ' + otherUsersEmail);
+
+        String myUserEmail = Userinfo.getUserEmail();
+        System.debug('myUserId=' + myUserEmail);
+
+        // first get a list of users to find us, since
+        //  we have to make this request as a specific user
+
+        Object results = makeRequest('/enterprise/users', 'GET', new Map<String,String> {
+                'filter' => 'email=' + myUserEmail
+        });
+        if (results == null || ((Map<String,Object>)results).get('total_entries') != 1) {
+            System.debug('Error finding our user. Unexpected results are: ' + results);
+            return false;
+        }
+        Map<String,Object> resultsMap = (Map<String,Object>)results;
+        Object[] entries = (Object[])resultsMap.get('entries');
+        // We are the first Entry
+        Map<String,Object> entry = (Map<String,Object>)entries[0];
+        System.debug('entry=' + entry);
+        String userToken = (String)entry.get('token');
+        System.debug('token=' + userToken);
+        if (userToken == null) {
+            System.debug('Invalid user token');
+            return false;
+        }
+
+        // Now send out the invite.
+        results = makeRequestWithToken(userToken, '/personal_room/invite', 'POST', new Map<String, String> {
+                'name' => otherUsersName,
+                'email' => otherUsersEmail
+        });
+
+        if (results == null) {
+            System.debug('Failed to invite');
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -119,18 +184,20 @@ public with sharing class HLSessionController {
      *  based on a route, type and params
      */
     public static Object makeRequest(String route, String method, Map<String, String> params) {
-        final String apiKey = '689bda5bfbd85f10941e2af10a6b353d';
-        final String baseUrl = 'https://api-dev.helplightning.net:8080/api/v1';
-
         String token = makeToken();
-        String url = baseUrl + route;
+        return makeRequestWithToken(token, route, method, params);
+    }
+    public static Object makeRequestWithToken(String token, String route, String method, Map<String, String> params) {
+        String url = HLSessionController.API_URL + route;
 
         HttpRequest req = new HttpRequest();
         req.setMethod(method);
         req.setHeader('content-type', 'application/json');
         req.setHeader('Authorization', token);
-        req.setHeader('x-helplightning-api-key', apiKey);
+        req.setHeader('x-helplightning-api-key', HLSessionController.API_KEY);
         req.setEndPoint(url);
+
+        System.debug('token=' + token);
 
         if (method.equals('POST')) {
             String body = JSON.serialize(params);
@@ -154,14 +221,10 @@ public with sharing class HLSessionController {
      *  signed enterprise JWT token
      */
     public static String makeToken() {
-        // test small_admin user on docker
-        final String pkcs8 = 'MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAL0EW5cFmnIXAX2FeDvHFM7/C+x10btM/+IfYKwZsWN5gdPCixZv0Zm9nxv/Ijarh6AgSNGW49TzH2owTY52qXPUuKq/QmnFovDpblPkeuKmWkybO4x6K/An4IxYHBh3hwM/YBT558PSTfBUOg3aK8wZVz4EIBqIRpIkUaF+pS+zAgMBAAECgYB3ZadNcJas9udUGNloOUtlriokBhCj1fHVLqjsTZaGFZzy3PLrC1tFWEiHcNR14Ehd18bnzf7A54qykyyKj15d3B8B8HIfV8BG0UvqRl6ySddBaS3vBH6HiqZMRM5DNsJ3E0mgtmS4z1wF29QWJ6VpLeZ95Ljf5Y6lko4YucTPAQJBAOyRg00Ww1svTiV0k2ATfzpdFffaoaFfbv1bMJOKkScEjAzBkyfiX/W5JPOFNSZCHga+yW3+1Xu7n2/L/XK3T/MCQQDMivL17HoXMcL8dF5XG28X+lLx/fY4+Sbi+Xk7vaTqo3OQKhoUYKTtiEIlanE2DIb1LLijfqeeBW5mYniselFBAkAfhgBmHFtp4jLaoN8mlVKF13Oe9H5HP61Ni4I8luFivqNe68iNLwg0eThoTt7XO0Y/BdtXkfamp0jGn/sk9zJrAkEAinR75e/+7PhoLo9u1LPjTW3K+7eXFhXBNt78K25B1fpyXWHCaYzJ12fmroEQxS9Ro2B0U2eGerbedjutx8K8gQJBANDexJydSnPxVWveNEjk1VQh8fudW+rNANHnbIq3P1yzYr3ZOTVhJ+cYzDnKCBprqJGFyx9ajxSIHVOT9aIaAKU=';
-        final String enterpriseId = '12093';
-
         JWT jwt = new JWT('RS256');
-        jwt.pkcs8 = pkcs8;
+        jwt.pkcs8 = HLSessionController.PRIVATE_KEY;
         jwt.iss = 'Ghazal';
-        jwt.sub = 'Partner:' + enterpriseId;
+        jwt.sub = 'Partner:' + HLSessionController.ENTERPRISE_ID;
         jwt.aud = 'Ghazal';
 
         String token = jwt.issue();

@@ -62,9 +62,10 @@
 
         var r = component.get("v.record");
         var email = r.ContactEmail;
+        var name = r.Contact.Name;
 
         var action = component.get("c.inviteToPersonalRoom");
-        action.setParams({"otherUsersEmail": email});
+        action.setParams({"otherUsersName": name, "otherUsersEmail": email});
         action.setCallback(this, function(response) {
             var state = response.getState();
             if (component.isValid() && state == "SUCCESS") {

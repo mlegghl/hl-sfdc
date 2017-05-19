@@ -136,14 +136,46 @@ public with sharing class HLSessionController {
      * Invite a user to a personal room.
      *  This will send out an email to them.
      */
-    public static Boolean inviteToPersonalRoom(String otherUsersEmail) {
-        System.debug('inviteToPersonalRoom: ' + otherUsersEmail);
+    public static Boolean inviteToPersonalRoom(String otherUsersName, String otherUsersEmail) {
+        System.debug('inviteToPersonalRoom: ' + otherUsersName + ' ' + otherUsersEmail);
 
-        //Map<String,String> params = new Map<String,String>();
-        // !mwd - TODO, waiting on API
+        String myUserEmail = Userinfo.getUserEmail();
+        System.debug('myUserId=' + myUserEmail);
 
+        // first get a list of users to find us, since
+        //  we have to make this request as a specific user
 
-        return false;
+        Object results = makeRequest('/enterprise/users', 'GET', new Map<String,String> {
+                'filter' => 'email=' + myUserEmail
+        });
+        if (results == null || ((Map<String,Object>)results).get('total_entries') != 1) {
+            System.debug('Error finding our user. Unexpected results are: ' + results);
+            return false;
+        }
+        Map<String,Object> resultsMap = (Map<String,Object>)results;
+        Object[] entries = (Object[])resultsMap.get('entries');
+        // We are the first Entry
+        Map<String,Object> entry = (Map<String,Object>)entries[0];
+        System.debug('entry=' + entry);
+        String userToken = (String)entry.get('token');
+        System.debug('token=' + userToken);
+        if (userToken == null) {
+            System.debug('Invalid user token');
+            return false;
+        }
+
+        // Now send out the invite.
+        results = makeRequestWithToken(userToken, '/personal_room/invite', 'POST', new Map<String, String> {
+                'name' => otherUsersName,
+                'email' => otherUsersEmail
+        });
+
+        if (results == null) {
+            System.debug('Failed to invite');
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -152,6 +184,9 @@ public with sharing class HLSessionController {
      */
     public static Object makeRequest(String route, String method, Map<String, String> params) {
         String token = makeToken();
+        return makeRequestWithToken(token, route, method, params);
+    }
+    public static Object makeRequestWithToken(String token, String route, String method, Map<String, String> params) {
         String url = HLSessionController.API_URL + route;
 
         HttpRequest req = new HttpRequest();

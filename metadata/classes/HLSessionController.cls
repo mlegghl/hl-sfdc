@@ -5,17 +5,6 @@
  * https://helplightning.com
  */
 public with sharing class HLSessionController {
-    private static final String API_KEY = '689bda5bfbd85f10941e2af10a6b353d';
-    private static final String PRIVATE_KEY = 'MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAL0EW5cFmnIXAX2FeDvHFM7/C+x10btM/+IfYKwZsWN5gdPCixZv0Zm9nxv/Ijarh6AgSNGW49TzH2owTY52qXPUuKq/QmnFovDpblPkeuKmWkybO4x6K/An4IxYHBh3hwM/YBT558PSTfBUOg3aK8wZVz4EIBqIRpIkUaF+pS+zAgMBAAECgYB3ZadNcJas9udUGNloOUtlriokBhCj1fHVLqjsTZaGFZzy3PLrC1tFWEiHcNR14Ehd18bnzf7A54qykyyKj15d3B8B8HIfV8BG0UvqRl6ySddBaS3vBH6HiqZMRM5DNsJ3E0mgtmS4z1wF29QWJ6VpLeZ95Ljf5Y6lko4YucTPAQJBAOyRg00Ww1svTiV0k2ATfzpdFffaoaFfbv1bMJOKkScEjAzBkyfiX/W5JPOFNSZCHga+yW3+1Xu7n2/L/XK3T/MCQQDMivL17HoXMcL8dF5XG28X+lLx/fY4+Sbi+Xk7vaTqo3OQKhoUYKTtiEIlanE2DIb1LLijfqeeBW5mYniselFBAkAfhgBmHFtp4jLaoN8mlVKF13Oe9H5HP61Ni4I8luFivqNe68iNLwg0eThoTt7XO0Y/BdtXkfamp0jGn/sk9zJrAkEAinR75e/+7PhoLo9u1LPjTW3K+7eXFhXBNt78K25B1fpyXWHCaYzJ12fmroEQxS9Ro2B0U2eGerbedjutx8K8gQJBANDexJydSnPxVWveNEjk1VQh8fudW+rNANHnbIq3P1yzYr3ZOTVhJ+cYzDnKCBprqJGFyx9ajxSIHVOT9aIaAKU=';
-
-    // dev-us
-    private static final String ENTERPRISE_ID = '12093';
-    private static final String API_URL = 'https://api-dev.helplightning.net:8080/api/v1';
-
-    // docker test
-    //private static final String ENTERPRISE_ID = '1055';
-    //private static final String API_URL = 'http://307da411.ngrok.io/api/v1';
-
     /**
      * Look up all the calls associated with
      *  a case in Salesforce
@@ -61,8 +50,10 @@ public with sharing class HLSessionController {
         Map<HLCall__c, Object> callMap = new Map<HLCall__c, Object>();
         for (HLCall__c call : calls) {
             System.debug('getting Info about call ' + call);
-            Object results = makeRequest('/enterprise/sessions/' + call.Session_Id__c,
-                                         'GET', new Map<String,String>());
+            HLRequest request = new HLRequest(HLToken.build(),
+                                              '/enterprise/sessions/' + call.Session_Id__c);
+
+            Object results = request.get();
 
             // try to find a match based on a fuzzy start time
             System.debug('result of /sessions/calls/ ' + results);
@@ -84,7 +75,6 @@ public with sharing class HLSessionController {
                     update call;
                 }
             }
-
         }
 
         // return a fresh list of all calls
@@ -102,7 +92,8 @@ public with sharing class HLSessionController {
         Map<String,String> params = new Map<String,String>();
         params.put('search_term', email);
 
-        Object[] results = (Object[])makeRequest('/search', 'POST', params);
+        HLRequest request = new HLRequest(HLToken.build(), '/search');
+        Object results = request.post(params);
 
         // Unfortunately, the results don't include the email field
         //  (for privacy reasons), so we can't 100% verify this is
@@ -110,13 +101,17 @@ public with sharing class HLSessionController {
         //  fields outside of our control). Therefore, we'll just assume
         //  that if our results list > 0, then this email is probably
         //  a user.
-        if (results.size() > 0) {
+        if (results != null && ((Object[])results).size() > 0) {
             return true;
         }
 
         return false;
     }
 
+    /**
+     * Create an HL session between us
+     *  and another user
+     */
     @AuraEnabled
     public static String makeSessionWith(String otherUsersEmail) {
         System.debug('makeSessionWith');
@@ -128,7 +123,8 @@ public with sharing class HLSessionController {
         bodyParams.put('dialer_email', myUserEmail);
         bodyParams.put('receiver_email', otherUsersEmail);
 
-        Object results = makeRequest('/enterprise/calls', 'POST', bodyParams);
+        HLRequest request = new HLRequest(HLToken.build(), '/enterprise/calls');
+        Object results = request.post(bodyParams);
         if (results != null) {
             Map<String, Object> resultsMap = (Map<String,Object>)results;
             System.debug('results=' + resultsMap);
@@ -151,8 +147,8 @@ public with sharing class HLSessionController {
 
         // first get a list of users to find us, since
         //  we have to make this request as a specific user
-
-        Object results = makeRequest('/enterprise/users', 'GET', new Map<String,String> {
+        HLRequest request = new HLRequest(HLToken.build(), '/enterprise/users');
+        Object results = request.get(new Map<String,String> {
                 'filter' => 'email=' + myUserEmail
         });
         if (results == null || ((Map<String,Object>)results).get('total_entries') != 1) {
@@ -171,8 +167,11 @@ public with sharing class HLSessionController {
             return false;
         }
 
-        // Now send out the invite.
-        results = makeRequestWithToken(userToken, '/personal_room/invite', 'POST', new Map<String, String> {
+        // Now send out the invite. We use the user
+        //  token we retrieved so that this acts
+        //  on behalf of that user.
+        request = new HLRequest(userToken, '/personal_room/invite');
+        results = request.post(new Map<String, String> {
                 'name' => otherUsersName,
                 'email' => otherUsersEmail
         });
@@ -185,58 +184,6 @@ public with sharing class HLSessionController {
         return true;
     }
 
-    /**
-     * Create a new HTTP Request
-     *  based on a route, type and params
-     */
-    public static Object makeRequest(String route, String method, Map<String, String> params) {
-        String token = makeToken();
-        return makeRequestWithToken(token, route, method, params);
-    }
-    public static Object makeRequestWithToken(String token, String route, String method, Map<String, String> params) {
-        String url = HLSessionController.API_URL + route;
-
-        HttpRequest req = new HttpRequest();
-        req.setMethod(method);
-        req.setHeader('content-type', 'application/json');
-        req.setHeader('Authorization', token);
-        req.setHeader('x-helplightning-api-key', HLSessionController.API_KEY);
-        req.setEndPoint(url);
-
-        System.debug('token=' + token);
-
-        if (method.equals('POST')) {
-            String body = JSON.serialize(params);
-            req.setBody(body);
-        }
-
-        Http http = new Http();
-        HttpResponse response = http.send(req);
-        if (response.getStatusCode() == 200) {
-            Object results = JSON.deserializeUntyped(response.getBody());
-            System.debug('results=' + results);
-            return results;
-        } else {
-            System.debug('error with request');
-            return null;
-        }
-    }
-
-    /**
-     * Generate our
-     *  signed enterprise JWT token
-     */
-    public static String makeToken() {
-        JWT jwt = new JWT('RS256');
-        jwt.pkcs8 = HLSessionController.PRIVATE_KEY;
-        jwt.iss = 'Ghazal';
-        jwt.sub = 'Partner:' + HLSessionController.ENTERPRISE_ID;
-        jwt.aud = 'Ghazal';
-
-        String token = jwt.issue();
-
-        return token;
-    }
 
     /**
      * Look through all the hlCalls

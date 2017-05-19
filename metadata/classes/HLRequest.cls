@@ -9,9 +9,9 @@ public class HLRequest {
     private static final String API_KEY = '689bda5bfbd85f10941e2af10a6b353d';
 
     // dev-us
-    //private static final String API_URL = 'https://api-dev.helplightning.net:8080/api/v1';
+    private static final String API_URL = 'https://api-dev.helplightning.net:8080/api/v1';
     // docker
-    private static final String API_URL = 'http://307da411.ngrok.io/api/v1';
+    //private static final String API_URL = 'http://307da411.ngrok.io/api/v1';
 
     private String token;
     private String route;

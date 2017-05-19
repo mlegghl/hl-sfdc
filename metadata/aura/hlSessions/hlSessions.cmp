@@ -1,9 +1,9 @@
 <aura:component controller="HLSessionController" implements="flexipage:availableForRecordHome,force:hasRecordId" access="global">
 
-    <aura:attribute name="authInfo" type="Object"/>
     <aura:attribute name="record" type="Object"/>
     <aura:attribute name="recordError" type="String"/>
     <aura:attribute name="calls" type="HLCall__c[]"/>
+    <aura:attribute name="contactIsHLUser" type="Boolean"/>
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
 
@@ -19,9 +19,19 @@
     	<div class="slds-grid">
             <div class="slds-col">
             	<p class="slds-text-heading--label">Help Lightning</p>
-                <ui:button label="{!'Call ' + v.record.Contact.Name}"
-                           class="slds-button slds-button--brand"
-                           press="{!c.clickCall}" />
+                <div>
+                    <ui:button label="{!'Call ' + v.record.Contact.Name}"
+                               class="slds-button slds-button--brand"
+                               press="{!c.clickCall}"
+                               disabled="{!v.contactIsHLUser == false}"
+                               />
+                </div>
+                <div>
+                    <ui:button label="{!'Invite ' + v.record.Contact.Name + ' to Personal Room'}"
+                               class="slds-button slds-button--brand"
+                               press="{!c.clickInviteToPersonalRoom}"
+                               />
+                </div>
             </div>
             <div class="slds-col" aura:id="hl-call-details--div">
                 <p class="slds-text-heading--label">Call History</p>

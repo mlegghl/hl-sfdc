@@ -1,6 +1,6 @@
 ({
     doInit : function(component, event, helper) {
-	    console.log("doInit, revision 24");
+	    console.log("doInit, revision 27");
     },
 
     recordUpdatedEvt : function(component, event, helper) {

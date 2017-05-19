@@ -136,6 +136,7 @@ public with sharing class HLSessionController {
      * Invite a user to a personal room.
      *  This will send out an email to them.
      */
+    @AuraEnabled
     public static Boolean inviteToPersonalRoom(String otherUsersName, String otherUsersEmail) {
         System.debug('inviteToPersonalRoom: ' + otherUsersName + ' ' + otherUsersEmail);
 

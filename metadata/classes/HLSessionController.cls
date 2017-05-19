@@ -46,6 +46,8 @@ public with sharing class HLSessionController {
          *  in the middle of doing updates.
          * Therefore we will make all our callouts
          *  then check for updates in batch
+         * !mwd - we also need to put a hard limit
+         *  on how many calls we check.
          */
         Map<HLCall__c, Object> callMap = new Map<HLCall__c, Object>();
         for (HLCall__c call : calls) {
@@ -120,15 +122,17 @@ public with sharing class HLSessionController {
         String myUserEmail = Userinfo.getUserEmail();
         System.debug('myUserId=' + myUserEmail);
 
-        Map<String, String> bodyParams = new Map<String, String>();
-        bodyParams.put('dialer_email', myUserEmail);
-        bodyParams.put('receiver_email', otherUsersEmail);
+        Map<String, String> bodyParams = new Map<String, String> {
+                'dialer_email' => myUserEmail,
+                'receiver_email' => otherUsersEmail
+        };
 
         HLRequest request = new HLRequest(HLToken.build(), '/enterprise/calls');
         Object results = request.post(bodyParams);
         if (results != null) {
             Map<String, Object> resultsMap = (Map<String,Object>)results;
             System.debug('results=' + resultsMap);
+
             return (String)resultsMap.get('id');
         } else {
             return null;

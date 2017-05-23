@@ -1,38 +1,41 @@
+/**
+ * HLSessionController.cls
+ *
+ * Copyright (c) 2017 HelpLightning Inc.
+ * https://helplightning.com
+ */
 public with sharing class HLSessionController {
-    private static final String API_KEY = '689bda5bfbd85f10941e2af10a6b353d';
-    private static final String PRIVATE_KEY = 'MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAL0EW5cFmnIXAX2FeDvHFM7/C+x10btM/+IfYKwZsWN5gdPCixZv0Zm9nxv/Ijarh6AgSNGW49TzH2owTY52qXPUuKq/QmnFovDpblPkeuKmWkybO4x6K/An4IxYHBh3hwM/YBT558PSTfBUOg3aK8wZVz4EIBqIRpIkUaF+pS+zAgMBAAECgYB3ZadNcJas9udUGNloOUtlriokBhCj1fHVLqjsTZaGFZzy3PLrC1tFWEiHcNR14Ehd18bnzf7A54qykyyKj15d3B8B8HIfV8BG0UvqRl6ySddBaS3vBH6HiqZMRM5DNsJ3E0mgtmS4z1wF29QWJ6VpLeZ95Ljf5Y6lko4YucTPAQJBAOyRg00Ww1svTiV0k2ATfzpdFffaoaFfbv1bMJOKkScEjAzBkyfiX/W5JPOFNSZCHga+yW3+1Xu7n2/L/XK3T/MCQQDMivL17HoXMcL8dF5XG28X+lLx/fY4+Sbi+Xk7vaTqo3OQKhoUYKTtiEIlanE2DIb1LLijfqeeBW5mYniselFBAkAfhgBmHFtp4jLaoN8mlVKF13Oe9H5HP61Ni4I8luFivqNe68iNLwg0eThoTt7XO0Y/BdtXkfamp0jGn/sk9zJrAkEAinR75e/+7PhoLo9u1LPjTW3K+7eXFhXBNt78K25B1fpyXWHCaYzJ12fmroEQxS9Ro2B0U2eGerbedjutx8K8gQJBANDexJydSnPxVWveNEjk1VQh8fudW+rNANHnbIq3P1yzYr3ZOTVhJ+cYzDnKCBprqJGFyx9ajxSIHVOT9aIaAKU=';
-
-    // dev-us
-    private static final String ENTERPRISE_ID = '12093';
-    private static final String API_URL = 'https://api-dev.helplightning.net:8080/api/v1';
-
-    // docker test
-    //private static final String ENTERPRISE_ID = '1055';
-    //private static final String API_URL = 'http://307da411.ngrok.io/api/v1';
-
     /**
      * Look up all the calls associated with
      *  a case in Salesforce
      */
     @AuraEnabled
     public static List<HLCall__c> getCalls(Id caseId) {
-        return [ SELECT Id, Session_Id__c, HLCall_Id__c,
-                 Complete__c, Successful__c,
-                 Start_Time__c, Duration__c from HLCall__c
-                 WHERE Case__c = :caseId
-                 ORDER BY Start_Time__c DESC
-                 ];
+        if (caseId != null) {
+            return [ SELECT Id, Session_Id__c, HLCall_Id__c,
+                     Complete__c, Successful__c,
+                     Start_Time__c, Duration__c from HLCall__c
+                     WHERE Case__c = :caseId
+                     ORDER BY Start_Time__c DESC
+                     ];
+        } else {
+            return new List<HLCall__c>();
+        }
     }
 
     @AuraEnabled
     public static HLCall__c saveCall(HLCall__c call) {
-        upsert call;
+        if (call != null) {
+            upsert call;
 
-        return [ SELECT Id, Session_Id__c, HLCall_Id__c,
-                 Complete__c, Successful__c,
-                 Start_Time__c, Duration__c from HLCall__c
-                 WHERE  Id = :call.id
-                 ];
+            return [ SELECT Id, Session_Id__c, HLCall_Id__c,
+                     Complete__c, Successful__c,
+                     Start_Time__c, Duration__c from HLCall__c
+                     WHERE  Id = :call.id
+                     ];
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -41,9 +44,13 @@ public with sharing class HLSessionController {
      */
     @AuraEnabled
     public static List<HLCall__c> updateCalls(Id caseId) {
+        if (caseId == null) {
+            return new List<HLCall__c>();
+        }
+
         HLCall__c[] calls = [SELECT Id, Session_Id__c, HLCall_Id__c, Contact_Email__c,
                              Start_Time__c from HLCall__c WHERE Case__c = :caseId
-                             AND Complete__c = false];
+                             AND Complete__c = false LIMIT 25];
 
 
         /**
@@ -51,12 +58,16 @@ public with sharing class HLSessionController {
          *  in the middle of doing updates.
          * Therefore we will make all our callouts
          *  then check for updates in batch
+         * !mwd - we also need to put a hard limit
+         *  on how many calls we check.
          */
         Map<HLCall__c, Object> callMap = new Map<HLCall__c, Object>();
         for (HLCall__c call : calls) {
             System.debug('getting Info about call ' + call);
-            Object results = makeRequest('/enterprise/sessions/' + call.Session_Id__c,
-                                         'GET', new Map<String,String>());
+            HLRequest request = new HLRequest(HLToken.build(),
+                                              '/enterprise/sessions/' + call.Session_Id__c);
+
+            Object results = request.get();
 
             // try to find a match based on a fuzzy start time
             System.debug('result of /sessions/calls/ ' + results);
@@ -72,13 +83,13 @@ public with sharing class HLSessionController {
 
             if (results != null) {
                 // results is a list of calls, try to make matches
-                if (findCallMatchAndUpdate(call, (Object[])results)) {
+                HLCall__c matchedCall = HLCallUtil.findCallMatch(call, (Object[])results);
+                if (matchedCall != null) {
                     // a match was found, we need to update the
                     //  database with the changes.
-                    update call;
+                    update matchedCall;
                 }
             }
-
         }
 
         // return a fresh list of all calls
@@ -96,7 +107,8 @@ public with sharing class HLSessionController {
         Map<String,String> params = new Map<String,String>();
         params.put('search_term', email);
 
-        Object[] results = (Object[])makeRequest('/search', 'POST', params);
+        HLRequest request = new HLRequest(HLToken.build(), '/search');
+        Object results = request.post(params);
 
         // Unfortunately, the results don't include the email field
         //  (for privacy reasons), so we can't 100% verify this is
@@ -104,13 +116,17 @@ public with sharing class HLSessionController {
         //  fields outside of our control). Therefore, we'll just assume
         //  that if our results list > 0, then this email is probably
         //  a user.
-        if (results.size() > 0) {
+        if (results != null && ((Object[])results).size() > 0) {
             return true;
         }
 
         return false;
     }
 
+    /**
+     * Create an HL session between us
+     *  and another user
+     */
     @AuraEnabled
     public static String makeSessionWith(String otherUsersEmail) {
         System.debug('makeSessionWith');
@@ -118,14 +134,17 @@ public with sharing class HLSessionController {
         String myUserEmail = Userinfo.getUserEmail();
         System.debug('myUserId=' + myUserEmail);
 
-        Map<String, String> bodyParams = new Map<String, String>();
-        bodyParams.put('dialer_email', myUserEmail);
-        bodyParams.put('receiver_email', otherUsersEmail);
+        Map<String, String> bodyParams = new Map<String, String> {
+                'dialer_email' => myUserEmail,
+                'receiver_email' => otherUsersEmail
+        };
 
-        Object results = makeRequest('/enterprise/calls', 'POST', bodyParams);
+        HLRequest request = new HLRequest(HLToken.build(), '/enterprise/calls');
+        Object results = request.post(bodyParams);
         if (results != null) {
             Map<String, Object> resultsMap = (Map<String,Object>)results;
             System.debug('results=' + resultsMap);
+
             return (String)resultsMap.get('id');
         } else {
             return null;
@@ -145,8 +164,8 @@ public with sharing class HLSessionController {
 
         // first get a list of users to find us, since
         //  we have to make this request as a specific user
-
-        Object results = makeRequest('/enterprise/users', 'GET', new Map<String,String> {
+        HLRequest request = new HLRequest(HLToken.build(), '/enterprise/users');
+        Object results = request.get(new Map<String,String> {
                 'filter' => 'email=' + myUserEmail
         });
         if (results == null || ((Map<String,Object>)results).get('total_entries') != 1) {
@@ -165,8 +184,11 @@ public with sharing class HLSessionController {
             return false;
         }
 
-        // Now send out the invite.
-        results = makeRequestWithToken(userToken, '/personal_room/invite', 'POST', new Map<String, String> {
+        // Now send out the invite. We use the user
+        //  token we retrieved so that this acts
+        //  on behalf of that user.
+        request = new HLRequest(userToken, '/personal_room/invite');
+        results = request.post(new Map<String, String> {
                 'name' => otherUsersName,
                 'email' => otherUsersEmail
         });
@@ -177,210 +199,5 @@ public with sharing class HLSessionController {
         }
 
         return true;
-    }
-
-    /**
-     * Create a new HTTP Request
-     *  based on a route, type and params
-     */
-    public static Object makeRequest(String route, String method, Map<String, String> params) {
-        String token = makeToken();
-        return makeRequestWithToken(token, route, method, params);
-    }
-    public static Object makeRequestWithToken(String token, String route, String method, Map<String, String> params) {
-        String url = HLSessionController.API_URL + route;
-
-        HttpRequest req = new HttpRequest();
-        req.setMethod(method);
-        req.setHeader('content-type', 'application/json');
-        req.setHeader('Authorization', token);
-        req.setHeader('x-helplightning-api-key', HLSessionController.API_KEY);
-        req.setEndPoint(url);
-
-        System.debug('token=' + token);
-
-        if (method.equals('POST')) {
-            String body = JSON.serialize(params);
-            req.setBody(body);
-        }
-
-        Http http = new Http();
-        HttpResponse response = http.send(req);
-        if (response.getStatusCode() == 200) {
-            Object results = JSON.deserializeUntyped(response.getBody());
-            System.debug('results=' + results);
-            return results;
-        } else {
-            System.debug('error with request');
-            return null;
-        }
-    }
-
-    /**
-     * Generate our
-     *  signed enterprise JWT token
-     */
-    public static String makeToken() {
-        JWT jwt = new JWT('RS256');
-        jwt.pkcs8 = HLSessionController.PRIVATE_KEY;
-        jwt.iss = 'Ghazal';
-        jwt.sub = 'Partner:' + HLSessionController.ENTERPRISE_ID;
-        jwt.aud = 'Ghazal';
-
-        String token = jwt.issue();
-
-        return token;
-    }
-
-    /**
-     * Look through all the hlCalls
-     *  and see if we have a match,
-     *  if so, update the relevant
-     *  information in the call object.
-     *
-     * @return true if this found a match
-     *  and updated the parameters.
-     * THIS DOES NOT DO A DATABASE UPDATE!
-     */
-    public static Boolean findCallMatchAndUpdate(HLCall__c call, Object[] hlCalls) {
-        System.debug('findCallMatchAndUpdate');
-
-        // If we don't have an HLCall_Id, then we need to
-        //  search through the list and try to find a call
-        //  that was started at close to the same time
-        //  as our call record. This is a little fuzzy
-        //  and it just uses the closest match, not necessarily
-        //  the best call.
-        if (call.HLCall_id__c == null || call.HLCall_Id__c.equals('')) {
-            // we haven't found a matching help lightning call
-            //  see if any of these are close based on time
-            Map<String,Object> closestObject = findClosestCall(call, hlCalls, 90000);
-            System.debug('closestObject=' + closestObject);
-
-            // if our closest match is within 90 seconds, we'll consider this good
-            if (closestObject == null) {
-                // no match, if it has been more than 3 minutes
-                //  consider this a failure
-                DateTime now = DateTime.now();
-                if (now.getTime() - call.Start_Time__c.getTime() > 180000) {
-                    System.debug('couldn\'t find a match after 3 minutes, assuming a failure');
-                    call.Complete__c = true;
-                    call.Successful__c = false;
-                    call.Duration__c = 0;
-                    call.End_Time__c = call.Start_Time__c;
-                    return true;
-                } else {
-                    // no match, but hasn't been long enough yet
-                    return false;
-                }
-            } else {
-                System.debug('found a match!');
-
-                // update everything we can
-                call.HLCall_id__c = (String)closestObject.get('call_id');
-
-                if ((Boolean)closestObject.get('complete')) {
-                    System.debug('setting call as complete');
-                    DateTime endTime = (DateTime)JSON.deserialize('"' + closestObject.get('end_time') + '"', DateTime.class);
-
-                    call.Complete__c = true;
-                    call.Successful__c = (Boolean)closestObject.get('successful');
-                    call.Duration__c = (Decimal)closestObject.get('duration');
-                    call.End_time__c = endTime;
-                } else {
-                    // The call is still pending.
-                    //  we have match the call_id, so
-                    //  future updates will be simpler.
-
-                    System.debug('call is still pending');
-                }
-                return true;
-            }
-        } else {
-            // we have a known call id, just find
-            //  the correct call then
-
-            for (Object c: hlCalls) {
-                Map<String,Object> cc = (Map<String,Object>)c;
-                String callId = (String)cc.get('call_id');
-
-                if (call.HLCall_Id__c.equals(callId)) {
-                    // do an update
-                    if ((Boolean)cc.get('complete')) {
-                        System.debug('setting call as complete');
-                        DateTime endTime = (DateTime)JSON.deserialize('"' + cc.get('end_time') + '"', DateTime.class);
-
-                        call.Complete__c = true;
-                        call.Successful__c = (Boolean)cc.get('successful');
-                        call.Duration__c = (Decimal)cc.get('duration');
-                        call.End_time__c = endTime;
-                    } else {
-                        System.debug('call is still pending');
-                    }
-
-                    // stop execution
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Find an object that is closest to the
-     *  start time without going over
-     *  withingSeconds.
-     * If no match is found, NULL is returned
-     */
-    public static Map<String, Object> findClosestCall(HLCall__c call, Object[] hlCalls,
-                                                      Integer withinSeconds) {
-        Map<String,Object> closestObject = null;
-        Long closestTime = -1;
-
-        for (Object c: hlCalls) {
-            Map<String,Object> cc = (Map<String,Object>)c;
-            System.debug('checking call ' + cc);
-
-            String dialer = (String)((Map<String,Object>)cc.get('dialer')).get('email');
-            String receiver = (String)((Map<String,Object>)cc.get('receiver')).get('email');
-
-            // first make sure the receiver of this call
-            //  matches the reciever of our desired call
-            if (Userinfo.getUserEmail().equals(dialer)) {
-                System.debug('we are the dialer');
-                if (!call.Contact_Email__c.equals(receiver)) {
-                    System.debug('found a call with a mismatching receiver: ' + receiver);
-                    continue;
-                }
-            } else if (Userinfo.getUserEmail().equals(receiver)) {
-                System.debug('we are the receiver');
-                if (!call.Contact_Email__c.equals(dialer)) {
-                    System.debug('found a call with a mismatching dialer: ' + dialer);
-                    continue;
-                }
-            } else {
-                System.debug('found a call where we aren\'t the dialer or receiver');
-                continue;
-            }
-
-            // We parse the time by deserialize the time as a json string :- \
-            DateTime d = (DateTime)JSON.deserialize('"' + cc.get('start_time') + '"', DateTime.class);
-            System.debug('start_time=' + d);
-
-            // find the difference in time
-            Long timeDifference = Math.abs(call.Start_Time__c.getTime() - d.getTime());
-            if (closestTime == -1 || timeDifference < closestTime) {
-                closestTime = timeDifference;
-                closestObject = cc;
-            }
-        }
-
-        if (closestTime > withinSeconds) {
-            // no match
-            return null;
-        } else {
-            return closestObject;
-        }
     }
 }

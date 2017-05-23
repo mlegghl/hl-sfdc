@@ -1,3 +1,6 @@
+2017-05-23  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-7 - Refactor HLSessionController
+
 2017-05-19  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
 	* SFDC-3 - Check if contact is HL User and allow sending a Personal Room Invite
 

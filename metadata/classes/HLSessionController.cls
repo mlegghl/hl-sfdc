@@ -11,23 +11,31 @@ public with sharing class HLSessionController {
      */
     @AuraEnabled
     public static List<HLCall__c> getCalls(Id caseId) {
-        return [ SELECT Id, Session_Id__c, HLCall_Id__c,
-                 Complete__c, Successful__c,
-                 Start_Time__c, Duration__c from HLCall__c
-                 WHERE Case__c = :caseId
-                 ORDER BY Start_Time__c DESC
-                 ];
+        if (caseId != null) {
+            return [ SELECT Id, Session_Id__c, HLCall_Id__c,
+                     Complete__c, Successful__c,
+                     Start_Time__c, Duration__c from HLCall__c
+                     WHERE Case__c = :caseId
+                     ORDER BY Start_Time__c DESC
+                     ];
+        } else {
+            return new List<HLCall__c>();
+        }
     }
 
     @AuraEnabled
     public static HLCall__c saveCall(HLCall__c call) {
-        upsert call;
+        if (call != null) {
+            upsert call;
 
-        return [ SELECT Id, Session_Id__c, HLCall_Id__c,
-                 Complete__c, Successful__c,
-                 Start_Time__c, Duration__c from HLCall__c
-                 WHERE  Id = :call.id
-                 ];
+            return [ SELECT Id, Session_Id__c, HLCall_Id__c,
+                     Complete__c, Successful__c,
+                     Start_Time__c, Duration__c from HLCall__c
+                     WHERE  Id = :call.id
+                     ];
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -36,9 +44,13 @@ public with sharing class HLSessionController {
      */
     @AuraEnabled
     public static List<HLCall__c> updateCalls(Id caseId) {
+        if (caseId == null) {
+            return new List<HLCall__c>();
+        }
+
         HLCall__c[] calls = [SELECT Id, Session_Id__c, HLCall_Id__c, Contact_Email__c,
                              Start_Time__c from HLCall__c WHERE Case__c = :caseId
-                             AND Complete__c = false];
+                             AND Complete__c = false LIMIT 25];
 
 
         /**

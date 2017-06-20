@@ -1,18 +1,11 @@
-<aura:component controller="HLSessionController" implements="flexipage:availableForRecordHome,force:hasRecordId" access="global">
+<aura:component controller="HLSessionController" implements="flexipage:availableForRecordHome,force:hasSObjectName,force:hasRecordId" access="global">
 
-    <aura:attribute name="record" type="Object"/>
-    <aura:attribute name="recordError" type="String"/>
+    <aura:attribute name="contact" type="Contact"/>
     <aura:attribute name="calls" type="HLCall__c[]"/>
     <aura:attribute name="contactIsHLUser" type="Boolean"/>
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
 
-    <force:recordPreview aura:id="recordLoader"
-                         recordId="{!v.recordId}"
-                         layoutType="FULL"
-                         targetRecord="{!v.record}"
-                         targetError="{!v.recordError}"
-                         recordUpdated="{!c.recordUpdatedEvt}" />
 
     <!-- PAGE HEADER -->
     <div class="slds-page-header" role="banner">
@@ -20,14 +13,14 @@
             <div class="slds-col">
             	<p class="slds-text-heading--label">Help Lightning</p>
                 <div>
-                    <ui:button label="{!'Call ' + v.record.Contact.Name}"
+                    <ui:button label="{!'Call ' + v.contact.Name}"
                                class="slds-button slds-button--brand"
                                press="{!c.clickCall}"
                                disabled="{!v.contactIsHLUser == false}"
                                />
                 </div>
                 <div>
-                    <ui:button label="{!'Invite ' + v.record.Contact.Name + ' to Personal Room'}"
+                    <ui:button label="{!'Invite ' + v.contact.Name + ' to Personal Room'}"
                                class="slds-button slds-button--brand"
                                press="{!c.clickInviteToPersonalRoom}"
                                />

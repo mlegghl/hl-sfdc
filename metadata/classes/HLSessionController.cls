@@ -6,6 +6,33 @@
  */
 public with sharing class HLSessionController {
     /**
+     * Return a specific record based on
+     *  a type and an id.
+     * This only works for:
+     *  - Case
+     *  - WorkOrder
+     */
+    @AuraEnabled
+    public static Object getContactForRecord(String sObjectName, Id recordId) {
+        if (recordId != null) {
+            if (sObjectName == 'Case') {
+                return [ SELECT Contact.Id, Contact.Email, Contact.Name from Case
+                         WHERE Id = :recordId
+                         ].Contact;
+            } else if (sObjectName == 'WorkOrder') {
+                return [ SELECT Contact.Id, Contact.Email, Contact.Name from WorkOrder
+                         WHERE Id = :recordId
+                         ].Contact;
+            } else {
+                System.debug('Invalid record type: ' + sObjectName);
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Look up all the calls associated with
      *  a case in Salesforce
      */

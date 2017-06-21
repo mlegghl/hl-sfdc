@@ -2,7 +2,7 @@
 
     <aura:attribute name="record" type="Object"/>
     <aura:attribute name="recordError" type="String"/>
-    <aura:attribute name="calls" type="HLCall__c[]"/>
+    <aura:attribute name="calls" type="helplightning__HLCall__c[]"/>
     <aura:attribute name="contactIsHLUser" type="Boolean"/>
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
@@ -38,17 +38,17 @@
                 <aura:iteration items="{!v.calls}" var="call">
                     <!-- make this green if a successful completion,
                          red if unsuccessful completion, and none if in progress -->
-                    <div class="{!call.Complete__c == true ?
-                                (call.Successful__c == true ?
+                    <div class="{!call.helplightning__Complete__c == true ?
+                                (call.helplightning__Successful__c == true ?
                                 'slds-theme--success' : 'slds-theme--warning') : ''}">
                         <section class="slds-card__body">
                             <div id="list" class="row">
-                                <p class="slds-truncate">Id: <ui:outputText title="{!call.HLCall_id__c}" value="{!call.Id}" /> </p>
-                                <p>Date: <ui:outputDateTime value="{!call.Start_Time__c}" /> </p>
-                                <aura:if isTrue="{!call.Complete__c}">
-                                    <aura:if isTrue="{!call.Successful__c}">
+                                <p class="slds-truncate">Id: <ui:outputText title="{!call.helplightning__HLCall_id__c}" value="{!call.Id}" /> </p>
+                                <p>Date: <ui:outputDateTime value="{!call.helplightning__Start_Time__c}" /> </p>
+                                <aura:if isTrue="{!call.helplightning__Complete__c}">
+                                    <aura:if isTrue="{!call.helplightning__Successful__c}">
                                         <p>Call Answered</p>
-                                        <p>Duration: <ui:outputNumber value="{!call.Duration__c + 's'}" /> </p>
+                                        <p>Duration: <ui:outputNumber value="{!call.helplightning__Duration__c + 's'}" /> </p>
                                         <aura:set attribute="else">
                                             <p>Call Not Answered</p>
                                         </aura:set>

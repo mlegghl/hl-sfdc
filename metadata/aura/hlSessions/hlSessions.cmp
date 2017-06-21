@@ -37,7 +37,7 @@
                                 <p class="slds-truncate">Id: <ui:outputText title="{!call.helplightning__HLCall_id__c}" value="{!call.Id}" /> </p>
                                 <p>Date: <ui:outputDateTime value="{!call.helplightning__Start_Time__c}" /> </p>
                                 <aura:if isTrue="{!call.helplightning__Complete__c}">
-                                    <aura:if isTrue="{!call.helpligbhtning__Successful__c}">
+                                    <aura:if isTrue="{!call.helplightning__Successful__c}">
                                         <p>Call Answered</p>
                                         <p>Duration: <ui:outputNumber value="{!call.helplightning__Duration__c + 's'}" /> </p>
                                         <aura:set attribute="else">

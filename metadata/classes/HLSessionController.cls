@@ -6,6 +6,21 @@
  */
 public with sharing class HLSessionController {
     /**
+     * Look up a Case based on an Id
+     */
+    @AuraEnabled
+    public static Case getCase(Id recordId) {
+        if (recordId != null) {
+            return [ SELECT Case.Id, Case.ContactId, Case.ContactEmail, Case.Contact.Name
+                     FROM Case
+                     WHERE Id = :recordId
+                     ];
+        }
+
+        return null;
+    }
+
+    /**
      * Look up all the calls associated with
      *  a case in Salesforce
      */

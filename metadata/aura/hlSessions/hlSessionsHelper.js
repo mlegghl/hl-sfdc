@@ -1,11 +1,11 @@
 ({
     createNewCall : function(component, caseObj, email, sessionId) {
         console.log("creating new session");
-        var newCall = {'sobjectType': 'HLCall__c',
-                       'Case__c': caseObj.Id,
-                       'Contact_Email__c': email,
-                       'Session_Id__c': sessionId,
-                       'Type__c': 'Direct'}
+        var newCall = {'sobjectType': 'helplightning__HLCall__c',
+                       'helplightning__Case__c': caseObj.Id,
+                       'helplightning__Contact_Email__c': email,
+                       'helplightning__Session_Id__c': sessionId,
+                       'helplightning__Type__c': 'Direct'}
 
         var action = component.get("c.saveCall");
         action.setParams({"call": newCall})

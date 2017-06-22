@@ -1,8 +1,6 @@
 ({
     doInit : function(component, event, helper) {
         console.log("doInit, revision 33r");
-        console.log("sObjectName: " + component.get("v.sObjectName"));
-        console.log("recordId: " + component.get("v.recordId"));
 
         var rId = component.get("v.recordId");
         var sObjectName = component.get("v.sObjectName");

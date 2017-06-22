@@ -1,6 +1,6 @@
 ({
     doInit : function(component, event, helper) {
-        console.log("doInit, revision 33n");
+        console.log("doInit, revision 33r");
         console.log("sObjectName: " + component.get("v.sObjectName"));
         console.log("recordId: " + component.get("v.recordId"));
 
@@ -41,7 +41,8 @@
 
                 // get all the known calls associated with this case
                 var action2 = component.get("c.updateCalls");
-                action2.setParams({"caseId": rId});
+                action2.setParams({"sObjectName": sObjectName,
+                                   "recordId": rId});
                 action2.setCallback(this, function(response) {
                     var state = response.getState();
                     if (component.isValid() && state == "SUCCESS") {
@@ -58,6 +59,8 @@
     clickCall : function(component, event, helper) {
         console.log("clickCall");
 
+        var sObjectName = component.get("v.sObjectName");
+        var rId = component.get("v.recordId");
         var contact = component.get("v.contact");
         var email = contact.Email;
         console.log("email " + email);
@@ -70,7 +73,7 @@
                 console.log("response is " + response.getReturnValue());
 
                 // create a new HLCall
-                helper.createNewCall(component, r, email, response.getReturnValue());
+                helper.createNewCall(component, sObjectName, rId, email, response.getReturnValue());
             } else {
                 console.log("response failed: " + state);
             }

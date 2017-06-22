@@ -6,6 +6,33 @@
  */
 public with sharing class HLSessionController {
     /**
+     * Return a specific record based on
+     *  a type and an id.
+     * This only works for:
+     *  - Case
+     *  - WorkOrder
+     */
+    @AuraEnabled
+    public static Object getContactForRecord(String sObjectName, Id recordId) {
+        if (recordId != null) {
+            if (sObjectName == 'Case') {
+                return [ SELECT Contact.Id, Contact.Email, Contact.Name from Case
+                         WHERE Id = :recordId
+                         ].Contact;
+            } else if (sObjectName == 'WorkOrder') {
+                return [ SELECT Contact.Id, Contact.Email, Contact.Name from WorkOrder
+                         WHERE Id = :recordId
+                         ].Contact;
+            } else {
+                System.debug('Invalid record type: ' + sObjectName);
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Look up a Case based on an Id
      */
     @AuraEnabled
@@ -22,24 +49,39 @@ public with sharing class HLSessionController {
 
     /**
      * Look up all the calls associated with
-     *  a case in Salesforce
+     *  a record in Salesforce
      */
     @AuraEnabled
-    public static List<helplightning__HLCall__c> getCalls(Id caseId) {
-        if (caseId != null) {
-            return [ SELECT Id, helplightning__Session_Id__c,
-                     helplightning__HLCall_Id__c,
-                     helplightning__Complete__c,
-                     helplightning__Successful__c,
-                     helplightning__Start_Time__c,
-                     helplightning__Duration__c
-                     FROM HLCall__c
-                     WHERE helplightning__Case__c = :caseId
-                     ORDER BY helplightning__Start_Time__c DESC
-                     ];
-        } else {
-            return new List<helplightning__HLCall__c>();
+    public static List<helplightning__HLCall__c> getCallsForRecord(String sObjectName, Id recordId) {
+        if (recordId != null) {
+            if (sObjectName == 'Case') {
+                return [ SELECT Id, helplightning__Session_Id__c,
+                         helplightning__HLCall_Id__c,
+                         helplightning__Complete__c,
+                         helplightning__Successful__c,
+                         helplightning__Start_Time__c,
+                         helplightning__Duration__c
+                         FROM HLCall__c
+                         WHERE helplightning__Case__c = :recordId
+                         ORDER BY helplightning__Start_Time__c DESC
+                         ];
+            } else if (sObjectName == 'WorkOrder') {
+                return [ SELECT Id, helplightning__Session_Id__c,
+                         helplightning__HLCall_Id__c,
+                         helplightning__Complete__c,
+                         helplightning__Successful__c,
+                         helplightning__Start_Time__c,
+                         helplightning__Duration__c
+                         FROM HLCall__c
+                         WHERE helplightning__Work_Order__c = :recordId
+                         ORDER BY helplightning__Start_Time__c DESC
+                         ];
+            } else {
+                System.debug('Invalid record type: ' + sObjectName);
+            }
         }
+
+        return new List<helplightning__HLCall__c>();
     }
 
     @AuraEnabled
@@ -55,7 +97,7 @@ public with sharing class HLSessionController {
                      helplightning__Start_Time__c,
                      helplightning__Duration__c
                      FROM helplightning__HLCall__c
-                     WHERE  Id = :call.id
+                     WHERE Id = :call.id
                      ];
         } else {
             return null;
@@ -64,23 +106,42 @@ public with sharing class HLSessionController {
 
     /**
      * update all the incomplete calls
-     * related to a specific case
+     * related to a specific record.
      */
     @AuraEnabled
-    public static List<helplightning__HLCall__c> updateCalls(Id caseId) {
-        if (caseId == null) {
+    public static List<helplightning__HLCall__c> updateCalls(String sObjectName, Id recordId) {
+        if (recordId == null) {
             return new List<helplightning__HLCall__c>();
         }
 
-        helplightning__HLCall__c[] calls = [SELECT Id,
-                                            helplightning__Session_Id__c,
-                                            helplightning__HLCall_Id__c,
-                                            helplightning__Contact_Email__c,
-                                            helplightning__Start_Time__c
-                                            FROM helplightning__HLCall__c
-                                            WHERE helplightning__Case__c = :caseId
-                                            AND helplightning__Complete__c = false
-                                            LIMIT 25];
+        if (sObjectName != 'Case' && sObjectName != 'WorkOrder') {
+            System.debug('Invalid record type: ' + sObjectName);
+            return new List<helplightning__HLCall__c>();
+        }
+
+        helplightning__HLCall__c[] calls;
+
+        if (sObjectName == 'Case') {
+            calls = [SELECT Id,
+                     helplightning__Session_Id__c,
+                     helplightning__HLCall_Id__c,
+                     helplightning__Contact_Email__c,
+                     helplightning__Start_Time__c
+                     FROM helplightning__HLCall__c
+                     WHERE helplightning__Case__c = :recordId
+                     AND helplightning__Complete__c = false
+                     LIMIT 25];
+        } else if (sObjectName == 'WorkOrder') {
+            calls = [SELECT Id,
+                     helplightning__Session_Id__c,
+                     helplightning__HLCall_Id__c,
+                     helplightning__Contact_Email__c,
+                     helplightning__Start_Time__c
+                     FROM helplightning__HLCall__c
+                     WHERE helplightning__Work_Order__c = :recordId
+                     AND helplightning__Complete__c = false
+                     LIMIT 25];
+        }
 
 
         /**
@@ -123,7 +184,7 @@ public with sharing class HLSessionController {
         }
 
         // return a fresh list of all calls
-        return getCalls(caseId);
+        return getCallsForRecord(sObjectName, recordId);
     }
 
     /**

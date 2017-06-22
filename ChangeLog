@@ -1,3 +1,6 @@
+2017-06-22  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-8 - Add support for Work Orders
+
 2017-06-21  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
 	* SFDC-10 - Stop using recordPreview
 	* SFDC-11 - Change HLCalls to helplightning__HLCalls

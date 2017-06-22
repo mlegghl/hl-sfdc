@@ -1,20 +1,30 @@
 ({
     doInit : function(component, event, helper) {
-        console.log("doInit, revision 32o");
+        console.log("doInit, revision 33r");
 
         var rId = component.get("v.recordId");
+        var sObjectName = component.get("v.sObjectName");
 
-        var recordAction = component.get("c.getCase");
-        recordAction.setParams({"recordId": rId});
+        // make sure this component type is supported.
+        var supportedComponent = (sObjectName === "Case" || sObjectName === "WorkOrder");
+        component.set("v.supportedComponent", supportedComponent);
+
+        if (!supportedComponent) {
+            console.log("unsupported component");
+            return;
+        }
+
+        // get our record
+        var recordAction = component.get("c.getContactForRecord");
+        recordAction.setParams({"sObjectName": sObjectName,
+                                "recordId": rId});
         recordAction.setCallback(this, function(response) {
             var state = response.getState();
             if (component.isValid() && state == "SUCCESS") {
-                var r = response.getReturnValue();
-                // update our record
-                component.set("v.record", r);
+                var contact = response.getReturnValue();
+                component.set("v.contact", contact);
 
-                //
-                var email = r.ContactEmail;
+                var email = contact.Email;
 
                 // check if our contact is a Help Lightning User
                 var action1 = component.get("c.isHLUser");
@@ -29,7 +39,8 @@
 
                 // get all the known calls associated with this case
                 var action2 = component.get("c.updateCalls");
-                action2.setParams({"caseId": r.Id});
+                action2.setParams({"sObjectName": sObjectName,
+                                   "recordId": rId});
                 action2.setCallback(this, function(response) {
                     var state = response.getState();
                     if (component.isValid() && state == "SUCCESS") {
@@ -46,8 +57,10 @@
     clickCall : function(component, event, helper) {
         console.log("clickCall");
 
-        var r = component.get("v.record");
-        var email = r.ContactEmail;
+        var sObjectName = component.get("v.sObjectName");
+        var rId = component.get("v.recordId");
+        var contact = component.get("v.contact");
+        var email = contact.Email;
         console.log("email " + email);
 
         var action = component.get("c.makeSessionWith");
@@ -58,7 +71,7 @@
                 console.log("response is " + response.getReturnValue());
 
                 // create a new HLCall
-                helper.createNewCall(component, r, email, response.getReturnValue());
+                helper.createNewCall(component, sObjectName, rId, email, response.getReturnValue());
             } else {
                 console.log("response failed: " + state);
             }
@@ -70,9 +83,9 @@
     clickInviteToPersonalRoom : function(component, event, helper) {
         console.log("clickInviteToPersonalRoom");
 
-        var r = component.get("v.record");
-        var email = r.ContactEmail;
-        var name = r.Contact.Name;
+        var contact = component.get("v.contact");
+        var email = contact.Email;
+        var name = contact.Name;
 
         var action = component.get("c.inviteToPersonalRoom");
         action.setParams({"otherUsersName": name, "otherUsersEmail": email});

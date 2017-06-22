@@ -1,59 +1,68 @@
-<aura:component controller="HLSessionController" implements="flexipage:availableForRecordHome,force:hasRecordId" access="global">
+<aura:component controller="HLSessionController" implements="flexipage:availableForRecordHome,force:hasSObjectName,force:hasRecordId" access="global">
 
-    <aura:attribute name="record" type="Case"/>
+    <aura:attribute name="supportedComponent" type="Boolean" default="false" />
+    <aura:attribute name="contact" type="Contact"/>
     <aura:attribute name="calls" type="helplightning__HLCall__c[]"/>
     <aura:attribute name="contactIsHLUser" type="Boolean"/>
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
 
+    <!-- PAGE HEADER -->
     <div class="slds-page-header" role="banner">
-    	<div class="slds-grid">
-            <div class="slds-col">
-            	<p class="slds-text-heading--label">Help Lightning</p>
-                <div>
-                    <ui:button label="{!'Call ' + v.record.Contact.Name}"
-                               class="slds-button slds-button--brand"
-                               press="{!c.clickCall}"
-                               disabled="{!v.contactIsHLUser == false}"
-                               />
-                </div>
-                <div>
-                    <ui:button label="{!'Invite ' + v.record.Contact.Name + ' to Personal Room'}"
-                               class="slds-button slds-button--brand"
-                               press="{!c.clickInviteToPersonalRoom}"
-                               />
-                </div>
+        <aura:if isTrue="{!(!v.supportedComponent)}">
+            <div>
+                <h1>Unsupported Component!</h1>
             </div>
-            <div class="slds-col" aura:id="hl-call-details--div">
-                <p class="slds-text-heading--label">Call History</p>
-                <aura:iteration items="{!v.calls}" var="call">
-                    <!-- make this green if a successful completion,
-                         red if unsuccessful completion, and none if in progress -->
-                    <div class="{!call.helplightning__Complete__c == true ?
-                                (call.helplightning__Successful__c == true ?
-                                'slds-theme--success' : 'slds-theme--warning') : ''}">
-                        <section class="slds-card__body">
-                            <div id="list" class="row">
-                                <p class="slds-truncate">Id: <ui:outputText title="{!call.helplightning__HLCall_id__c}" value="{!call.Id}" /> </p>
-                                <p>Date: <ui:outputDateTime value="{!call.helplightning__Start_Time__c}" /> </p>
-                                <aura:if isTrue="{!call.helplightning__Complete__c}">
-                                    <aura:if isTrue="{!call.helplightning__Successful__c}">
-                                        <p>Call Answered</p>
-                                        <p>Duration: <ui:outputNumber value="{!call.helplightning__Duration__c + 's'}" /> </p>
-                                        <aura:set attribute="else">
-                                            <p>Call Not Answered</p>
-                                        </aura:set>
-                                    </aura:if>
-                                    <aura:set attribute="else">
-                                        <p>In Call...</p>
-                                    </aura:set>
-                                </aura:if>
-                            </div>
-                        </section>
+            <aura:set attribute="else">
+    	        <div class="slds-grid">
+                    <div class="slds-col">
+            	        <p class="slds-text-heading--label">Help Lightning</p>
+                        <div>
+                            <ui:button label="{!'Call ' + v.contact.Name}"
+                                       class="slds-button slds-button--brand"
+                                       press="{!c.clickCall}"
+                                       disabled="{!v.contactIsHLUser == false}"
+                                       />
+                        </div>
+                        <div>
+                            <ui:button label="{!'Invite ' + v.contact.Name + ' to Personal Room'}"
+                                       class="slds-button slds-button--brand"
+                                       press="{!c.clickInviteToPersonalRoom}"
+                                       />
+                        </div>
                     </div>
-                </aura:iteration>
-            </div>
-        </div>
+                    <div class="slds-col" aura:id="hl-call-details--div">
+                        <p class="slds-text-heading--label">Call History</p>
+                        <aura:iteration items="{!v.calls}" var="call">
+                            <!-- make this green if a successful completion,
+                                 red if unsuccessful completion, and none if in progress -->
+                            <div class="{!call.helplightning__Complete__c == true ?
+                                        (call.helplightning__Successful__c == true ?
+                                        'slds-theme--success' : 'slds-theme--warning') : ''}">
+                                <section class="slds-card__body">
+                                    <div id="list" class="row">
+                                        <p class="slds-truncate">Id: <ui:outputText title="{!call.helplightning__HLCall_id__c}" value="{!call.Id}" /> </p>
+                                        <p>Date: <ui:outputDateTime value="{!call.helplightning__Start_Time__c}" /> </p>
+                                        <aura:if isTrue="{!call.helplightning__Complete__c}">
+                                            <aura:if isTrue="{!call.helplightning__Successful__c}">
+                                                <p>Call Answered</p>
+                                                <p>Duration: <ui:outputNumber value="{!call.helplightning__Duration__c + 's'}" /> </p>
+                                                <aura:set attribute="else">
+                                                    <p>Call Not Answered</p>
+                                                </aura:set>
+                                            </aura:if>
+                                            <aura:set attribute="else">
+                                                <p>In Call...</p>
+                                            </aura:set>
+                                        </aura:if>
+                                    </div>
+                                </section>
+                            </div>
+                        </aura:iteration>
+                    </div>
+                </div>
+            </aura:set>
+        </aura:if>
     </div>
     <!-- / PAGE HEADER -->
 </aura:component>

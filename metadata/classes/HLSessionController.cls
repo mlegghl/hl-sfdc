@@ -33,31 +33,55 @@ public with sharing class HLSessionController {
     }
 
     /**
+     * Look up a Case based on an Id
+     */
+    @AuraEnabled
+    public static Case getCase(Id recordId) {
+        if (recordId != null) {
+            return [ SELECT Case.Id, Case.ContactId, Case.ContactEmail, Case.Contact.Name
+                     FROM Case
+                     WHERE Id = :recordId
+                     ];
+        }
+
+        return null;
+    }
+
+    /**
      * Look up all the calls associated with
      *  a case in Salesforce
      */
     @AuraEnabled
-    public static List<HLCall__c> getCalls(Id caseId) {
+    public static List<helplightning__HLCall__c> getCalls(Id caseId) {
         if (caseId != null) {
-            return [ SELECT Id, Session_Id__c, HLCall_Id__c,
-                     Complete__c, Successful__c,
-                     Start_Time__c, Duration__c from HLCall__c
-                     WHERE Case__c = :caseId
-                     ORDER BY Start_Time__c DESC
+            return [ SELECT Id, helplightning__Session_Id__c,
+                     helplightning__HLCall_Id__c,
+                     helplightning__Complete__c,
+                     helplightning__Successful__c,
+                     helplightning__Start_Time__c,
+                     helplightning__Duration__c
+                     FROM HLCall__c
+                     WHERE helplightning__Case__c = :caseId
+                     ORDER BY helplightning__Start_Time__c DESC
                      ];
         } else {
-            return new List<HLCall__c>();
+            return new List<helplightning__HLCall__c>();
         }
     }
 
     @AuraEnabled
-    public static HLCall__c saveCall(HLCall__c call) {
+    public static helplightning__HLCall__c saveCall(helplightning__HLCall__c call) {
         if (call != null) {
             upsert call;
 
-            return [ SELECT Id, Session_Id__c, HLCall_Id__c,
-                     Complete__c, Successful__c,
-                     Start_Time__c, Duration__c from HLCall__c
+            return [ SELECT Id,
+                     helplightning__Session_Id__c,
+                     helplightning__HLCall_Id__c,
+                     helplightning__Complete__c,
+                     helplightning__Successful__c,
+                     helplightning__Start_Time__c,
+                     helplightning__Duration__c
+                     FROM helplightning__HLCall__c
                      WHERE  Id = :call.id
                      ];
         } else {
@@ -70,14 +94,20 @@ public with sharing class HLSessionController {
      * related to a specific case
      */
     @AuraEnabled
-    public static List<HLCall__c> updateCalls(Id caseId) {
+    public static List<helplightning__HLCall__c> updateCalls(Id caseId) {
         if (caseId == null) {
-            return new List<HLCall__c>();
+            return new List<helplightning__HLCall__c>();
         }
 
-        HLCall__c[] calls = [SELECT Id, Session_Id__c, HLCall_Id__c, Contact_Email__c,
-                             Start_Time__c from HLCall__c WHERE Case__c = :caseId
-                             AND Complete__c = false LIMIT 25];
+        helplightning__HLCall__c[] calls = [SELECT Id,
+                                            helplightning__Session_Id__c,
+                                            helplightning__HLCall_Id__c,
+                                            helplightning__Contact_Email__c,
+                                            helplightning__Start_Time__c
+                                            FROM helplightning__HLCall__c
+                                            WHERE helplightning__Case__c = :caseId
+                                            AND helplightning__Complete__c = false
+                                            LIMIT 25];
 
 
         /**
@@ -88,11 +118,11 @@ public with sharing class HLSessionController {
          * !mwd - we also need to put a hard limit
          *  on how many calls we check.
          */
-        Map<HLCall__c, Object> callMap = new Map<HLCall__c, Object>();
-        for (HLCall__c call : calls) {
+        Map<helplightning__HLCall__c, Object> callMap = new Map<helplightning__HLCall__c, Object>();
+        for (helplightning__HLCall__c call : calls) {
             System.debug('getting Info about call ' + call);
             HLRequest request = new HLRequest(HLToken.build(),
-                                              '/enterprise/sessions/' + call.Session_Id__c);
+                                              '/enterprise/sessions/' + call.helplightning__Session_Id__c);
 
             Object results = request.get();
 
@@ -105,12 +135,12 @@ public with sharing class HLSessionController {
         }
 
         // now iterate through our map
-        for (HLCall__c call : callMap.keySet()) {
+        for (helplightning__HLCall__c call : callMap.keySet()) {
             Object results = callMap.get(call);
 
             if (results != null) {
                 // results is a list of calls, try to make matches
-                HLCall__c matchedCall = HLCallUtil.findCallMatch(call, (Object[])results);
+                helplightning__HLCall__c matchedCall = HLCallUtil.findCallMatch(call, (Object[])results);
                 if (matchedCall != null) {
                     // a match was found, we need to update the
                     //  database with the changes.

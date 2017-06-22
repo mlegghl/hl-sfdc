@@ -1,3 +1,7 @@
+2017-06-21  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-10 - Stop using recordPreview
+	* SFDC-11 - Change HLCalls to helplightning__HLCalls
+
 2017-05-23  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
 	* SFDC-7 - Refactor HLSessionController
 

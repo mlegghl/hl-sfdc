@@ -1,6 +1,6 @@
 ({
     doInit : function(component, event, helper) {
-        console.log("doInit, revision 43");
+        console.log("doInit, revision 33a");
         console.log("sObjectName: " + component.get("v.sObjectName"));
         console.log("recordId: " + component.get("v.recordId"));
 
@@ -41,7 +41,6 @@
                 });
 
                 $A.enqueueAction(action2);
-
             }
         });
         $A.enqueueAction(recordAction);

@@ -1,11 +1,20 @@
 ({
     doInit : function(component, event, helper) {
-        console.log("doInit, revision 33a");
+        console.log("doInit, revision 33n");
         console.log("sObjectName: " + component.get("v.sObjectName"));
         console.log("recordId: " + component.get("v.recordId"));
 
         var rId = component.get("v.recordId");
         var sObjectName = component.get("v.sObjectName");
+
+        // make sure this component type is supported.
+        var supportedComponent = (sObjectName === "Case" || sObjectName === "WorkOrder");
+        component.set("v.supportedComponent", supportedComponent);
+
+        if (!supportedComponent) {
+            console.log("unsupported component");
+            return;
+        }
 
         // get our record
         var recordAction = component.get("c.getContactForRecord");

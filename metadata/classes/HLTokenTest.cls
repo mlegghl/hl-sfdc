@@ -1,5 +1,5 @@
 /**
- * HLToken.cls
+ * HLTokenTest.cls
  *
  * Copyright (c) 2017 HelpLightning Inc.
  * https://helplightning.com

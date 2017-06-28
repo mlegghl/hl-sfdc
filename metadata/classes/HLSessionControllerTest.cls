@@ -7,6 +7,152 @@
 
 @isTest
 private class HLSessionControllerTest {
+
+    /**
+     * Mocker for the testUpdateCallsCase
+     */
+    class UpdateCallsCaseMocker implements HttpCalloutMock {
+        public HTTPResponse respond(HTTPRequest req) {
+            URL endpoint = new URL(req.getEndpoint());
+
+            HttpResponse response = new HttpResponse();
+            response.setHeader('Content-Type', 'application/json');
+
+            if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1/enterprise/sessions/')) {
+                // return some help lightning calls.
+                List<String> parts = endpoint.getPath().split('/');
+                String sessionId = parts.get(parts.size()-1);
+
+                List<Object> calls = new List<Object>();
+                if (sessionId == 'aabbccdd') {
+                    Map<String,Object> call = new Map<String,Object>{
+                            'call_id' => 'abcd',
+                                'dialer' => 'support@helplightning.com',
+                                'receiver' => 'contact1@helplightning.com',
+                                'start_time' => '2017-06-28T11:30:02-05',
+                                'end_time' => '2017-06-28T11:40:02-05',
+                                'complete' => true,
+                                'successful' => true,
+                                'duration' => 600
+                                };
+                    calls.add(call);
+                } else if (sessionId == 'wwxxyyzz') {
+                    Map<String,Object> call = new Map<String,Object>{
+                            'call_id' => 'wxyz',
+                                'dialer' => 'support@helplightning.com',
+                                'receiver' => 'contact1@helplightning.com',
+                                'start_time' => '2017-06-28T11:36:05-05',
+                                'end_time' => '2017-06-28T11:42:05-05',
+                                'complete' => true,
+                                'successful' => false,
+                                'duration' => 360
+                                };
+                    calls.add(call);
+                }
+
+                // return this as a serialized list of maps.
+                response.setBody(JSON.serialize(calls));
+                response.setStatusCode(200);
+            } else {
+                // error
+                response.setStatusCode(500);
+            }
+
+            return response;
+        }
+    }
+    /**
+     * Mocker for the testUpdateCallsWorkOrder
+     */
+    class UpdateCallsWorkOrderMocker implements HttpCalloutMock {
+        public HTTPResponse respond(HTTPRequest req) {
+            URL endpoint = new URL(req.getEndpoint());
+
+            HttpResponse response = new HttpResponse();
+            response.setHeader('Content-Type', 'application/json');
+
+            if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1/enterprise/sessions/')) {
+                // return some help lightning calls.
+                List<String> parts = endpoint.getPath().split('/');
+                String sessionId = parts.get(parts.size()-1);
+
+                List<Object> calls = new List<Object>();
+
+                // return this as a serialized list of maps.
+                response.setBody(JSON.serialize(calls));
+                response.setStatusCode(200);
+            } else {
+                // error
+                response.setStatusCode(500);
+            }
+
+            return response;
+        }
+    }
+    /**
+     * Mocker for the isHLUser
+     */
+    class IsHLUserMocker implements HttpCalloutMock {
+        public HTTPResponse respond(HTTPRequest req) {
+            URL endpoint = new URL(req.getEndpoint());
+
+            HttpResponse response = new HttpResponse();
+            response.setHeader('Content-Type', 'application/json');
+
+            if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1/search')) {
+                Map<String,Object> body = (Map<String,Object>)JSON.deserializeUntyped(req.getBody());
+
+                List<Object> result = new List<Object>();
+                if (body.get('search_term') == 'support@helplightning.com') {
+                    result.add(new Map<String,Object>{
+                            'id' => 234,
+                                'name' => 'Support',
+                                'username' => 'support',
+                                'active' => true
+                        });
+                }
+
+                response.setStatusCode(200);
+                response.setBody(JSON.serialize(result));
+            } else {
+                response.setStatusCode(500);
+            }
+            return response;
+        }
+    }
+    /**
+     * Mocker for the testMakeSessionWith
+     */
+    class MakeSessionWithMocker implements HttpCalloutMock {
+        public HTTPResponse respond(HTTPRequest req) {
+            URL endpoint = new URL(req.getEndpoint());
+
+            HttpResponse response = new HttpResponse();
+            response.setHeader('Content-Type', 'application/json');
+
+            if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1/enterprise/calls')) {
+                Map<String,Object> body = (Map<String,Object>)JSON.deserializeUntyped(req.getBody());
+
+                if (body.get('receiver_email') == 'contact1@helplightning.com') {
+
+                    Map<String,Object> result = new Map<String,Object>();
+                    result.put('id', 'aabbccddeeff');
+
+                    response.setStatusCode(200);
+                    response.setBody(JSON.serialize(result));
+                } else {
+                    // fake an error here
+                    response.setStatusCode(500);
+                }
+            } else {
+                response.setStatusCode(500);
+            }
+
+            return response;
+        }
+    }
+
+
     @testSetup static void setup() {
         // create some data.
 
@@ -203,4 +349,181 @@ private class HLSessionControllerTest {
         System.assertEquals(calls.size(), 0);
     }
 
+    /**
+     * Test saving a call
+     */
+    @isTest
+    static void testSaveCall() {
+        HLCall__c call = [SELECT Id, Complete__c from HLCall__c WHERE Complete__c = false LIMIT 1];
+        call.Complete__c = true;
+
+        call = HLSessionController.saveCall(call);
+        System.assertEquals(call.Complete__c, true);
+
+        // validate this doesn't bomb with a null call.
+        call = HLSessionController.saveCall(null);
+        System.assertEquals(call, null);
+    }
+
+    /**
+     * Test updating the calls for a case
+     */
+    @isTest
+    static void testUpdateCallsCase() {
+        Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
+
+        // run as a support@helplightning.com user, since this
+        //  looks up the current user to find a match.
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u = new User(Alias = 'support', Email='support@helplightning.com',
+                          EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                          LocaleSidKey='en_US', ProfileId = p.Id,
+                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u;
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up the mock
+        Test.setMock(HttpCalloutMock.class, new UpdateCallsCaseMocker());
+
+        System.RunAs(u) {
+            List<HLCall__c> calls = HLSessionController.updateCalls('Case', caseId);
+
+            // validate we have 2 calls
+            System.assertEquals(calls.size(), 2);
+
+            // validate that call id 'wxyz'
+            //  has been set to complete.
+            HLCall__c wxyz = null;
+            for (HLCall__c c: calls) {
+                if (c.HLCall_Id__c == 'wxyz')
+                    wxyz = c;
+            }
+
+            System.assertNotEquals(wxyz, null);
+            System.assertEquals(wxyz.Complete__c, true);
+            System.assertEquals(wxyz.Duration__c, 360);
+        }
+
+        Test.stopTest();
+    }
+
+    /**
+     * Test updating the calls for a work order
+     */
+    @isTest
+    static void testUpdateCallsWorkOrder() {
+        Id workOrderId = [SELECT Id from WorkOrder WHERE Subject = 'Work Order 1' LIMIT 1].Id;
+
+        // run as a support@helplightning.com user, since this
+        //  looks up the current user to find a match.
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u = new User(Alias = 'support', Email='support@helplightning.com',
+                          EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                          LocaleSidKey='en_US', ProfileId = p.Id,
+                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u;
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up the mock
+        Test.setMock(HttpCalloutMock.class, new UpdateCallsWorkOrderMocker());
+
+        System.RunAs(u) {
+            List<HLCall__c> calls = HLSessionController.updateCalls('WorkOrder', workOrderId);
+
+            // validate we have 1 calls
+            System.assertEquals(calls.size(), 1);
+        }
+
+        Test.stopTest();
+    }
+
+    /**
+     * Test updating calls for an unsupported record type
+     */
+    @isTest
+    static void testUpdateCallsInvalid() {
+        Id contactId = [SELECT Id FROM Contact WHERE Email='contact1@helplightning.com' LIMIT 1].Id;
+        List<HLCall__c> calls;
+
+        calls = HLSessionController.updateCalls('Case', null);
+        System.assertEquals(calls.size(), 0);
+
+        calls = HLSessionController.updateCalls('Contacts', contactId);
+        System.assertEquals(calls.size(), 0);
+    }
+
+    /**
+     * Test if a user is a help lightning user.
+     */
+    @isTest
+    static void testIsHLUser() {
+        Test.setMock(HttpCalloutMock.class, new IsHLUserMocker());
+        Boolean result;
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // test a "valid user"
+        result = HLSessionController.isHLUser('support@helplightning.com');
+        System.assertEquals(true, result);
+
+        // test a non help lightning user
+        result = HLSessionController.isHLUser('invalid@helplightning.com');
+        System.assertEquals(false, result);
+
+        Test.stopTest();
+    }
+
+    /**
+     * Test makeSessionWith
+     */
+    @isTest
+    static void testMakeSessionWith() {
+        // run as a support@helplightning.com user, since this
+        //  looks up the current user to find a match.
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u = new User(Alias = 'support', Email='support@helplightning.com',
+                          EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                          LocaleSidKey='en_US', ProfileId = p.Id,
+                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u;
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up the mock
+        Test.setMock(HttpCalloutMock.class, new MakeSessionWithMocker());
+
+        System.RunAs(u) {
+            // try a valid case
+            String sessionId = HLSessionController.makeSessionWith('contact1@helplightning.com');
+            System.assertEquals('aabbccddeeff', sessionId);
+
+            // try an invalid case
+            sessionId = HLSessionController.makeSessionWith('invalid-user@helplightning.com');
+            System.assertEquals(null, sessionId);
+        }
+
+        Test.stopTest();
+    }
 }

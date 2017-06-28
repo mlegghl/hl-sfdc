@@ -7,6 +7,76 @@
 
 @isTest
 private class HLSessionControllerTest {
+    @testSetup static void setup() {
+        // create some data.
+
+        // create some contacts
+        List<Contact> contacts = new List<Contact>();
+        contacts.add(new Contact(FirstName = 'Contact',
+                                 LastName = '1',
+                                 Email = 'contact1@helplightning.com'));
+        contacts.add(new Contact(FirstName = 'Contact',
+                                 LastName = '2',
+                                 Email = 'contact2@helplightning.com'));
+        contacts.add(new Contact(FirstName = 'Contact',
+                                 LastName = '3',
+                                 Email = 'contact3@helplightning.com'));
+        insert contacts;
+
+        Contact contact1 = contacts.get(0);
+        Contact contact2 = contacts.get(1);
+
+        // Create a case
+        Case case1 = new Case(Subject = 'Case 1',
+                              Status = 'New',
+                              Origin = 'Phone',
+                              ContactId = contact1.Id);
+        insert case1;
+
+        // Create a case without a contact
+        Case case2 = new Case(Subject = 'Case 2',
+                              Status = 'New',
+                              Origin = 'Phone');
+        insert case2;
+
+        // create a work order
+        WorkOrder workOrder = new WorkOrder(Subject = 'Work Order 1',
+                                            ContactId = contact2.Id);
+        insert workOrder;
+
+        // create some fake calls for case 1
+        List<HLCall__c> calls = new List<HLCall__c>();
+        calls.add(new HLCall__c(Session_Id__c = 'aabbccdd',
+                                HLCall_Id__c = 'abcd',
+                                Complete__c = true,
+                                Successful__c = true,
+                                Start_Time__c = DateTime.parse('06/28/2017 11:30 AM'),
+                                Duration__c = 60,
+                                Contact_Email__c = 'contact1@helplightning.com',
+                                Type__c = 'Direct',
+                                Case__c = case1.Id));
+        calls.add(new HLCall__c(Session_Id__c = 'wwxxyyzz',
+                                HLCall_Id__c = 'wxyz',
+                                Complete__c = false,
+                                Successful__c = false,
+                                Start_Time__c = DateTime.parse('06/28/2017 11:36 AM'),
+                                Duration__c = 0,
+                                Contact_Email__c = 'contact1@helplightning.com',
+                                Type__c = 'Direct',
+                                Case__c = case1.Id));
+        // add a call to the work order
+        calls.add(new HLCall__c(Session_Id__c = 'jjkkllmm',
+                                HLCall_Id__c = 'jklm',
+                                Complete__c = true,
+                                Successful__c = false,
+                                Start_Time__c = DateTime.parse('06/24/2017 2:55 PM'),
+                                Duration__c = 0,
+                                Contact_Email__c = 'contact2@helplightning.com',
+                                Type__c = 'Direct',
+                                Work_Order__c = workOrder.Id));
+        insert calls;
+    }
+
     /**
      * Make sure we can get the necessary
      *  contact information for our supported
@@ -14,57 +84,123 @@ private class HLSessionControllerTest {
      */
     @isTest
     static void testGetContactForRecord() {
-        // create a contact
-        Contact contact = new Contact(FirstName = 'Contact',
-                                      LastName = '1',
-                                      Email = 'contact1@helplightning.com');
-        insert contact;
+        Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
+        Id case2Id = [SELECT Id from Case WHERE Subject = 'Case 2' LIMIT 1].Id;
+        Id workOrderId = [SELECT Id from WorkOrder WHERE Subject = 'Work Order 1' LIMIT 1].Id;
+        Contact contact1 = [SELECT Contact.Id, Contact.Name, Contact.Email FROM Contact
+                            WHERE Email='contact1@helplightning.com' LIMIT 1];
+        Contact contact2 = [SELECT Contact.Id, Contact.Name, Contact.Email FROM Contact
+                            WHERE Email='contact2@helplightning.com' LIMIT 1];
 
-        // create a case
-        Case caseObj = new Case(Subject = 'Case 1',
-                                Status = 'New',
-                                Origin = 'Phone',
-                                ContactId = contact.Id);
-        insert caseObj;
-
-        // create a work order
-        WorkOrder workOrderObj = new WorkOrder(Subject = 'Work Order 1',
-                                               ContactId = contact.Id);
-        insert workOrderObj;
-
+        Contact c;
         // look up a valid case
-        Contact c1 = HLSessionController.getContactForRecord('Case', caseObj.Id);
-        System.assertNotEquals(c1, null);
-        System.assertEquals(c1.Id, contact.Id);
-        System.assertEquals(c1.Name, 'Contact 1');
-        System.assertEquals(c1.Email, contact.Email);
+        c = HLSessionController.getContactForRecord('Case', caseId);
+        System.assertNotEquals(c, null);
+        System.assertEquals(c.Id, contact1.Id);
+        System.assertEquals(c.Name, contact1.Name);
+        System.assertEquals(c.Email, contact1.Email);
 
         // look up a valid work order
-        Contact c2 = HLSessionController.getContactForRecord('WorkOrder', workOrderObj.Id);
-        System.debug('contact=' + c2);
-        System.assertNotEquals(c2, null);
-        System.assertEquals(c2.Id, contact.Id);
-        System.assertEquals(c2.Name, 'Contact 1');
-        System.assertEquals(c2.Email, contact.Email);
+        c = HLSessionController.getContactForRecord('WorkOrder', workOrderId);
+        System.assertNotEquals(c, null);
+        System.assertEquals(c.Id, contact2.Id);
+        System.assertEquals(c.Name, contact2.Name);
+        System.assertEquals(c.Email, contact2.Email);
 
         // look up an invalid case and work order
-        Contact c;
-        c = HLSessionController.getContactForRecord('Case', workOrderObj.Id);
+        c = HLSessionController.getContactForRecord('Case', workOrderId);
         System.assertEquals(c, null);
-        c = HLSessionController.getContactForRecord('WorkOrder', caseObj.Id);
+        c = HLSessionController.getContactForRecord('WorkOrder', caseId);
         System.assertEquals(c, null);
 
         // look up a valid case missing a contact
-        Case case2Obj = new Case(Subject = 'Case 2',
-                                 Status = 'New',
-                                 Origin = 'Phone');
-        insert case2Obj;
-        c = HLSessionController.getContactForRecord('Case', case2Obj.Id);
+        c = HLSessionController.getContactForRecord('Case', case2Id);
         System.assertEquals(c, null);
 
         // look up an unsupported record type
-        c = HLSessionController.getContactForRecord('Contact', contact.Id);
+        c = HLSessionController.getContactForRecord('Contact', contact1.Id);
         System.assertEquals(c, null);
+    }
+
+    /**
+     * Test getting a specific case based on its Id
+     */
+    @isTest
+    static void testGetCase() {
+        Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
+        Id case2Id = [SELECT Id from Case WHERE Subject = 'Case 2' LIMIT 1].Id;
+        Contact contact = [SELECT Contact.Id, Contact.Name, Contact.Email FROM Contact
+                           WHERE Email='contact1@helplightning.com' LIMIT 1];
+
+        Case c;
+
+        c = HLSessionController.getCase(caseId);
+        System.assertEquals(c.Id, caseId);
+        System.assertEquals(c.ContactId, contact.Id);
+        System.assertEquals(c.ContactEmail, contact.Email);
+        System.assertEquals(c.Contact.Name, contact.Name);
+
+        // null id
+        System.assertEquals(HLSessionController.getCase(null), null);
+
+        // case with no contacts
+        c = HLSessionController.getCase(case2Id);
+        System.assertEquals(c.Id, case2Id);
+        System.assertEquals(c.ContactId, null);
+        System.assertEquals(c.ContactEmail, null);
+        System.assertEquals(c.Contact.Name, null);
+
+    }
+
+    /**
+     * Test getting calls for a Case.
+     */
+    @isTest
+    static void testGetCallsForRecordCase() {
+        Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
+        Id invalidId = [SELECT Id from WorkOrder WHERE Subject = 'Work Order 1' LIMIT 1].Id;
+
+        List<HLCall__c> calls = HLSessionController.getCallsForRecord('case', caseId);
+
+        System.assertEquals(calls.size(), 2);
+
+        // test for an invalid Id
+        calls = HLSessionController.getCallsForRecord('case', invalidId);
+        System.assertEquals(calls.size(), 0);
+
+        // null Id
+        calls = HLSessionController.getCallsForRecord('case', null);
+        System.assertEquals(calls.size(), 0);
+    }
+
+    /**
+     * Test getting calls for a WorkOrder.
+     */
+    @isTest
+    static void testGetCallsForRecordWorkOrder() {
+        Id workOrderId = [SELECT Id from WorkOrder WHERE Subject = 'Work Order 1' LIMIT 1].Id;
+        Id invalidId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
+
+        List<HLCall__c> calls = HLSessionController.getCallsForRecord('WorkOrder', workOrderId);
+
+        System.assertEquals(calls.size(), 1);
+
+        // test for an invalid Id
+        calls = HLSessionController.getCallsForRecord('WorkOrder', invalidId);
+        System.assertEquals(calls.size(), 0);
+
+        // null Id
+        calls = HLSessionController.getCallsForRecord('WorkOrder', null);
+        System.assertEquals(calls.size(), 0);
+    }
+
+    /**
+     * Test getting calls for an invalid record type.
+     */
+    @isTest
+    static void testGetCallsForRecordInvalid() {
+        List<HLCall__c> calls = HLSessionController.getCallsForRecord('InvalidType', null);
+        System.assertEquals(calls.size(), 0);
     }
 
 }

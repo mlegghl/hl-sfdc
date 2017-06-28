@@ -151,6 +151,60 @@ private class HLSessionControllerTest {
             return response;
         }
     }
+    /**
+     * Mocker for the testInviteToPersonalRoom
+     */
+    class InviteToPersonalRoomMocker implements HttpCalloutMock {
+        public HTTPResponse respond(HTTPRequest req) {
+            URL endpoint = new URL(req.getEndpoint());
+
+            HttpResponse response = new HttpResponse();
+            response.setHeader('Content-Type', 'application/json');
+
+            if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1/enterprise/users')) {
+                Map<String, Object> result = new Map<String, Object>();
+
+                if (endpoint.getQuery() == 'filter=email=support@helplightning.com&') {
+                    result.put('total_entries', 1);
+                    result.put('entries', new List<Object> {
+                            new Map<String,Object>{
+                                'active' => true,
+                                'token' => 'valid-token',
+                                'email' => 'support@helplightning.com'
+                            }
+                        });
+                } else if (endpoint.getQuery() == 'filter=email=support3@helplightning.com&') {
+                    // this is a valid user, but we are going to fake
+                    //  not return a valid token
+                    result.put('total_entries', 1);
+                    result.put('entries', new List<Object> {
+                            new Map<String,Object>{
+                                'active' => true,
+                                'email' => 'support3@helplightning.com'
+                            }
+                        });
+                } else {
+                    result.put('total_entries', 0);
+                    result.put('entries', new List<Object>{});
+                }
+                response.setStatusCode(200);
+                response.setBody(JSON.serialize(result));
+            } else if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1/personal_room/invite')) {
+                Map<String,Object> body = (Map<String,Object>)JSON.deserializeUntyped(req.getBody());
+                if (body.get('email') == 'invalid-user@helplightning.com') {
+                    // simulate invalid
+                    response.setStatusCode(500);
+                } else {
+                    response.setStatusCode(200);
+                    response.setBody(JSON.serialize(true));
+                }
+            } else {
+                response.setStatusCode(500);
+            }
+
+            return response;
+        }
+    }
 
 
     @testSetup static void setup() {
@@ -522,6 +576,70 @@ private class HLSessionControllerTest {
             // try an invalid case
             sessionId = HLSessionController.makeSessionWith('invalid-user@helplightning.com');
             System.assertEquals(null, sessionId);
+        }
+
+        Test.stopTest();
+    }
+
+    /**
+     * Test inviteToPersonalRoom
+     */
+    @isTest
+    static void testInviteToPersonalRoom() {
+        // run as a support@helplightning.com user, since this
+        //  looks up the current user to find a match.
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u1 = new User(Alias = 'support', Email='support@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u1;
+        User u2 = new User(Alias = 'support2', Email='support2@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support 2', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support2@helplightning.com');
+        insert u2;
+        User u3 = new User(Alias = 'support3', Email='support3@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support 3', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support3@helplightning.com');
+        insert u3;
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up the mock
+        Test.setMock(HttpCalloutMock.class, new InviteToPersonalRoomMocker());
+
+        System.RunAs(u1) {
+            Boolean result;
+
+            // try a valid case
+            result = HLSessionController.inviteToPersonalRoom('Other User', 'other@helplightning.com');
+            System.assertEquals(true, result);
+
+            // try an invalid case
+            result = HLSessionController.inviteToPersonalRoom('Invalid User', 'invalid-user@helplightning.com');
+            System.assertEquals(false, result);
+        }
+
+        System.RunAs(u2) {
+            Boolean result;
+
+            // try a other user, but we are not part of this enterprise
+            result = HLSessionController.inviteToPersonalRoom('Other User', 'other@helplightning.com');
+            System.assertEquals(false, result);
+        }
+        System.RunAs(u3) {
+            Boolean result;
+
+            // simulate us not correctly returning a token
+            result = HLSessionController.inviteToPersonalRoom('Other User', 'other@helplightning.com');
+            System.assertEquals(false, result);
         }
 
         Test.stopTest();

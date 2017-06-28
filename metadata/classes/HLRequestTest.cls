@@ -52,7 +52,7 @@ private class HLRequestTest {
 
             return response;
         }
-
+    }
 
     @isTest
     static void testGetSuccess() {

@@ -13,16 +13,22 @@ public with sharing class HLSessionController {
      *  - WorkOrder
      */
     @AuraEnabled
-    public static Object getContactForRecord(String sObjectName, Id recordId) {
+    public static Contact getContactForRecord(String sObjectName, Id recordId) {
         if (recordId != null) {
             if (sObjectName == 'Case') {
-                return [ SELECT Contact.Id, Contact.Email, Contact.Name from Case
-                         WHERE Id = :recordId
-                         ].Contact;
+                Case[] o = [ SELECT Contact.Id, Contact.Email, Contact.Name from Case
+                             WHERE Id = :recordId
+                             ];
+                if (o != null && o.size() > 0) {
+                    return o.get(0).Contact;
+                }
             } else if (sObjectName == 'WorkOrder') {
-                return [ SELECT Contact.Id, Contact.Email, Contact.Name from WorkOrder
-                         WHERE Id = :recordId
-                         ].Contact;
+                WorkOrder[] o = [ SELECT Contact.Id, Contact.Email, Contact.Name from WorkOrder
+                                  WHERE Id = :recordId
+                                  ];
+                if (o != null && o.size() > 0) {
+                    return o.get(0).Contact;
+                }
             } else {
                 System.debug('Invalid record type: ' + sObjectName);
                 return null;

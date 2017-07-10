@@ -14,7 +14,7 @@
                 <div class="slds-media slds-timeline__media slds-timeline__media_call">
                     <div class="slds-media__figure slds-timeline__icon">
                         <div class="slds-icon_container slds-icon-standard-log-a-call" title="call">
-                            <lightning:icon iconName="standard:call" size="small" />
+                            <lightning:icon class="slds-icon" iconName="standard:log_a_call" size="small" />
                             <!-- <svg class="slds-icon slds-icon_small" aria-hidden="true"> -->
                             <!--     <use xlink:href="/assets/icons/standard-sprite/svg/symbols.svg#log_a_call"></use> -->
                             <!-- </svg> -->
@@ -30,7 +30,7 @@
                             </li>
                             <li class="slds-m-right_large">
                                 <span class="slds-text-title">Status:</span>
-                                <span class="slds-text-body_small">{!v.status}</span>
+                                <span class="slds-text-body_small slds-m-left_xx-small slds-truncate">{!v.status}</span>
                             </li>
                         </ul>
                         <!-- Start: / End: / Length: Line -->
@@ -57,7 +57,7 @@
                     </div>
                 </div>
             </div>
-            <div class="slds-media__figurre slds-media__figure_reverse">
+            <div class="slds-media__figure slds-media__figure_reverse">
                 <div class="slds-timeline__actions">
                     <p class="slds-timeline__date">
                         <ui:outputDateTime value="{!v.item.helplightning__Start_Time__c}" format="MMM d" />

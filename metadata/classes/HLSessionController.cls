@@ -63,9 +63,11 @@ public with sharing class HLSessionController {
             if (sObjectName == 'Case') {
                 return [ SELECT Id, helplightning__Session_Id__c,
                          helplightning__HLCall_Id__c,
+                         helplightning__Contact_Email__c,
                          helplightning__Complete__c,
                          helplightning__Successful__c,
                          helplightning__Start_Time__c,
+                         helplightning__End_Time__c,
                          helplightning__Duration__c
                          FROM HLCall__c
                          WHERE helplightning__Case__c = :recordId
@@ -74,9 +76,11 @@ public with sharing class HLSessionController {
             } else if (sObjectName == 'WorkOrder') {
                 return [ SELECT Id, helplightning__Session_Id__c,
                          helplightning__HLCall_Id__c,
+                         helplightning__Contact_Email__c,
                          helplightning__Complete__c,
                          helplightning__Successful__c,
                          helplightning__Start_Time__c,
+                         helplightning__End_Time__c,
                          helplightning__Duration__c
                          FROM HLCall__c
                          WHERE helplightning__Work_Order__c = :recordId

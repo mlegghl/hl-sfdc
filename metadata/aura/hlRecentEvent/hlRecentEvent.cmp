@@ -2,9 +2,7 @@
     <aura:attribute name="item" type="helplightning__HLCall__c"/>
 
     <!-- internal attributes -->
-    <aura:attribute name="email" type="String" />
     <aura:attribute name="status" type="String"/>
-    <aura:attribute name="callDate" type="String"/>
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
 
@@ -24,14 +22,36 @@
                     </div>
                     <div class="slds-media__body">
                         <h3 class="slds-truncate" title="Initiated Help Lightning Call">Initiated Help Lightning Call</h3>
+                        <!-- To: / Status: Line -->
                         <ul class="slds-list_horizontal slds-wrap">
                             <li class="slds-truncate_container_50 slds-m-right_large slds-grid">
                                 <span class="slds-text-title">To:</span>
-                                <span class="slds-text-body_small slds-m-left_xx-small slds-truncate" title="contact@domainname.com">contact@domainname.com</span>
+                                <span class="slds-text-body_small slds-m-left_xx-small slds-truncate" title="{!v.item.helplightning__Contact_Email__c}">{!v.item.helplightning__Contact_Email__c}</span>
                             </li>
                             <li class="slds-m-right_large">
                                 <span class="slds-text-title">Status:</span>
-                                <span class="slds-text-body_small">Completed</span>
+                                <span class="slds-text-body_small">{!v.status}</span>
+                            </li>
+                        </ul>
+                        <!-- Start: / End: / Length: Line -->
+                        <ul class="slds-list_horizontal slds-wrap">
+                            <li class="slds-truncate_container_50 slds-m-right_large slds-grid">
+                                <span class="slds-text-title">Start:</span>
+                                <span class="slds-text-body_small slds-m-left_xx-small slds-truncate">
+                                    <ui:outputDateTime value="{!v.item.helplightning__Start_Time__c}" format="h:mma" />
+                                </span>
+                            </li>
+                            <li class="slds-m-right_large">
+                                <span class="slds-text-title">End:</span>
+                                <span class="slds-text-body_small slds-m-left_xx-small slds-truncate">
+                                    <ui:outputDateTime value="{!v.item.helplightning__End_Time__c}" format="h:mma" />
+                                </span>
+                            </li>
+                            <li class="slds-m-right_large">
+                                <span class="slds-text-title">Length:</span>
+                                <span class="slds-text-body_small">
+                                    {!v.item.helplightning__Duration__c + 's'}
+                                </span>
                             </li>
                         </ul>
                     </div>
@@ -39,7 +59,9 @@
             </div>
             <div class="slds-media__figurre slds-media__figure_reverse">
                 <div class="slds-timeline__actions">
-                    <p class="slds-timeline__date">Jun 21</p>
+                    <p class="slds-timeline__date">
+                        <ui:outputDateTime value="{!v.item.helplightning__Start_Time__c}" format="MMM d" />
+                    </p>
                 </div>
             </div>
         </div>

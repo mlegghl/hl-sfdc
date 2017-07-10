@@ -3,7 +3,7 @@
 
     <!-- Activity Timeline -->
     <div class="slds-box">
-        <ul class="slds-timeline slds-scrollable" style="max-height: 270px;">
+        <ul class="slds-timeline slds-scrollable">
             <aura:iteration items="{!v.calls}" var="call">
                 <li>
                     <c:hlRecentEvent item="{!call}" />

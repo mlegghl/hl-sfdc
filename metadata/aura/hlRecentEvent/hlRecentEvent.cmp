@@ -1,0 +1,49 @@
+<aura:component >
+    <aura:attribute name="item" type="helplightning__HLCall__c"/>
+
+    <!-- internal attributes -->
+    <aura:attribute name="email" type="String" />
+    <aura:attribute name="status" type="String"/>
+    <aura:attribute name="callDate" type="String"/>
+
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
+
+    <!-- Row in an activity timeline -->
+    <div class="slds-timeline__item">
+        <span class="slds-assistive-text">Help Lightning Call</span>
+        <div class="slds-media">
+            <div class="slds-media__body">
+                <div class="slds-media slds-timeline__media slds-timeline__media_call">
+                    <div class="slds-media__figure slds-timeline__icon">
+                        <div class="slds-icon_container slds-icon-standard-log-a-call" title="call">
+                            <lightning:icon iconName="standard:call" size="small" />
+                            <!-- <svg class="slds-icon slds-icon_small" aria-hidden="true"> -->
+                            <!--     <use xlink:href="/assets/icons/standard-sprite/svg/symbols.svg#log_a_call"></use> -->
+                            <!-- </svg> -->
+                        </div>
+                    </div>
+                    <div class="slds-media__body">
+                        <h3 class="slds-truncate" title="Initiated Help Lightning Call">Initiated Help Lightning Call</h3>
+                        <ul class="slds-list_horizontal slds-wrap">
+                            <li class="slds-truncate_container_50 slds-m-right_large slds-grid">
+                                <span class="slds-text-title">To:</span>
+                                <span class="slds-text-body_small slds-m-left_xx-small slds-truncate" title="contact@domainname.com">contact@domainname.com</span>
+                            </li>
+                            <li class="slds-m-right_large">
+                                <span class="slds-text-title">Status:</span>
+                                <span class="slds-text-body_small">Completed</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="slds-media__figurre slds-media__figure_reverse">
+                <div class="slds-timeline__actions">
+                    <p class="slds-timeline__date">Jun 21</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</aura:component>

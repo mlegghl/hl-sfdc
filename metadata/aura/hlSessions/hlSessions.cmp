@@ -34,7 +34,7 @@
         <div class="slds-card__body slds-card__body_inner">
             <!-- <h3>Use Help Lightning to make mobile merged reality video calls.</h3> -->
             <!-- Activity Timeline -->
-            <c:hlRecentEventTimeline />
+            <c:hlRecentEventTimeline calls="{!v.calls}" />
         </div>
         <footer class="slds-card__footer"></footer>
     </article>

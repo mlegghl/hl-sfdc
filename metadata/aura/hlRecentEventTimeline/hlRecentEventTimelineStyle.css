@@ -1,6 +1,10 @@
 .THIS {
 }
 
-.THIS .slds-timeline {
-    max-height: 270px;
+.THIS.hl-timeline-box {
+    max-height: 15rem;
+    background: rgb(255, 255, 255);
+}
+
+.THIS.slds-timeline {
 }

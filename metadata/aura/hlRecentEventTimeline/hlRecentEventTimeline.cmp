@@ -2,8 +2,8 @@
     <aura:attribute name="calls" type="helplightning__HLCall__c[]"/>
 
     <!-- Activity Timeline -->
-    <div class="slds-box">
-        <ul class="slds-timeline slds-scrollable">
+    <div class="slds-box hl-timeline-box slds-scrollable">
+        <ul class="slds-timeline">
             <aura:iteration items="{!v.calls}" var="call">
                 <li>
                     <c:hlRecentEvent item="{!call}" />

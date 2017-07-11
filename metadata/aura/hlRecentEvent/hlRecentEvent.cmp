@@ -3,6 +3,7 @@
 
     <!-- internal attributes -->
     <aura:attribute name="status" type="String"/>
+    <aura:attribute name="duration" type="String"/>
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
 
@@ -23,7 +24,7 @@
                     <div class="slds-media__body">
                         <h3 class="slds-truncate" title="Initiated Help Lightning Call">Initiated Help Lightning Call</h3>
                         <!-- To: / Status: Line -->
-                        <ul class="slds-list_horizontal slds-wrap">
+                        <ul class="slds-list_horizontal">
                             <li class="slds-truncate_container_50 slds-m-right_large slds-grid">
                                 <span class="slds-text-title">To:</span>
                                 <span class="slds-text-body_small slds-m-left_xx-small slds-truncate" title="{!v.item.helplightning__Contact_Email__c}">{!v.item.helplightning__Contact_Email__c}</span>
@@ -34,7 +35,7 @@
                             </li>
                         </ul>
                         <!-- Start: / End: / Length: Line -->
-                        <ul class="slds-list_horizontal slds-wrap">
+                        <ul class="slds-list_horizontal">
                             <li class="slds-truncate_container_50 slds-m-right_large slds-grid">
                                 <span class="slds-text-title">Start:</span>
                                 <span class="slds-text-body_small slds-m-left_xx-small slds-truncate">
@@ -50,7 +51,7 @@
                             <li class="slds-m-right_large">
                                 <span class="slds-text-title">Length:</span>
                                 <span class="slds-text-body_small">
-                                    {!v.item.helplightning__Duration__c + 's'}
+                                    {!v.duration}
                                 </span>
                             </li>
                         </ul>

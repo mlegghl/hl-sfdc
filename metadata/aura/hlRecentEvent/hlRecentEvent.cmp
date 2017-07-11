@@ -50,7 +50,7 @@
                             </li>
                             <li class="slds-m-right_large">
                                 <span class="slds-text-title">Length:</span>
-                                <span class="slds-text-body_small">
+                                <span class="slds-text-body_small slds-truncate">
                                     {!v.duration}
                                 </span>
                             </li>

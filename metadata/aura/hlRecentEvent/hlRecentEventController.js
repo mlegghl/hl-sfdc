@@ -23,12 +23,12 @@
                 var minutes = Math.floor((item.helplightning__Duration__c / 60) - (hours * 60));
                 var seconds = item.helplightning__Duration__c - (hours * 60 * 60) - (minutes * 60);
 
-                component.set("v.duration", hours + 'h' + minutes + 'm' + seconds + 's');
+                component.set("v.duration", hours + 'h ' + minutes + 'm ' + seconds + 's');
             } else if (item.helplightning__Duration__c > 60) {
                 var minutes = Math.floor(item.helplightning__Duration__c / 60);
                 var seconds = item.helplightning__Duration__c - (minutes * 60);
 
-                component.set("v.duration", minutes + 'm' + seconds + 's');
+                component.set("v.duration", minutes + 'm ' + seconds + 's');
             } else {
                 component.set("v.duration", item.helplightning__Duration__c + 's');
             }

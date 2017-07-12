@@ -4,6 +4,8 @@
     <!-- internal attributes -->
     <aura:attribute name="status" type="String"/>
     <aura:attribute name="duration" type="String"/>
+    <!-- <aura:attribute name="timelineMediaIcon" type="String" default="slds-timeline__media_flow" /> -->
+    <!-- <aura:attribute name="timelineIcon" type="String" default="slds-icon-standard-flow" /> -->
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
 
@@ -12,14 +14,11 @@
         <span class="slds-assistive-text">Help Lightning Call</span>
         <div class="slds-media">
             <div class="slds-media__body">
-                <div class="slds-media slds-timeline__media slds-timeline__media_call">
+                <div class="slds-media slds-timeline__media slds-timeline__media_flow">
                     <div class="slds-media__figure slds-timeline__icon">
-                        <div class="slds-icon_container slds-icon-standard-log-a-call" title="call">
-                            <lightning:icon class="slds-icon" iconName="standard:log_a_call" size="small" />
-                            <!-- <svg class="slds-icon slds-icon_small" aria-hidden="true"> -->
-                            <!--     <use xlink:href="/assets/icons/standard-sprite/svg/symbols.svg#log_a_call"></use> -->
-                            <!-- </svg> -->
-                        </div>
+                        <span class="slds-icon_container slds-icon-standard-flow slds-icon_small" title="Help Lightning Call">
+                            <lightning:icon class="slds-icon hl-icon-white slds-m-around_xx-small" iconName="utility:forward" size="x-small" />
+                        </span>
                     </div>
                     <div class="slds-media__body">
                         <h3 class="slds-truncate" title="Initiated Help Lightning Call">Initiated Help Lightning Call</h3>

@@ -12,10 +12,8 @@
         <div class="slds-card__header slds-grid">
             <header class="slds-media slds-media_center slds-has-flexi-truncate">
                 <div class="slds-media__figure">
-                    <span class="slds-icon_container slds-icon-standard-contact" title="Help Lightning">
-                        <!-- <svg class="slds-icon slds-icon_small" aria-hidden="true"> -->
-                        <!--     <use xlink:href="/assets/icons/standard-sprite/svg/symbols.svg#contact"></use> -->
-                        <!-- </svg> -->
+                    <span class="slds-icon_container slds-icon-standard-datadotcom" title="Help Lightning">
+                        <lightning:icon class="slds-icon hl-icon-white slds-m-around_x-small" iconName="utility:connected_apps" size="medium" />
                     </span>
                 </div>
                 <div class="slds-media__body">
@@ -26,24 +24,57 @@
                     </h2>
                 </div>
             </header>
-            <div class="slds-no-flex">
-                <ui:button class="slds-button slds-button_brand"
-                           press="{!c.clickCall}"
-                           disabled="{!v.contactIsHLUser == false}">
-                    Call Contact
-                </ui:button>
-                <ui:button class="slds-button slds-button_neutral"
-                           press="{!c.clickInviteToPersonalRoom}">
-                    Invite Contact
-                </ui:button>
-            </div>
+            <aura:if isTrue="{!v.supportedComponent}">
+                <div class="slds-no-flex">
+                    <ui:button class="slds-button slds-button_brand"
+                               press="{!c.clickCall}"
+                               disabled="{!v.contactIsHLUser == false}">
+                        Call Contact
+                    </ui:button>
+                    <ui:button class="slds-button slds-button_neutral"
+                               press="{!c.clickInviteToPersonalRoom}">
+                        Invite Contact
+                    </ui:button>
+                </div>
+            </aura:if>
         </div>
         <div class="slds-card__body slds-card__body_inner">
-            <h2><b>Use Help Lightning to make mobile merged reality video calls.</b></h2>
+            <aura:if isTrue="{!v.supportedComponent}">
+                <div class="slds-p-bottom_small">
+                    <b>Use Help Lightning to make mobile merged reality video calls.</b>
+                </div>
 
-            <aura:if isTrue="{!v.calls.length > 0}">
-                <!-- Activity Timeline -->
-                <c:hlRecentEventTimeline calls="{!v.calls}" />
+                <!-- show a warning about not being a help lightning user -->
+                <aura:if isTrue="{!v.contactIsHLUser == false}">
+                    <ul class="slds-list_horizontal">
+                        <li class="slds-m-right_small">
+                            <span class="slds-icon_container slds-icon-utility-info-alt" title="Warning">
+                                <lightning:icon class="slds-icon" iconName="utility:info_alt" size="small" variant="warning" />
+                            </span>
+                        </li>
+                        <li class="slds-m-right_large">
+                            <p>Current contact does not have a Help Lightning account. Invite user to download the Help Lightning app.</p>
+                        </li>
+                    </ul>
+                </aura:if>
+
+                <aura:if isTrue="{!v.calls.length > 0}">
+                    <!-- Activity Timeline -->
+                    <c:hlRecentEventTimeline calls="{!v.calls}" />
+                </aura:if>
+                <aura:set attribute="else">
+                    <!-- unsupported component -->
+                    <ul class="slds-list_horizontal">
+                        <li class="slds-m-right_small">
+                            <span class="slds-icon_container slds-icon-utility-info-alt" title="Warning">
+                                <lightning:icon class="slds-icon" iconName="utility:info_alt" size="small" variant="warning" />
+                            </span>
+                        </li>
+                        <li class="slds-m-right_large">
+                            <p>Help Lightning is not available for this component.</p>
+                        </li>
+                    </ul>
+                </aura:set>
             </aura:if>
         </div>
         <footer class="slds-card__footer"></footer>

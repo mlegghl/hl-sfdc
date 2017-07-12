@@ -3,7 +3,7 @@
 
 /* !mwd - This fixes the missing vertical bars */
 .THIS .slds-media__figure {
-	z-index: 2;
+    z-index: 2;
 }
 .THIS .slds-timeline__media:before {
     z-index: 1;
@@ -11,3 +11,8 @@
 .THIS .slds-timeline__media:before {
     z-index: 1;
 }
+
+.THIS .hl-icon-white svg{
+    fill: white;
+}
+

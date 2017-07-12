@@ -5,3 +5,7 @@
 .THIS.invisible {
     display: none;
 }
+
+.THIS .hl-icon-white svg{
+    fill: white;
+}

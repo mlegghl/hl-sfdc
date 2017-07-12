@@ -39,9 +39,12 @@
             </div>
         </div>
         <div class="slds-card__body slds-card__body_inner">
-            <!-- <h3>Use Help Lightning to make mobile merged reality video calls.</h3> -->
-            <!-- Activity Timeline -->
-            <c:hlRecentEventTimeline calls="{!v.calls}" />
+            <h2><b>Use Help Lightning to make mobile merged reality video calls.</b></h2>
+
+            <aura:if isTrue="{!v.calls.length > 0}">
+                <!-- Activity Timeline -->
+                <c:hlRecentEventTimeline calls="{!v.calls}" />
+            </aura:if>
         </div>
         <footer class="slds-card__footer"></footer>
     </article>

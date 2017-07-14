@@ -33,6 +33,16 @@
                     var state = response.getState();
                     if (component.isValid() && state == "SUCCESS") {
                         component.set("v.contactIsHLUser", response.getReturnValue());
+                    } else if (component.isValid && state == "ERROR") {
+                        console.log("setting error to: " + response.getError());
+                        var errors = response.getError();
+                        if (errors) {
+                            if (errors[0] && errors[0].message) {
+                                component.set("v.error", errors[0].message);
+                            }
+                        } else {
+                            console.log("Unknown error during isHLUser");
+                        }
                     }
                 });
                 $A.enqueueAction(action1);

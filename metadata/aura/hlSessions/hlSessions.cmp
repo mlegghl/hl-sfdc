@@ -1,11 +1,15 @@
 <aura:component controller="HLSessionController" implements="flexipage:availableForRecordHome,force:hasSObjectName,force:hasRecordId" access="global">
 
     <aura:attribute name="supportedComponent" type="Boolean" default="false" />
+    <aura:attribute name="hasErrors" type="Boolean" default="false" />
+    <aura:attribute name="errorMessage" type="String" default="" />
     <aura:attribute name="contact" type="Contact"/>
     <aura:attribute name="calls" type="helplightning__HLCall__c[]"/>
-    <aura:attribute name="contactIsHLUser" type="Boolean"/>
+    <aura:attribute name="contactIsHLUser" type="Boolean" default="false"/>
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
+
+    <p>Errors: {!v.error}</p>
 
     <!-- Help Lightning Component -->
     <article class="slds-card">

@@ -477,6 +477,50 @@ private class HLSessionControllerTest {
     }
 
     /**
+     * Test updating the calls for a case with an invalid config
+     */
+    @isTest
+    static void testUpdateCallsCaseMissingConfig() {
+        Help_Lightning_Config__c config = Help_Lightning_Config__c.getOrgDefaults();
+        delete config;
+
+        Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
+
+        // run as a support@helplightning.com user, since this
+        //  looks up the current user to find a match.
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u = new User(Alias = 'support', Email='support@helplightning.com',
+                          EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                          LocaleSidKey='en_US', ProfileId = p.Id,
+                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u;
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up the mock
+        Test.setMock(HttpCalloutMock.class, new UpdateCallsCaseMocker());
+
+        System.RunAs(u) {
+            try {
+                HLSessionController.updateCalls('Case', caseId);
+                System.assert(false, 'Exception wasn\'t raised');
+            } catch (AuraHandledException e) {
+                // expected path
+                System.assert(true);
+            } catch (Exception e) {
+                System.assert(false, 'Caught incorrect exception');
+            }
+        }
+
+        Test.stopTest();
+    }
+
+    /**
      * Test updating the calls for a work order
      */
     @isTest
@@ -554,6 +598,38 @@ private class HLSessionControllerTest {
     }
 
     /**
+     * Test if a user is a help lightning user with an invalid configuration
+     */
+    @isTest
+    static void testIsHLUserMissingConfig() {
+        Help_Lightning_Config__c config = Help_Lightning_Config__c.getOrgDefaults();
+        delete config;
+
+        Test.setMock(HttpCalloutMock.class, new IsHLUserMocker());
+        Boolean result;
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // test a "valid user"
+        try {
+            HLSessionController.isHLUser('support@helplightning.com');
+            System.assert(false, 'Exception wasn\'t raised');
+        } catch (AuraHandledException e) {
+            // expected path
+            System.assert(true);
+        } catch (Exception e) {
+            System.assert(false, 'Caught incorrect exception');
+        }
+
+        Test.stopTest();
+    }
+
+    /**
      * Test makeSessionWith
      */
     @isTest
@@ -585,6 +661,49 @@ private class HLSessionControllerTest {
             // try an invalid case
             sessionId = HLSessionController.makeSessionWith('invalid-user@helplightning.com');
             System.assertEquals(null, sessionId);
+        }
+
+        Test.stopTest();
+    }
+
+    /**
+     * Test makeSessionWith with invalid configuration
+     */
+    @isTest
+    static void testMakeSessionWithMissingConfig() {
+        Help_Lightning_Config__c config = Help_Lightning_Config__c.getOrgDefaults();
+        delete config;
+
+        // run as a support@helplightning.com user, since this
+        //  looks up the current user to find a match.
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u = new User(Alias = 'support', Email='support@helplightning.com',
+                          EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                          LocaleSidKey='en_US', ProfileId = p.Id,
+                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u;
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up the mock
+        Test.setMock(HttpCalloutMock.class, new MakeSessionWithMocker());
+
+        System.RunAs(u) {
+            // try a valid case
+            try {
+                HLSessionController.makeSessionWith('contact1@helplightning.com');
+                System.assert(false, 'Exception wasn\'t raised');
+            } catch (AuraHandledException e) {
+                // expected path
+                System.assert(true);
+            } catch (Exception e) {
+                System.assert(false, 'Caught incorrect exception');
+            }
         }
 
         Test.stopTest();
@@ -652,5 +771,47 @@ private class HLSessionControllerTest {
         }
 
         Test.stopTest();
+    }
+
+    /**
+     * Test inviteToPersonalRoom with invalid configuration
+     */
+    @isTest
+    static void testInviteToPersonalRoomMissingConfig() {
+        Help_Lightning_Config__c config = Help_Lightning_Config__c.getOrgDefaults();
+        delete config;
+
+        // run as a support@helplightning.com user, since this
+        //  looks up the current user to find a match.
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u1 = new User(Alias = 'support', Email='support@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u1;
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up the mock
+        Test.setMock(HttpCalloutMock.class, new InviteToPersonalRoomMocker());
+
+        System.RunAs(u1) {
+            try {
+                HLSessionController.inviteToPersonalRoom('Other User', 'other@helplightning.com');
+                System.assert(false, 'Exception wasn\'t raised');
+            } catch (AuraHandledException e) {
+                // expected path
+                System.assert(true);
+            } catch (Exception e) {
+                System.assert(false, 'Caught incorrect exception');
+            }
+
+        }
+
     }
 }

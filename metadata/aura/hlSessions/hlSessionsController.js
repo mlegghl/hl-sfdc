@@ -7,10 +7,12 @@
 
         // make sure this component type is supported.
         var supportedComponent = (sObjectName === "Case" || sObjectName === "WorkOrder");
-        component.set("v.supportedComponent", supportedComponent);
-
         if (!supportedComponent) {
-            console.log("unsupported component");
+            console.log("Unsupported component");
+
+            component.set("v.hasErrors", true);
+            component.set("v.errorMessage", "Help Lightning is not available for this component.");
+
             return;
         }
 
@@ -34,11 +36,13 @@
                     if (component.isValid() && state == "SUCCESS") {
                         component.set("v.contactIsHLUser", response.getReturnValue());
                     } else if (component.isValid && state == "ERROR") {
+                        component.set("v.hasErrors", true);
+
                         console.log("setting error to: " + response.getError());
                         var errors = response.getError();
                         if (errors) {
                             if (errors[0] && errors[0].message) {
-                                component.set("v.error", errors[0].message);
+                                component.set("v.errorMessage", errors[0].message);
                             }
                         } else {
                             console.log("Unknown error during isHLUser");

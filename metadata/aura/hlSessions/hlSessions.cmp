@@ -1,6 +1,5 @@
 <aura:component controller="HLSessionController" implements="flexipage:availableForRecordHome,force:hasSObjectName,force:hasRecordId" access="global">
 
-    <aura:attribute name="supportedComponent" type="Boolean" default="false" />
     <aura:attribute name="hasErrors" type="Boolean" default="false" />
     <aura:attribute name="errorMessage" type="String" default="" />
     <aura:attribute name="contact" type="Contact"/>
@@ -9,19 +8,20 @@
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
 
-    <p>Errors: {!v.error}</p>
-
     <!-- Help Lightning Component -->
     <article class="slds-card">
         <!-- render our button header -->
-        <c:hlButtonHeader onCallClick="{!c.clickCall}"
+        <c:hlButtonHeader showButtons="{!v.hasErrors == false}"
+                          disableCallButton="{!v.contactIsHLUser == false}"
+                          onCallClick="{!c.clickCall}"
                           onInviteClick="{!c.clickInviteToPersonalRoom}" />
-        <div class="slds-card__body slds-card__body_inner">
-            <aura:if isTrue="{!v.supportedComponent}">
-                <div class="slds-p-bottom_small">
-                    <b>Use Help Lightning to make mobile merged reality video calls.</b>
-                </div>
 
+        <div class="slds-card__body slds-card__body_inner">
+            <div class="slds-p-bottom_small">
+                <b>Use Help Lightning to make mobile merged reality video calls.</b>
+            </div>
+
+            <aura:if isTrue="{!v.hasErrors == false}">
                 <!-- show a warning about not being a help lightning user -->
                 <aura:if isTrue="{!v.contactIsHLUser == false}">
                     <ul class="slds-list_horizontal">
@@ -49,7 +49,7 @@
                             </span>
                         </li>
                         <li class="slds-m-right_large">
-                            <p>Help Lightning is not available for this component.</p>
+                            <p>{!v.errorMessage}</p>
                         </li>
                     </ul>
                 </aura:set>

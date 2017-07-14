@@ -4,16 +4,18 @@
 	 viewBox="0 0 64 64" style="enable-background:new 0 0 64 64;" xml:space="preserve">
 <style type="text/css">
 	.st0{opacity:0;fill:#FFFFFF;}
-	.st1{display:none;}
-	.st2{fill:#414344;}
-	.st3{fill-rule:evenodd;clip-rule:evenodd;fill:#00A8E1;}
+	.st1{fill:#F0F8FC;}
+	.st2{display:none;}
+	.st3{fill:#414344;}
+	.st4{fill-rule:evenodd;clip-rule:evenodd;fill:#00A8E1;}
 </style>
 <rect class="st0" width="64" height="64"/>
-<g class="st1">
+<path class="st1" d="M59,64H5c-2.8,0-5-2.3-5-5V5c0-2.8,2.3-5,5-5h54c2.8,0,5,2.3,5,5v54C64,61.8,61.8,64,59,64z"/>
+<g class="st2">
 </g>
 <g>
-	<path class="st2" d="M47.4,47.8h-8.5V35.6l3.5-7.4h-3.5V16.6h8.5V47.8L47.4,47.8z M26.1,35.1v12.7h-8.5V16.6h8.5v9.8l-3.2,8.7H26.1
+	<path class="st3" d="M47.4,47.8h-8.5V35.6l3.5-7.4h-3.5V16.6h8.5V47.8L47.4,47.8z M26.1,35.1v12.7h-8.5V16.6h8.5v9.8l-3.2,8.7H26.1
 		L26.1,35.1z"/>
-	<polygon class="st3" points="37.3,2.2 26.1,32.9 34.6,32.9 23.9,62.2 38.9,30.4 30.8,30.4 41,2.2 37.3,2.2 	"/>
+	<polygon class="st4" points="37.3,2.2 26.1,32.9 34.6,32.9 23.9,62.2 38.9,30.4 30.8,30.4 41,2.2 37.3,2.2 	"/>
 </g>
 </svg>

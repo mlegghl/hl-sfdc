@@ -5,6 +5,8 @@
     <aura:attribute name="contact" type="Contact"/>
     <aura:attribute name="calls" type="helplightning__HLCall__c[]"/>
     <aura:attribute name="contactIsHLUser" type="Boolean" default="false"/>
+    <!-- our timer object used for polling for call changes -->
+    <aura:attribute name="pollTimer" type="Object" />
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
 

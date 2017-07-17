@@ -70,6 +70,9 @@
                     if (component.isValid() && state == "SUCCESS") {
                         component.set("v.calls", response.getReturnValue());
                     }
+
+                    // begin polling for new calls
+                    helper.beginPolling(component, helper);
                 });
 
                 $A.enqueueAction(action2);
@@ -90,7 +93,8 @@
             var state = response.getState();
             if (component.isValid() && state == "SUCCESS") {
                 // create a new HLCall
-                helper.createNewCall(component, sObjectName, rId, email, response.getReturnValue());
+                helper.createNewCall(component, helper, sObjectName, rId,
+                                     email, response.getReturnValue());
             } else {
                 console.log("HL::makeSessionWith response failed: " + state);
             }

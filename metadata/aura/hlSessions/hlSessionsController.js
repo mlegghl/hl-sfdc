@@ -24,6 +24,17 @@
             var state = response.getState();
             if (component.isValid() && state == "SUCCESS") {
                 var contact = response.getReturnValue();
+
+                // It is possible that this record does not have
+                //  a contact associated with it.
+                if (contact == null || contact.Email == null || contact.Email == '') {
+                    component.set("v.hasErrors", true);
+                    component.set("v.errorMessage",
+                                  "Please add a contact with a valid email to this record.");
+
+                    return;
+                }
+
                 component.set("v.contact", contact);
 
                 var email = contact.Email;

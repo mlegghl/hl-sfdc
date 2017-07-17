@@ -81,6 +81,14 @@
         $A.enqueueAction(recordAction);
     },
 
+    doDestroy : function(component, event, helper) {
+        // stop our timer if it is still running.
+        var timer = component.get("v.pollTimer");
+        if (timer) {
+            window.clearInterval(timer);
+        }
+    },
+
     clickCall : function(component, event, helper) {
         var sObjectName = component.get("v.sObjectName");
         var rId = component.get("v.recordId");

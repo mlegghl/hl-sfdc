@@ -9,6 +9,7 @@
     <aura:attribute name="pollTimer" type="Object" />
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
+    <aura:handler name="destroy" action="{!c.doDestroy}" value="{!this}"/>
 
     <!-- Help Lightning Component -->
     <article class="slds-card">

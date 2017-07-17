@@ -1,4 +1,5 @@
 2017-07-17  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-2 - Poll for call changes
 	* SFDC-19 - Move everything to API 40
 	* SFDC-13 - Handle Cases and WorkOrders without Contacts
 	* SFDC-5 - Move partner key and enterprise id to configuration

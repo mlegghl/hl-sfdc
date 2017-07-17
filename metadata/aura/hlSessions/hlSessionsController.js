@@ -70,12 +70,23 @@
                     if (component.isValid() && state == "SUCCESS") {
                         component.set("v.calls", response.getReturnValue());
                     }
+
+                    // begin polling for new calls
+                    helper.beginPolling(component, helper);
                 });
 
                 $A.enqueueAction(action2);
             }
         });
         $A.enqueueAction(recordAction);
+    },
+
+    doDestroy : function(component, event, helper) {
+        // stop our timer if it is still running.
+        var timer = component.get("v.pollTimer");
+        if (timer) {
+            window.clearInterval(timer);
+        }
     },
 
     clickCall : function(component, event, helper) {
@@ -90,7 +101,8 @@
             var state = response.getState();
             if (component.isValid() && state == "SUCCESS") {
                 // create a new HLCall
-                helper.createNewCall(component, sObjectName, rId, email, response.getReturnValue());
+                helper.createNewCall(component, helper, sObjectName, rId,
+                                     email, response.getReturnValue());
             } else {
                 console.log("HL::makeSessionWith response failed: " + state);
             }

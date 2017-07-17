@@ -120,81 +120,85 @@ public with sharing class HLSessionController {
      */
     @AuraEnabled
     public static List<helplightning__HLCall__c> updateCalls(String sObjectName, Id recordId) {
-        if (recordId == null) {
-            return new List<helplightning__HLCall__c>();
-        }
-
-        if (sObjectName != 'Case' && sObjectName != 'WorkOrder') {
-            System.debug('Invalid record type: ' + sObjectName);
-            return new List<helplightning__HLCall__c>();
-        }
-
-        helplightning__HLCall__c[] calls;
-
-        if (sObjectName == 'Case') {
-            calls = [SELECT Id,
-                     helplightning__Session_Id__c,
-                     helplightning__HLCall_Id__c,
-                     helplightning__Contact_Email__c,
-                     helplightning__Start_Time__c
-                     FROM helplightning__HLCall__c
-                     WHERE helplightning__Case__c = :recordId
-                     AND helplightning__Complete__c = false
-                     LIMIT 25];
-        } else if (sObjectName == 'WorkOrder') {
-            calls = [SELECT Id,
-                     helplightning__Session_Id__c,
-                     helplightning__HLCall_Id__c,
-                     helplightning__Contact_Email__c,
-                     helplightning__Start_Time__c
-                     FROM helplightning__HLCall__c
-                     WHERE helplightning__Work_Order__c = :recordId
-                     AND helplightning__Complete__c = false
-                     LIMIT 25];
-        }
-
-
-        /**
-         * !mwd - we cannot make callouts
-         *  in the middle of doing updates.
-         * Therefore we will make all our callouts
-         *  then check for updates in batch
-         * !mwd - we also need to put a hard limit
-         *  on how many calls we check.
-         */
-        Map<helplightning__HLCall__c, Object> callMap = new Map<helplightning__HLCall__c, Object>();
-        for (helplightning__HLCall__c call : calls) {
-            System.debug('getting Info about call ' + call);
-            HLRequest request = new HLRequest(HLToken.build(),
-                                              '/enterprise/sessions/' + call.helplightning__Session_Id__c);
-
-            Object results = request.get();
-
-            // try to find a match based on a fuzzy start time
-            System.debug('result of /sessions/calls/ ' + results);
-
-            if (results != null) {
-                callMap.put(call, results);
+        try {
+            if (recordId == null) {
+                return new List<helplightning__HLCall__c>();
             }
-        }
 
-        // now iterate through our map
-        for (helplightning__HLCall__c call : callMap.keySet()) {
-            Object results = callMap.get(call);
+            if (sObjectName != 'Case' && sObjectName != 'WorkOrder') {
+                System.debug('Invalid record type: ' + sObjectName);
+                return new List<helplightning__HLCall__c>();
+            }
 
-            if (results != null) {
-                // results is a list of calls, try to make matches
-                helplightning__HLCall__c matchedCall = HLCallUtil.findCallMatch(call, (Object[])results);
-                if (matchedCall != null) {
-                    // a match was found, we need to update the
-                    //  database with the changes.
-                    update matchedCall;
+            helplightning__HLCall__c[] calls;
+
+            if (sObjectName == 'Case') {
+                calls = [SELECT Id,
+                         helplightning__Session_Id__c,
+                         helplightning__HLCall_Id__c,
+                         helplightning__Contact_Email__c,
+                         helplightning__Start_Time__c
+                         FROM helplightning__HLCall__c
+                         WHERE helplightning__Case__c = :recordId
+                         AND helplightning__Complete__c = false
+                         LIMIT 25];
+            } else if (sObjectName == 'WorkOrder') {
+                calls = [SELECT Id,
+                         helplightning__Session_Id__c,
+                         helplightning__HLCall_Id__c,
+                         helplightning__Contact_Email__c,
+                         helplightning__Start_Time__c
+                         FROM helplightning__HLCall__c
+                         WHERE helplightning__Work_Order__c = :recordId
+                         AND helplightning__Complete__c = false
+                         LIMIT 25];
+            }
+
+
+            /**
+             * !mwd - we cannot make callouts
+             *  in the middle of doing updates.
+             * Therefore we will make all our callouts
+             *  then check for updates in batch
+             * !mwd - we also need to put a hard limit
+             *  on how many calls we check.
+             */
+            Map<helplightning__HLCall__c, Object> callMap = new Map<helplightning__HLCall__c, Object>();
+            for (helplightning__HLCall__c call : calls) {
+                System.debug('getting Info about call ' + call);
+                HLRequest request = new HLRequest(HLToken.build(),
+                                                  '/enterprise/sessions/' + call.helplightning__Session_Id__c);
+
+                Object results = request.get();
+
+                // try to find a match based on a fuzzy start time
+                System.debug('result of /sessions/calls/ ' + results);
+
+                if (results != null) {
+                    callMap.put(call, results);
                 }
             }
-        }
 
-        // return a fresh list of all calls
-        return getCallsForRecord(sObjectName, recordId);
+            // now iterate through our map
+            for (helplightning__HLCall__c call : callMap.keySet()) {
+                Object results = callMap.get(call);
+
+                if (results != null) {
+                    // results is a list of calls, try to make matches
+                    helplightning__HLCall__c matchedCall = HLCallUtil.findCallMatch(call, (Object[])results);
+                    if (matchedCall != null) {
+                        // a match was found, we need to update the
+                        //  database with the changes.
+                        update matchedCall;
+                    }
+                }
+            }
+
+            // return a fresh list of all calls
+            return getCallsForRecord(sObjectName, recordId);
+        } catch (HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
+        }
     }
 
     /**
@@ -205,23 +209,28 @@ public with sharing class HLSessionController {
     public static Boolean isHLUser(String email) {
         System.debug('isHLUser: ' + email);
 
-        Map<String,String> params = new Map<String,String>();
-        params.put('search_term', email);
+        try {
+            Map<String,String> params = new Map<String,String>();
+            params.put('search_term', email);
 
-        HLRequest request = new HLRequest(HLToken.build(), '/search');
-        Object results = request.post(params);
+            HLRequest request = new HLRequest(HLToken.build(), '/search');
+            Object results = request.post(params);
 
-        // Unfortunately, the results don't include the email field
-        //  (for privacy reasons), so we can't 100% verify this is
-        //  a match (since the /search api actually matches on additional
-        //  fields outside of our control). Therefore, we'll just assume
-        //  that if our results list > 0, then this email is probably
-        //  a user.
-        if (results != null && ((Object[])results).size() > 0) {
-            return true;
+            // Unfortunately, the results don't include the email field
+            //  (for privacy reasons), so we can't 100% verify this is
+            //  a match (since the /search api actually matches on additional
+            //  fields outside of our control). Therefore, we'll just assume
+            //  that if our results list > 0, then this email is probably
+            //  a user.
+            if (results != null && ((Object[])results).size() > 0) {
+                return true;
+            }
+
+            return false;
+
+        } catch (HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
         }
-
-        return false;
     }
 
     /**
@@ -232,23 +241,28 @@ public with sharing class HLSessionController {
     public static String makeSessionWith(String otherUsersEmail) {
         System.debug('makeSessionWith');
 
-        String myUserEmail = Userinfo.getUserEmail();
-        System.debug('myUserId=' + myUserEmail);
+        try {
+            String myUserEmail = Userinfo.getUserEmail();
+            System.debug('myUserId=' + myUserEmail);
 
-        Map<String, String> bodyParams = new Map<String, String> {
-                'dialer_email' => myUserEmail,
-                'receiver_email' => otherUsersEmail
-        };
+            Map<String, String> bodyParams = new Map<String, String> {
+                    'dialer_email' => myUserEmail,
+                        'receiver_email' => otherUsersEmail
+                        };
 
-        HLRequest request = new HLRequest(HLToken.build(), '/enterprise/calls');
-        Object results = request.post(bodyParams);
-        if (results != null) {
-            Map<String, Object> resultsMap = (Map<String,Object>)results;
-            System.debug('results=' + resultsMap);
+            HLRequest request = new HLRequest(HLToken.build(), '/enterprise/calls');
+            Object results = request.post(bodyParams);
+            if (results != null) {
+                Map<String, Object> resultsMap = (Map<String,Object>)results;
+                System.debug('results=' + resultsMap);
 
-            return (String)resultsMap.get('id');
-        } else {
-            return null;
+                return (String)resultsMap.get('id');
+            } else {
+                return null;
+            }
+
+        } catch (HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
         }
     }
 
@@ -260,45 +274,50 @@ public with sharing class HLSessionController {
     public static Boolean inviteToPersonalRoom(String otherUsersName, String otherUsersEmail) {
         System.debug('inviteToPersonalRoom: ' + otherUsersName + ' ' + otherUsersEmail);
 
-        String myUserEmail = Userinfo.getUserEmail();
-        System.debug('myUserId=' + myUserEmail);
+        try {
+            String myUserEmail = Userinfo.getUserEmail();
+            System.debug('myUserId=' + myUserEmail);
 
-        // first get a list of users to find us, since
-        //  we have to make this request as a specific user
-        HLRequest request = new HLRequest(HLToken.build(), '/enterprise/users');
-        Object results = request.get(new Map<String,String> {
-                'filter' => 'email=' + myUserEmail
-        });
-        if (results == null || ((Map<String,Object>)results).get('total_entries') != 1) {
-            System.debug('Error finding our user. Unexpected results are: ' + results);
-            return false;
+            // first get a list of users to find us, since
+            //  we have to make this request as a specific user
+            HLRequest request = new HLRequest(HLToken.build(), '/enterprise/users');
+            Object results = request.get(new Map<String,String> {
+                    'filter' => 'email=' + myUserEmail
+                        });
+            if (results == null || ((Map<String,Object>)results).get('total_entries') != 1) {
+                System.debug('Error finding our user. Unexpected results are: ' + results);
+                return false;
+            }
+            Map<String,Object> resultsMap = (Map<String,Object>)results;
+            Object[] entries = (Object[])resultsMap.get('entries');
+            // We are the first Entry
+            Map<String,Object> entry = (Map<String,Object>)entries[0];
+            System.debug('entry=' + entry);
+            String userToken = (String)entry.get('token');
+            System.debug('token=' + userToken);
+            if (userToken == null) {
+                System.debug('Invalid user token');
+                return false;
+            }
+
+            // Now send out the invite. We use the user
+            //  token we retrieved so that this acts
+            //  on behalf of that user.
+            request = new HLRequest(userToken, '/personal_room/invite');
+            results = request.post(new Map<String, String> {
+                    'name' => otherUsersName,
+                        'email' => otherUsersEmail
+                        });
+
+            if (results == null) {
+                System.debug('Failed to invite');
+                return false;
+            }
+
+            return true;
+
+        } catch (HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
         }
-        Map<String,Object> resultsMap = (Map<String,Object>)results;
-        Object[] entries = (Object[])resultsMap.get('entries');
-        // We are the first Entry
-        Map<String,Object> entry = (Map<String,Object>)entries[0];
-        System.debug('entry=' + entry);
-        String userToken = (String)entry.get('token');
-        System.debug('token=' + userToken);
-        if (userToken == null) {
-            System.debug('Invalid user token');
-            return false;
-        }
-
-        // Now send out the invite. We use the user
-        //  token we retrieved so that this acts
-        //  on behalf of that user.
-        request = new HLRequest(userToken, '/personal_room/invite');
-        results = request.post(new Map<String, String> {
-                'name' => otherUsersName,
-                'email' => otherUsersEmail
-        });
-
-        if (results == null) {
-            System.debug('Failed to invite');
-            return false;
-        }
-
-        return true;
     }
 }

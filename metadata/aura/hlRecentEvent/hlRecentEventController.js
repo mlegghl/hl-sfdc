@@ -1,8 +1,6 @@
 ({
 	doInit : function(component, event, helper) {
-        console.log('hlRecentEventController::doInit');
-
-		var item = component.get("v.item");
+        var item = component.get("v.item");
 
         // figure out the status
         if (item.helplightning__Complete__c) {
@@ -36,5 +34,5 @@
             /* not complete yet */
             component.set("v.duration", "");
         }
-	}
+    }
 })

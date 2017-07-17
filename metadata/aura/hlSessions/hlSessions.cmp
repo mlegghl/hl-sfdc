@@ -1,49 +1,27 @@
 <aura:component controller="HLSessionController" implements="flexipage:availableForRecordHome,force:hasSObjectName,force:hasRecordId" access="global">
 
-    <aura:attribute name="supportedComponent" type="Boolean" default="false" />
+    <aura:attribute name="hasErrors" type="Boolean" default="false" />
+    <aura:attribute name="errorMessage" type="String" default="" />
     <aura:attribute name="contact" type="Contact"/>
     <aura:attribute name="calls" type="helplightning__HLCall__c[]"/>
-    <aura:attribute name="contactIsHLUser" type="Boolean"/>
+    <aura:attribute name="contactIsHLUser" type="Boolean" default="false"/>
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
 
     <!-- Help Lightning Component -->
     <article class="slds-card">
-        <div class="slds-card__header slds-grid">
-            <header class="slds-media slds-media_center slds-has-flexi-truncate">
-                <div class="slds-media__figure">
-                    <span class="slds-icon_container slds-icon-standard-datadotcom" title="Help Lightning">
-                        <lightning:icon class="slds-icon hl-icon-white slds-m-around_x-small" iconName="utility:connected_apps" size="medium" />
-                    </span>
-                </div>
-                <div class="slds-media__body">
-                    <h2>
-                        <a href="javascript:void(0);" class="slds-card__header-link slds-truncate" title="Help Lightning">
-                            <span class="slds-text-heading_small">Help Lightning</span>
-                        </a>
-                    </h2>
-                </div>
-            </header>
-            <aura:if isTrue="{!v.supportedComponent}">
-                <div class="slds-no-flex">
-                    <ui:button class="slds-button slds-button_brand"
-                               press="{!c.clickCall}"
-                               disabled="{!v.contactIsHLUser == false}">
-                        Call Contact
-                    </ui:button>
-                    <ui:button class="slds-button slds-button_neutral"
-                               press="{!c.clickInviteToPersonalRoom}">
-                        Invite Contact
-                    </ui:button>
-                </div>
-            </aura:if>
-        </div>
-        <div class="slds-card__body slds-card__body_inner">
-            <aura:if isTrue="{!v.supportedComponent}">
-                <div class="slds-p-bottom_small">
-                    <b>Use Help Lightning to make mobile merged reality video calls.</b>
-                </div>
+        <!-- render our button header -->
+        <c:hlButtonHeader showButtons="{!v.hasErrors == false}"
+                          disableCallButton="{!v.contactIsHLUser == false}"
+                          onCallClick="{!c.clickCall}"
+                          onInviteClick="{!c.clickInviteToPersonalRoom}" />
 
+        <div class="slds-card__body slds-card__body_inner">
+            <div class="slds-p-bottom_small">
+                <b>Use Help Lightning to make mobile merged reality video calls.</b>
+            </div>
+
+            <aura:if isTrue="{!v.hasErrors == false}">
                 <!-- show a warning about not being a help lightning user -->
                 <aura:if isTrue="{!v.contactIsHLUser == false}">
                     <ul class="slds-list_horizontal">
@@ -71,7 +49,7 @@
                             </span>
                         </li>
                         <li class="slds-m-right_large">
-                            <p>Help Lightning is not available for this component.</p>
+                            <p>{!v.errorMessage}</p>
                         </li>
                     </ul>
                 </aura:set>

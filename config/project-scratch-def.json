@@ -1,0 +1,7 @@
+{
+    "orgName": "com.helplightning.ci Example",
+    "edition": "Developer",
+    "orgPreferences" : {
+        "enabled": ["S1DesktopEnabled"]
+    }
+}

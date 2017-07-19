@@ -1,0 +1,63 @@
+<aura:component controller="HLSessionController" implements="flexipage:availableForRecordHome,force:hasSObjectName,force:hasRecordId" access="global">
+
+    <aura:attribute name="hasErrors" type="Boolean" default="false" />
+    <aura:attribute name="errorMessage" type="String" default="" />
+    <aura:attribute name="contact" type="Contact"/>
+    <aura:attribute name="calls" type="HLCall__c[]"/>
+    <aura:attribute name="contactIsHLUser" type="Boolean" default="false"/>
+    <!-- our timer object used for polling for call changes -->
+    <aura:attribute name="pollTimer" type="Object" />
+
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
+    <aura:handler name="destroy" action="{!c.doDestroy}" value="{!this}"/>
+
+    <!-- Help Lightning Component -->
+    <article class="slds-card">
+        <!-- render our button header -->
+        <c:hlButtonHeader showButtons="{!v.hasErrors == false}"
+                          disableCallButton="{!v.contactIsHLUser == false}"
+                          onCallClick="{!c.clickCall}"
+                          onInviteClick="{!c.clickInviteToPersonalRoom}" />
+
+        <div class="slds-card__body slds-card__body_inner">
+            <div class="slds-p-bottom_small">
+                <b>Use Help Lightning to make mobile merged reality video calls.</b>
+            </div>
+
+            <aura:if isTrue="{!v.hasErrors == false}">
+                <!-- show a warning about not being a help lightning user -->
+                <aura:if isTrue="{!v.contactIsHLUser == false}">
+                    <ul class="slds-list_horizontal">
+                        <li class="slds-m-right_small">
+                            <span class="slds-icon_container slds-icon-utility-info-alt" title="Warning">
+                                <lightning:icon class="slds-icon" iconName="utility:info_alt" size="small" variant="warning" />
+                            </span>
+                        </li>
+                        <li class="slds-m-right_large">
+                            <p>Current contact does not have a Help Lightning account. Invite user to download the Help Lightning app.</p>
+                        </li>
+                    </ul>
+                </aura:if>
+
+                <aura:if isTrue="{!v.calls.length > 0}">
+                    <!-- Activity Timeline -->
+                    <c:hlRecentEventTimeline calls="{!v.calls}" />
+                </aura:if>
+                <aura:set attribute="else">
+                    <!-- unsupported component -->
+                    <ul class="slds-list_horizontal">
+                        <li class="slds-m-right_small">
+                            <span class="slds-icon_container slds-icon-utility-info-alt" title="Warning">
+                                <lightning:icon class="slds-icon" iconName="utility:info_alt" size="small" variant="warning" />
+                            </span>
+                        </li>
+                        <li class="slds-m-right_large">
+                            <p>{!v.errorMessage}</p>
+                        </li>
+                    </ul>
+                </aura:set>
+            </aura:if>
+        </div>
+        <footer class="slds-card__footer"></footer>
+    </article>
+</aura:component>

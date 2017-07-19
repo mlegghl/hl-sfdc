@@ -42,7 +42,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -78,7 +78,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -115,7 +115,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -171,7 +171,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -216,7 +216,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -265,7 +265,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -307,7 +307,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -350,7 +350,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -412,7 +412,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -457,7 +457,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -498,7 +498,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -541,7 +541,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);

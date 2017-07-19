@@ -109,7 +109,7 @@ private class HLSessionControllerTest {
                                 'name' => 'Support',
                                 'username' => 'support',
                                 'active' => true
-                        });
+                                });
                 }
 
                 response.setStatusCode(200);
@@ -169,9 +169,9 @@ private class HLSessionControllerTest {
                     result.put('entries', new List<Object> {
                             new Map<String,Object>{
                                 'active' => true,
-                                'token' => 'valid-token',
-                                'email' => 'support@helplightning.com'
-                            }
+                                    'token' => 'valid-token',
+                                    'email' => 'support@helplightning.com'
+                                    }
                         });
                 } else if (endpoint.getQuery() == 'filter=email=support3@helplightning.com&') {
                     // this is a valid user, but we are going to fake
@@ -180,8 +180,8 @@ private class HLSessionControllerTest {
                     result.put('entries', new List<Object> {
                             new Map<String,Object>{
                                 'active' => true,
-                                'email' => 'support3@helplightning.com'
-                            }
+                                    'email' => 'support3@helplightning.com'
+                                    }
                         });
                 } else {
                     result.put('total_entries', 0);
@@ -250,7 +250,7 @@ private class HLSessionControllerTest {
                                 HLCall_Id__c = 'abcd',
                                 Complete__c = true,
                                 Successful__c = true,
-                                Start_Time__c = DateTime.parse('06/28/2017 11:30 AM'),
+                                Start_Time__c = DateTime.newInstanceGMT(2017, 6, 28, 11, 30, 0),
                                 Duration__c = 60,
                                 Contact_Email__c = 'contact1@helplightning.com',
                                 Type__c = 'Direct',
@@ -259,7 +259,7 @@ private class HLSessionControllerTest {
                                 HLCall_Id__c = 'wxyz',
                                 Complete__c = false,
                                 Successful__c = false,
-                                Start_Time__c = DateTime.parse('06/28/2017 11:36 AM'),
+                                Start_Time__c = DateTime.newInstanceGMT(2017, 6, 28, 11, 36, 0),
                                 Duration__c = 0,
                                 Contact_Email__c = 'contact1@helplightning.com',
                                 Type__c = 'Direct',
@@ -269,7 +269,7 @@ private class HLSessionControllerTest {
                                 HLCall_Id__c = 'jklm',
                                 Complete__c = true,
                                 Successful__c = false,
-                                Start_Time__c = DateTime.parse('06/24/2017 2:55 PM'),
+                                Start_Time__c = DateTime.newInstanceGMT(2017, 6, 24, 14, 55, 0),
                                 Duration__c = 0,
                                 Contact_Email__c = 'contact2@helplightning.com',
                                 Type__c = 'Direct',

@@ -20,7 +20,7 @@ private class HLCallUtilTest {
     @isTest
     static void testFindCallMatchCompleted() {
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.parse('10/14/2016 11:46 AM'));
+                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -66,7 +66,7 @@ private class HLCallUtilTest {
     @isTest
     static void testFindCallWithoutMatchTimeout() {
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.parse('10/14/2016 11:46 AM'));
+                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -103,7 +103,7 @@ private class HLCallUtilTest {
     static void testFindCallWithoutMatch() {
         // create a call for right now
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.now());
+                                       Start_Time__c = DateTime.now());
 
         // no matched calls
         Object[] hlCalls = new Object[]{
@@ -138,7 +138,7 @@ private class HLCallUtilTest {
     static void testFindCallWithoutMatch2() {
         // create a call for right now
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.now());
+                                       Start_Time__c = DateTime.now());
 
         // no matched calls
         Object[] hlCalls = new Object[]{
@@ -193,8 +193,8 @@ private class HLCallUtilTest {
     @isTest
     static void testFindMatchedCallIncomplete() {
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.parse('10/14/2016 11:46 AM'),
-                                                                     HLCall_Id__c = '1234');
+                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0),
+                                       HLCall_Id__c = '1234');
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -242,8 +242,8 @@ private class HLCallUtilTest {
     @isTest
     static void testFindMatchedCallComplete() {
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.parse('10/14/2016 11:46 AM'),
-                                                                     HLCall_Id__c = '1234');
+                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0),
+                                       HLCall_Id__c = '1234');
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -285,7 +285,7 @@ private class HLCallUtilTest {
     @isTest
     static void testFindMatchedCallAsReceiver() {
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.parse('10/14/2016 11:46 AM'));
+                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -328,7 +328,7 @@ private class HLCallUtilTest {
     @isTest
     static void testInvalidDialerReciever() {
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.now());
+                                       Start_Time__c = DateTime.now());
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -369,7 +369,7 @@ private class HLCallUtilTest {
     @isTest
     static void testMultipleMatches() {
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.parse('10/14/2016 11:46 AM'));
+                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -435,7 +435,7 @@ private class HLCallUtilTest {
     static void testMatchInvalidReceiver() {
         // create a call for right now
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.now());
+                                       Start_Time__c = DateTime.now());
 
         // no matched calls
         Object[] hlCalls = new Object[]{
@@ -476,7 +476,7 @@ private class HLCallUtilTest {
     static void testMatchInvalidDialer() {
         // create a call for right now
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.now());
+                                       Start_Time__c = DateTime.now());
 
         // no matched calls
         Object[] hlCalls = new Object[]{
@@ -517,8 +517,8 @@ private class HLCallUtilTest {
     @isTest
     static void testMissingMatchedCall() {
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.parse('10/14/2016 11:46 AM'),
-                                                                     HLCall_Id__c = '1234');
+                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0),
+                                       HLCall_Id__c = '1234');
 
         // mock up some help lightning calls that the api would have returned
         // Don't include 1234

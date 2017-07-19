@@ -1,0 +1,31 @@
+sudo: true
+cache: false
+dist: trusy
+
+# More information on how this was set up, can be found
+#  by following the Sales force Trailhead module:
+#  Continuous Integration Using Salesforce DX
+# Please note, that this is configured to a special
+#  developer account as represented by the HLSFDC_USERNAME
+# https://trailhead.salesforce.com/modules/sfdx_travis_ci
+
+
+env:
+  - URL=https://developer.salesforce.com/media/salesforce-cli/sfdx-linux-amd64.tar.xz
+
+before_install:
+  - openssl aes-256-cbc -K $d2e4104f247f_key -iv $d2e4104f247f_iv -in assets/server.key.enc -out assets/server.key -d
+  - export SFDX_AUTOUPDATE_DISABLE=true
+  - export SFDX_USE_GENERIC_UNIX_KEYCHAIN=true
+  - export SFDX_DOMAIN_RETRY=300
+  - wget -qO- $URL | tar xJf -
+  - "./sfdx/install"
+  - export PATH=./sfdx/$(pwd):$PATH
+  - sfdx update
+  - sfdx force:auth:jwt:grant --clientid $HLSFDC_CONSUMERKEY --jwtkeyfile assets/server.key --username $HLSFDC_USERNAME --setdefaultdevhubusername -a HubOrg
+
+script:
+  - sfdx force:org:create -v HubOrg -s -f config/project-scratch-def.json -a ciorg
+  - sfdx force:source:push -u ciorg
+  - sfdx force:apex:test:run -u ciorg -c -r human
+  - sfdx force:org:delete -u ciorg -p

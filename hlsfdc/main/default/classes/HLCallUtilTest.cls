@@ -20,7 +20,7 @@ private class HLCallUtilTest {
     @isTest
     static void testFindCallMatchCompleted() {
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.parse('10/14/2016 11:46 AM'));
+                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -28,8 +28,8 @@ private class HLCallUtilTest {
                 'call_id' => '1234',
                     'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
                     'receiver' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
-                    'start_time' => '2016-10-14T11:46:01-05',
-                    'end_time' => '2016-10-14T11:52:00-05',
+                    'start_time' => '2016-10-14T11:46:01-00',
+                    'end_time' => '2016-10-14T11:52:00-00',
                     'complete' => true,
                     'successful' => true,
                     'duration' => (6 * 60)
@@ -42,7 +42,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -66,7 +66,7 @@ private class HLCallUtilTest {
     @isTest
     static void testFindCallWithoutMatchTimeout() {
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.parse('10/14/2016 11:46 AM'));
+                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -78,7 +78,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -103,7 +103,7 @@ private class HLCallUtilTest {
     static void testFindCallWithoutMatch() {
         // create a call for right now
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.now());
+                                       Start_Time__c = DateTime.now());
 
         // no matched calls
         Object[] hlCalls = new Object[]{
@@ -115,7 +115,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -138,7 +138,7 @@ private class HLCallUtilTest {
     static void testFindCallWithoutMatch2() {
         // create a call for right now
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.now());
+                                       Start_Time__c = DateTime.now());
 
         // no matched calls
         Object[] hlCalls = new Object[]{
@@ -146,8 +146,8 @@ private class HLCallUtilTest {
                 'call_id' => 'aabb',
                     'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
                     'receiver' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
-                    'start_time' => '2016-10-14T10:20:01-05',
-                    'end_time' => '2016-10-14T10:22:00-05',
+                    'start_time' => '2016-10-14T10:20:01-00',
+                    'end_time' => '2016-10-14T10:22:00-00',
                     'complete' => true,
                     'successful' => true,
                     'duration' => (6 * 60)
@@ -156,8 +156,8 @@ private class HLCallUtilTest {
                 'call_id' => 'ccdd',
                     'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
                     'receiver' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
-                    'start_time' => '2016-10-14T10:25:31-05',
-                    'end_time' => '2016-10-14T10:26:00-05',
+                    'start_time' => '2016-10-14T10:25:31-00',
+                    'end_time' => '2016-10-14T10:26:00-00',
                     'complete' => true,
                     'successful' => false,
                     'duration' => 0
@@ -171,7 +171,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -193,8 +193,8 @@ private class HLCallUtilTest {
     @isTest
     static void testFindMatchedCallIncomplete() {
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.parse('10/14/2016 11:46 AM'),
-                                                                     HLCall_Id__c = '1234');
+                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0),
+                                       HLCall_Id__c = '1234');
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -202,7 +202,7 @@ private class HLCallUtilTest {
                 'call_id' => '1234',
                     'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
                     'receiver' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
-                    'start_time' => '2016-10-14T11:46:01-05',
+                    'start_time' => '2016-10-14T11:46:01-00',
                     'end_time' => '',
                     'complete' => false,
                     'successful' => false,
@@ -216,7 +216,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -242,8 +242,8 @@ private class HLCallUtilTest {
     @isTest
     static void testFindMatchedCallComplete() {
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.parse('10/14/2016 11:46 AM'),
-                                                                     HLCall_Id__c = '1234');
+                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0),
+                                       HLCall_Id__c = '1234');
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -251,8 +251,8 @@ private class HLCallUtilTest {
                 'call_id' => '1234',
                     'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
                     'receiver' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
-                    'start_time' => '2016-10-14T11:46:01-05',
-                    'end_time' => '2016-10-14T11:52:01-05',
+                    'start_time' => '2016-10-14T11:46:01-00',
+                    'end_time' => '2016-10-14T11:52:01-00',
                     'complete' => true,
                     'successful' => false,
                     'duration' => 360
@@ -265,7 +265,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -285,7 +285,7 @@ private class HLCallUtilTest {
     @isTest
     static void testFindMatchedCallAsReceiver() {
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.parse('10/14/2016 11:46 AM'));
+                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -293,8 +293,8 @@ private class HLCallUtilTest {
                 'call_id' => '1234',
                     'dialer' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
                     'receiver' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
-                    'start_time' => '2016-10-14T11:46:01-05',
-                    'end_time' => '2016-10-14T11:52:00-05',
+                    'start_time' => '2016-10-14T11:46:01-00',
+                    'end_time' => '2016-10-14T11:52:00-00',
                     'complete' => true,
                     'successful' => true,
                     'duration' => (6 * 60)
@@ -307,7 +307,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -328,7 +328,7 @@ private class HLCallUtilTest {
     @isTest
     static void testInvalidDialerReciever() {
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.now());
+                                       Start_Time__c = DateTime.now());
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -336,8 +336,8 @@ private class HLCallUtilTest {
                 'call_id' => '1234',
                     'dialer' => new Map<String,String>{ 'email' => 'user1@helplightning.com' },
                     'receiver' => new Map<String,String>{ 'email' => 'user2@helplightning.com' },
-                    'start_time' => '2016-10-14T11:46:01-05',
-                    'end_time' => '2016-10-14T11:52:00-05',
+                    'start_time' => '2016-10-14T11:46:01-00',
+                    'end_time' => '2016-10-14T11:52:00-00',
                     'complete' => true,
                     'successful' => true,
                     'duration' => (6 * 60)
@@ -350,7 +350,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -369,7 +369,7 @@ private class HLCallUtilTest {
     @isTest
     static void testMultipleMatches() {
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.parse('10/14/2016 11:46 AM'));
+                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -377,8 +377,8 @@ private class HLCallUtilTest {
                 'call_id' => 'aabbcc',
                     'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
                     'receiver' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
-                    'start_time' => '2016-10-14T11:45:50-05',
-                    'end_time' => '2016-10-14T11:50:34-05',
+                    'start_time' => '2016-10-14T11:45:50-00',
+                    'end_time' => '2016-10-14T11:50:34-00',
                     'complete' => true,
                     'successful' => true,
                     'duration' => 284
@@ -387,8 +387,8 @@ private class HLCallUtilTest {
                 'call_id' => '1234',
                     'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
                     'receiver' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
-                    'start_time' => '2016-10-14T11:46:01-05',
-                    'end_time' => '2016-10-14T11:52:00-05',
+                    'start_time' => '2016-10-14T11:46:01-00',
+                    'end_time' => '2016-10-14T11:52:00-00',
                     'complete' => true,
                     'successful' => true,
                     'duration' => 360
@@ -397,8 +397,8 @@ private class HLCallUtilTest {
                 'call_id' => 'xxyyzz',
                     'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
                     'receiver' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
-                    'start_time' => '2016-10-14T11:46:12-05',
-                    'end_time' => '2016-10-14T11:56:32-05',
+                    'start_time' => '2016-10-14T11:46:12-00',
+                    'end_time' => '2016-10-14T11:56:32-00',
                     'complete' => true,
                     'successful' => true,
                     'duration' => 620
@@ -412,7 +412,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -435,7 +435,7 @@ private class HLCallUtilTest {
     static void testMatchInvalidReceiver() {
         // create a call for right now
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.now());
+                                       Start_Time__c = DateTime.now());
 
         // no matched calls
         Object[] hlCalls = new Object[]{
@@ -443,8 +443,8 @@ private class HLCallUtilTest {
                 'call_id' => 'aabb',
                     'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
                     'receiver' => new Map<String,String>{ 'email' => 'invalid-contact@helplightning.com' },
-                    'start_time' => '2016-10-14T10:20:01-05',
-                    'end_time' => '2016-10-14T10:22:00-05',
+                    'start_time' => '2016-10-14T10:20:01-00',
+                    'end_time' => '2016-10-14T10:22:00-00',
                     'complete' => true,
                     'successful' => true,
                     'duration' => (6 * 60)
@@ -457,7 +457,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -476,7 +476,7 @@ private class HLCallUtilTest {
     static void testMatchInvalidDialer() {
         // create a call for right now
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.now());
+                                       Start_Time__c = DateTime.now());
 
         // no matched calls
         Object[] hlCalls = new Object[]{
@@ -484,8 +484,8 @@ private class HLCallUtilTest {
                 'call_id' => 'aabb',
                     'dialer' => new Map<String,String>{ 'email' => 'invalid-contact@helplightning.com' },
                     'receiver' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
-                    'start_time' => '2016-10-14T10:20:01-05',
-                    'end_time' => '2016-10-14T10:22:00-05',
+                    'start_time' => '2016-10-14T10:20:01-00',
+                    'end_time' => '2016-10-14T10:22:00-00',
                     'complete' => true,
                     'successful' => true,
                     'duration' => (6 * 60)
@@ -498,7 +498,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
@@ -517,8 +517,8 @@ private class HLCallUtilTest {
     @isTest
     static void testMissingMatchedCall() {
         HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                                                     Start_Time__c = DateTime.parse('10/14/2016 11:46 AM'),
-                                                                     HLCall_Id__c = '1234');
+                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0),
+                                       HLCall_Id__c = '1234');
 
         // mock up some help lightning calls that the api would have returned
         // Don't include 1234
@@ -527,7 +527,7 @@ private class HLCallUtilTest {
                 'call_id' => 'aabbcc',
                     'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
                     'receiver' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
-                    'start_time' => '2016-10-14T11:46:01-05',
+                    'start_time' => '2016-10-14T11:46:01-00',
                     'end_time' => '',
                     'complete' => false,
                     'successful' => false,
@@ -541,7 +541,7 @@ private class HLCallUtilTest {
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
             HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);

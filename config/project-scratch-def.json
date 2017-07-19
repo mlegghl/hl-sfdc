@@ -1,0 +1,7 @@
+{
+    "orgName": "Help Lightning Company",
+    "edition": "Developer",
+    "orgPreferences" : {
+        "enabled": ["S1DesktopEnabled"]
+    }
+}

@@ -1,0 +1,14 @@
+<aura:component >
+    <aura:attribute name="calls" type="HLCall__c[]"/>
+
+    <!-- Activity Timeline -->
+    <div class="slds-box hl-timeline-box slds-scrollable">
+        <ul class="slds-timeline">
+            <aura:iteration items="{!v.calls}" var="call">
+                <li>
+                    <c:hlRecentEvent item="{!call}" />
+                </li>
+            </aura:iteration>
+        </ul>
+    </div>
+</aura:component>

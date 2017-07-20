@@ -67,7 +67,7 @@
         action.setCallback(this, function(response) {
             var state = response.getState();
             if (component.isValid() && state == "SUCCESS") {
-                calls = response.getReturnValue();
+                var calls = response.getReturnValue();
                 component.set("v.calls", calls);
 
                 // if all the calls are complete, stop

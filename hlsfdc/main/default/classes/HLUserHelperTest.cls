@@ -36,10 +36,12 @@ private class HLUserHelperTest {
                           TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
         insert u;
 
-        // set an override for this user.
-        HLConfiguration.setLoginOverride('override@helplightning.com');
 
         System.RunAs(u) {
+            // set an override for this user.
+            HLConfiguration.setLoginOverride('override@helplightning.com');
+
+            // make sure we get back the override instead.
             System.assertEquals('override@helplightning.com', HLUserHelper.getLogin());
         }
 

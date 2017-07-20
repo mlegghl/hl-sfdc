@@ -1,3 +1,5 @@
+/* -*- Mode: java; -*- */
+
 /**
  * HLConfigurationTest.cls
  *
@@ -61,5 +63,31 @@ private class HLConfigurationTest {
         String expected = 'MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAMZPAm05lQqKpmm0nyBhnqSq9X0e7dEZKvoGpVv6jVrULGCG+icPcdaY5DuZ6bT9PTd7kN7ftAX0aRFPB3FPvyGr96ytiDOr0k4rRckTkB5BmC1369FLieNQXqKVts9oPEaHkF0ST3UgliNZmREE4eLrhghqZcTcHBj9rprLZBx5AgMBAAECgYBBSjgJUAEC9H0vpjkRxzIdEvA6Hpm70yZ0JQYCT26ErgBiU24+t/YJ6lKSUO1CGnIyNyuORWaW405IVZWkt9W8IuSWGdDvxM85KcdX5+3UzTABUoZ8XQ0YrLfInFc8GT4bP9qfF0jf55MBYNYUHXA1GgE/R4YylQjqxHtAip5EhQJBAOZNgCpDMGErgdl/R2nYFZ6v5LZ1hNgUd2xdcZEPgbKVT3oJhea8L/UgZf/FZjT22TVaP4EfmwXRZqBnqtm1I0sCQQDcb5xg05fiq9pLt/DOZSbRwzOeZ6Ks++6v2tRnDCuR3dISW2rKDLNx4HACGGwpXFNUBhyYGn0urSB5UxMKb2DLAkEAqL4yYUT3psrtCoLSvX/hX3M7nmD/JB/i3NiexI3bFxGFuUJPBR/v96h0c/KcD8SqpAfrLd4NhTbH/lHXAktRfwJAUBKC3XE/FOmUDDku0epQZZXgpEPFBc0l8N8ulJgJI51N97kZW3etn0oFpd01PPj6k+T8cgv9OP1OdIPGwN2gbQJBAJqaappC/arTlRa1amSTnFgEubLcFvDgA6LuxLsdVBCXD4QqUx81fIUMXlw4UiXmlg8ZoFvTtJa+NKJROM1JMl4=';
 
         System.assertEquals(HLConfiguration.getPrivateKey(), expected);
+    }
+
+    @isTest
+    static void testSettingLoginOverride() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u1 = new User(Alias = 'user1', Email='user1@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='User1', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='user1@helplightning.com');
+        insert u1;
+        User u2 = new User(Alias = 'user2', Email='user2@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='User2', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='user2@helplightning.com');
+        insert u2;
+
+        // test with an override
+        System.RunAs(u1) {
+            HLConfiguration.setLoginOverride('override@helplightning.com');
+            System.assertEquals('override@helplightning.com', HLConfiguration.getLoginOverride());
+        }
+
+        // test without an override
+        System.RunAs(u2) {
+            System.assertEquals(null, HLConfiguration.getLoginOverride());
+        }
     }
 }

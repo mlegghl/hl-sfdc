@@ -1,3 +1,5 @@
+/* -*- Mode: java; -*- */
+
 /**
  * HLConfiguration.cls
  *
@@ -41,4 +43,28 @@ public class HLConfiguration {
             config.Private_Key_3__c + config.Private_Key_4__c;
     }
 
+    /**
+     * Get the Help Lightning Login.
+     * This can be overridden by each user.
+     *
+     * This will be NULL if the user has not
+     *  set one.
+     */
+    public static Object getLoginOverride() {
+        // Get the user's instance
+        Help_Lightning_Config__c config = Help_Lightning_Config__c.getInstance();
+
+        return config.Login__c;
+    }
+
+    /**
+     * Set a login override for
+     *  this specific user.
+     */
+    public static void setLoginOverride(String login) {
+        Help_Lightning_Config__c config = Help_Lightning_Config__c.getInstance();
+        config.Login__c = login;
+
+        upsert config;
+    }
 }

@@ -1,3 +1,5 @@
+/* -*- Mode: java; -*- */
+
 /**
  * HLTokenTest.cls
  *

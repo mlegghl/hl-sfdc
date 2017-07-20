@@ -1,3 +1,5 @@
+/* -*- Mode: java; -*- */
+
 /**
  * HLSessionController.cls
  *
@@ -242,7 +244,7 @@ public with sharing class HLSessionController {
         System.debug('makeSessionWith');
 
         try {
-            String myUserEmail = Userinfo.getUserEmail();
+            String myUserEmail = HLUserHelper.getLogin();
             System.debug('myUserId=' + myUserEmail);
 
             Map<String, String> bodyParams = new Map<String, String> {
@@ -275,7 +277,7 @@ public with sharing class HLSessionController {
         System.debug('inviteToPersonalRoom: ' + otherUsersName + ' ' + otherUsersEmail);
 
         try {
-            String myUserEmail = Userinfo.getUserEmail();
+            String myUserEmail = HLUserHelper.getLogin();
             System.debug('myUserId=' + myUserEmail);
 
             // first get a list of users to find us, since

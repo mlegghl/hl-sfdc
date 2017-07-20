@@ -1,3 +1,5 @@
+/* -*- Mode: java; -*- */
+
 /**
  * HLCallUtil.cls
  *
@@ -127,13 +129,13 @@ public class HLCallUtil {
 
             // first make sure the receiver of this call
             //  matches the reciever of our desired call
-            if (Userinfo.getUserEmail().equals(dialer)) {
+            if (HLUserHelper.getLogin().equals(dialer)) {
                 System.debug('we are the dialer');
                 if (!call.Contact_Email__c.equals(receiver)) {
                     System.debug('found a call with a mismatching receiver: ' + receiver);
                     continue;
                 }
-            } else if (Userinfo.getUserEmail().equals(receiver)) {
+            } else if (HLUserHelper.getLogin().equals(receiver)) {
                 System.debug('we are the receiver');
                 if (!call.Contact_Email__c.equals(dialer)) {
                     System.debug('found a call with a mismatching dialer: ' + dialer);

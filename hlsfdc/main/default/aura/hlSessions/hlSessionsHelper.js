@@ -1,4 +1,53 @@
 ({
+    /**
+     * Make sure we support this component type.
+     * If not, set an error and return false.
+     */
+    isSupportedComponent : function(component, sObjectName) {
+        var supportedComponent = (sObjectName === "Case" || sObjectName === "WorkOrder");
+        if (!supportedComponent) {
+            console.log("Unsupported component");
+
+            component.set("v.hasErrors", true);
+            component.set("v.errorMessage", "Help Lightning is not available for this component.");
+
+            return false;
+        }
+
+        return true;
+    },
+
+    /**
+     * Check if the user we are logged in as is a
+     *  valid help lightning user and is part of
+     *  the enterprise associated with the configured key.
+     */
+    checkRegistration : function(component, callback) {
+        var action = component.get("c.checkRegistration");
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if (component.isValid() && state == "SUCCESS") {
+                var isRegistered = response.getReturnValue();
+                if (isRegistered) {
+                    // execute our callback
+                    return callback(response);
+                } else {
+                    // we can't continue
+
+                    component.set("v.hasErrors", true);
+                    component.set("v.errorMessage",
+                                  "Unable to log in to Help Lightning. Please configure your Help Lightning account in your Custom Settings.");
+
+                    return;
+                }
+            } else if (component.isValid && state == "ERROR") {
+                setErrors(component, response);
+            }
+        });
+
+        $A.enqueueAction(action);
+    },
+
     createNewCall : function(component, helper, sObjectName, recordId, email, sessionId) {
         console.log("creating new session and attaching it to a " + sObjectName);
         var supportedComponent = (sObjectName === "Case" || sObjectName === "WorkOrder");
@@ -94,5 +143,18 @@
         });
 
         $A.enqueueAction(action);
+    },
+
+    setErrors : function(component, response) {
+        component.set("v.hasErrors", true);
+
+        var errors = response.getError();
+        if (errors) {
+            if (errors[0] && errors[0].message) {
+                component.set("v.errorMessage", errors[0].message);
+            }
+        } else {
+            console.log("HL::isHLUser response failed: " + respnse);
+        }
     }
 })

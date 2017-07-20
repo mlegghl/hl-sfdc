@@ -64,4 +64,30 @@ private class HLConfigurationTest {
 
         System.assertEquals(HLConfiguration.getPrivateKey(), expected);
     }
+
+    @isTest
+    static void testSettingLoginOverride() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u1 = new User(Alias = 'user1', Email='user1@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='User1', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='user1@helplightning.com');
+        insert u1;
+        User u2 = new User(Alias = 'user2', Email='user2@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='User2', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='user2@helplightning.com');
+        insert u2;
+
+        // test with an override
+        System.RunAs(u1) {
+            HLConfiguration.setLoginOverride('override@helplightning.com');
+            System.assertEquals('override@helplightning.com', HLConfiguration.getLoginOverride());
+        }
+
+        // test without an override
+        System.RunAs(u2) {
+            System.assertEquals(null, HLConfiguration.getLoginOverride());
+        }
+    }
 }

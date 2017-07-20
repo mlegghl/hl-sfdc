@@ -30,19 +30,29 @@ private class HLUserHelperTest {
         // run as a support@helplightning.com user, since this
         //  looks up the current user to find a match.
         Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
-        User u = new User(Alias = 'support', Email='support@helplightning.com',
-                          EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
-                          LocaleSidKey='en_US', ProfileId = p.Id,
-                          TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
-        insert u;
+        User u1 = new User(Alias = 'user1', Email='user1@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='User1', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='user1@helplightning.com');
+        insert u1;
+        User u2 = new User(Alias = 'user2', Email='user2@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='User2', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='user2@helplightning.com');
+        insert u2;
 
-
-        System.RunAs(u) {
+        System.RunAs(u1) {
             // set an override for this user.
             HLConfiguration.setLoginOverride('override@helplightning.com');
 
             // make sure we get back the override instead.
             System.assertEquals('override@helplightning.com', HLUserHelper.getLogin());
+        }
+
+        // verify user2 doesn't get this override
+        System.RunAs(u2) {
+            // make sure we don't get the override
+            System.assertEquals('user2@helplightning.com', HLUserHelper.getLogin());
         }
 
     }

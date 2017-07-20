@@ -204,6 +204,33 @@ public with sharing class HLSessionController {
     }
 
     /**
+     * Check if an email is part of the enterprise associated
+     *  with our private key.
+     */
+    @AuraEnabled
+    public static Boolean checkRegistration() {
+        try {
+            String myUserEmail = HLUserHelper.getLogin();
+
+            // Query the users in our enteprise, and filter
+            //  for our email.
+            HLRequest request = new HLRequest(HLToken.build(), '/enterprise/users');
+            Object results = request.get(new Map<String,String> {
+                    'filter' => 'email=' + myUserEmail
+                        });
+            if (results == null || ((Map<String,Object>)results).get('total_entries') != 1) {
+                System.debug('Error finding our user. Unexpected results are: ' + results);
+                return false;
+            } else {
+                // we are in the list!
+                return true;
+            }
+        } catch (HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
+        }
+    }
+
+    /**
      * Check if an email is associated with
      * a registered help lightning user.
      */

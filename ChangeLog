@@ -1,4 +1,5 @@
 2017-07-20  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-21 - Check to make sure salesforce user is part of enterprise
 	* SFDC-6 - Add ability to override help lightning username
 	* SFDC-22 - Error during polling for calls
 

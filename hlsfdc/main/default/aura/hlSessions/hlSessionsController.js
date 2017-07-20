@@ -6,79 +6,36 @@
         var sObjectName = component.get("v.sObjectName");
 
         // make sure this component type is supported.
-        var supportedComponent = (sObjectName === "Case" || sObjectName === "WorkOrder");
-        if (!supportedComponent) {
-            console.log("Unsupported component");
-
-            component.set("v.hasErrors", true);
-            component.set("v.errorMessage", "Help Lightning is not available for this component.");
-
+        if (!helper.isSupportedComponent(component, sObjectName)) {
             return;
         }
 
-        // get our record
-        var recordAction = component.get("c.getContactForRecord");
-        recordAction.setParams({"sObjectName": sObjectName,
-                                "recordId": rId});
-        recordAction.setCallback(this, function(response) {
-            var state = response.getState();
-            if (component.isValid() && state == "SUCCESS") {
-                var contact = response.getReturnValue();
+        // validate we are a help lightning user, in our enterprise
+        helper.checkRegistration(component, helper, function(response) {
+            if (!response) {
+                // invalid user, stop here.
+                return
+            }
 
-                // It is possible that this record does not have
-                //  a contact associated with it.
-                if (contact == null || contact.Email == null || contact.Email == '') {
-                    component.set("v.hasErrors", true);
-                    component.set("v.errorMessage",
-                                  "Please add a contact with a valid email to this record.");
-
+            // get our record
+            helper.getContactForRecord(component, helper, function(response) {
+                if (response === false) {
+                    // no contact, stop here.
                     return;
                 }
 
-                component.set("v.contact", contact);
-
-                var email = contact.Email;
-
-                // check if our contact is a Help Lightning User
-                var action1 = component.get("c.isHLUser");
-                action1.setParams({"email": email});
-                action1.setCallback(this, function(response) {
-                    var state = response.getState();
-                    if (component.isValid() && state == "SUCCESS") {
-                        component.set("v.contactIsHLUser", response.getReturnValue());
-                    } else if (component.isValid && state == "ERROR") {
-                        component.set("v.hasErrors", true);
-
-                        var errors = response.getError();
-                        if (errors) {
-                            if (errors[0] && errors[0].message) {
-                                component.set("v.errorMessage", errors[0].message);
-                            }
-                        } else {
-                            console.log("HL::isHLUser response failed: " + repsonse);
-                        }
-                    }
-                });
-                $A.enqueueAction(action1);
-
-                // get all the known calls associated with this case
-                var action2 = component.get("c.updateCalls");
-                action2.setParams({"sObjectName": sObjectName,
-                                   "recordId": rId});
-                action2.setCallback(this, function(response) {
-                    var state = response.getState();
-                    if (component.isValid() && state == "SUCCESS") {
-                        component.set("v.calls", response.getReturnValue());
-                    }
-
-                    // begin polling for new calls
-                    helper.beginPolling(component, helper);
+                // the response from getContactForRecord is the contact's
+                //  email address
+                // Now validate if that contact is a registered HL user.
+                helper.contactIsHLUser(component, helper, response, function(response) {
                 });
 
-                $A.enqueueAction(action2);
-            }
+                // get any calls associated with this record, and
+                //  begin polling if necessary.
+                helper.updateCalls(component, helper, function(response) {
+                });
+            });
         });
-        $A.enqueueAction(recordAction);
     },
 
     doDestroy : function(component, event, helper) {

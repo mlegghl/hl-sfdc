@@ -123,6 +123,50 @@ private class HLSessionControllerTest {
         }
     }
     /**
+     * Mocker for the checkRegistration
+     */
+    class CheckRegistrationMocker implements HttpCalloutMock {
+        public HTTPResponse respond(HTTPRequest req) {
+            URL endpoint = new URL(req.getEndpoint());
+
+            HttpResponse response = new HttpResponse();
+            response.setHeader('Content-Type', 'application/json');
+
+            if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1/enterprise/users')) {
+                Map<String, Object> result = new Map<String, Object>();
+
+                if (endpoint.getQuery() == 'filter=email=support@helplightning.com&') {
+                    result.put('total_entries', 1);
+                    result.put('entries', new List<Object> {
+                            new Map<String,Object>{
+                                'active' => true,
+                                    'token' => 'valid-token',
+                                    'email' => 'support@helplightning.com'
+                                    }
+                        });
+                } else if (endpoint.getQuery() == 'filter=email=override1534@helplightning.com&') {
+                    // this is a valid user, but we are going to fake
+                    //  not return a valid token
+                    result.put('total_entries', 1);
+                    result.put('entries', new List<Object> {
+                            new Map<String,Object>{
+                                'active' => true,
+                                    'email' => 'override1534@helplightning.com'
+                                    }
+                        });
+                } else {
+                    result.put('total_entries', 0);
+                    result.put('entries', new List<Object>{});
+                }
+                response.setStatusCode(200);
+                response.setBody(JSON.serialize(result));
+            } else {
+                response.setStatusCode(500);
+            }
+            return response;
+        }
+    }
+    /**
      * Mocker for the testMakeSessionWith
      */
     class MakeSessionWithMocker implements HttpCalloutMock {
@@ -815,5 +859,106 @@ private class HLSessionControllerTest {
 
         }
 
+        Test.stopTest();
+    }
+
+    /**
+     * Test checkRegistration
+     */
+    @isTest
+    static void testCheckRegistration() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u1 = new User(Alias = 'support', Email='support@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u1;
+        User u2 = new User(Alias = 'support2', Email='support2@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support2', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support2@helplightning.com');
+        insert u2;
+        User u3 = new User(Alias = 'support3', Email='support3@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support 3', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support3@helplightning.com');
+        insert u3;
+
+        // set an override for u2
+        System.RunAs(u2) {
+            HLConfiguration.setLoginOverride('override1534@helplightning.com');
+        }
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up a mock
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker());
+
+
+        System.RunAs(u1) {
+            Boolean result = HLSessionController.checkRegistration();
+            System.assertEquals(true, result);
+        }
+
+        // make sure it works for u2 with an override.
+        System.RunAs(u2) {
+            Boolean result = HLSessionController.checkRegistration();
+            System.assertEquals(true, result);
+        }
+
+        // test an invalid user.
+        System.RunAs(u3) {
+            Boolean result = HLSessionController.checkRegistration();
+            System.assertEquals(false, result);
+        }
+
+        Test.stopTest();
+    }
+
+    /**
+     * Test checkRegistration with an invalid configuration
+     */
+    @isTest
+    static void testCheckRegistrationMissingConfig() {
+        Help_Lightning_Config__c config = Help_Lightning_Config__c.getOrgDefaults();
+        delete config;
+
+
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u1 = new User(Alias = 'support', Email='support@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u1;
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up a mock
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker());
+
+
+        System.RunAs(u1) {
+            try {
+                HLSessionController.checkRegistration();
+                System.assert(false, 'Exception wasn\'t raised');
+            } catch (AuraHandledException e) {
+                // expected path
+                System.assert(true);
+            } catch (Exception e) {
+                System.assert(false, 'Caught incorrect exception');
+            }
+        }
+
+        Test.stopTest();
     }
 }

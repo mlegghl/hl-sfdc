@@ -81,8 +81,8 @@ private class HLConfigurationTest {
 
         // test with an override
         System.RunAs(u1) {
-            HLConfiguration.setLoginOverride('override@helplightning.com');
-            System.assertEquals('override@helplightning.com', HLConfiguration.getLoginOverride());
+            HLConfiguration.setLoginOverride('override5983@helplightning.com');
+            System.assertEquals('override5983@helplightning.com', HLConfiguration.getLoginOverride());
         }
 
         // test without an override

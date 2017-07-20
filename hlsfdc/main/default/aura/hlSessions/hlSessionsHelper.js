@@ -22,27 +22,132 @@
      *  valid help lightning user and is part of
      *  the enterprise associated with the configured key.
      */
-    checkRegistration : function(component, callback) {
+    checkRegistration : function(component, helper, callback) {
         var action = component.get("c.checkRegistration");
         action.setCallback(this, function(response) {
             var state = response.getState();
             if (component.isValid() && state == "SUCCESS") {
+                var result = false;
+
                 var isRegistered = response.getReturnValue();
                 if (isRegistered) {
-                    // execute our callback
-                    return callback(response);
+                    result = true;
                 } else {
                     // we can't continue
-
                     component.set("v.hasErrors", true);
                     component.set("v.errorMessage",
                                   "Unable to log in to Help Lightning. Please configure your Help Lightning account in your Custom Settings.");
 
-                    return;
+                    result = false;
                 }
             } else if (component.isValid && state == "ERROR") {
-                setErrors(component, response);
+                helper.setErrors(component, "checkRegistration", response);
+
+                result = false;
             }
+
+            // execute our callback
+            callback(result);
+        });
+
+        $A.enqueueAction(action);
+    },
+
+    /**
+     * Check to see if this record has a valid contact.
+     *
+     * Calls the callback with a return value of either:
+     *  false -> No valid contact
+     *  email:String -> the contact's email
+     */
+    getContactForRecord : function(component, helper, callback) {
+        var rId = component.get("v.recordId");
+        var sObjectName = component.get("v.sObjectName");
+
+        var recordAction = component.get("c.getContactForRecord");
+        recordAction.setParams({"sObjectName": sObjectName,
+                                "recordId": rId});
+        recordAction.setCallback(this, function(response) {
+            var result = false;
+
+            var state = response.getState();
+            if (component.isValid() && state == "SUCCESS") {
+                var contact = response.getReturnValue();
+
+                // It is possible that this record does not have
+                //  a contact associated with it.
+                if (contact == null || contact.Email == null || contact.Email == '') {
+                    component.set("v.hasErrors", true);
+                    component.set("v.errorMessage",
+                                  "Please add a contact with a valid email to this record.");
+
+                } else {
+                    component.set("v.contact", contact);
+                    result = contact.Email;
+                }
+            } else if (component.isValid() && state == "ERROR") {
+                helper.setErrors(component, "getContactForRecord", response);
+            }
+
+            // execute our callback
+            callback(result);
+        });
+
+        $A.enqueueAction(recordAction);
+    },
+
+    /**
+     * Check if an email of a contact is a registered
+     *  help lightning user.
+     */
+    contactIsHLUser : function(component, helper, email, callback) {
+        // check if our contact is a Help Lightning User
+        var action = component.get("c.isHLUser");
+        action.setParams({"email": email});
+        action.setCallback(this, function(response) {
+            var result = false;
+
+            var state = response.getState();
+            if (component.isValid() && state == "SUCCESS") {
+                result = response.getReturnValue();
+                component.set("v.contactIsHLUser", response.getReturnValue());
+            } else if (component.isValid && state == "ERROR") {
+                helper.setErrors(component, "isHLUser", response);
+            }
+
+            // execute our callback
+            callback(result);
+        });
+
+        $A.enqueueAction(action);
+    },
+
+    /**
+     * Do an initial update of the calls associated
+     *  with this record, and begin polling if
+     *  necessary
+     */
+    updateCalls : function(component, helper, callback) {
+        var rId = component.get("v.recordId");
+        var sObjectName = component.get("v.sObjectName");
+
+        // get all the known calls associated with this case
+        var action = component.get("c.updateCalls");
+        action.setParams({"sObjectName": sObjectName,
+                           "recordId": rId});
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if (component.isValid() && state == "SUCCESS") {
+                component.set("v.calls", response.getReturnValue());
+            } else if (component.isValid && state == "ERROR") {
+                helper.setErrors(component, "updateCalls", response);
+            }
+
+            // begin polling for new calls
+            helper.beginPolling(component, helper);
+
+            // call our callback.
+            callback(true);
         });
 
         $A.enqueueAction(action);
@@ -145,7 +250,7 @@
         $A.enqueueAction(action);
     },
 
-    setErrors : function(component, response) {
+    setErrors : function(component, method, response) {
         component.set("v.hasErrors", true);
 
         var errors = response.getError();
@@ -154,7 +259,7 @@
                 component.set("v.errorMessage", errors[0].message);
             }
         } else {
-            console.log("HL::isHLUser response failed: " + respnse);
+            console.log("HL::" + method + " response failed: " + response);
         }
     }
 })

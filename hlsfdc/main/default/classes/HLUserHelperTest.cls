@@ -43,10 +43,10 @@ private class HLUserHelperTest {
 
         System.RunAs(u1) {
             // set an override for this user.
-            HLConfiguration.setLoginOverride('override@helplightning.com');
+            HLConfiguration.setLoginOverride('blahblah234@helplightning.com');
 
             // make sure we get back the override instead.
-            System.assertEquals('override@helplightning.com', HLUserHelper.getLogin());
+            System.assertEquals('blahblah234@helplightning.com', HLUserHelper.getLogin());
         }
 
         // verify user2 doesn't get this override

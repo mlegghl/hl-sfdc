@@ -21,7 +21,7 @@ private class HLUserHelperTest {
         insert u;
 
         System.RunAs(u) {
-            System.assertEquals("support@helplightning.com", HLUserHelper.getLogin());
+            System.assertEquals('support@helplightning.com', HLUserHelper.getLogin());
         }
     }
 
@@ -37,10 +37,10 @@ private class HLUserHelperTest {
         insert u;
 
         // set an override for this user.
-        HLConfiguration.setLoginOverride("override@helplightning.com");
+        HLConfiguration.setLoginOverride('override@helplightning.com');
 
         System.RunAs(u) {
-            System.assertEquals("override@helplightning.com", HLUserHelper.getLogin());
+            System.assertEquals('override@helplightning.com', HLUserHelper.getLogin());
         }
 
     }

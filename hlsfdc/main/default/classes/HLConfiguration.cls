@@ -54,7 +54,7 @@ public class HLConfiguration {
         // Get the user's instance
         Help_Lightning_Config__c config = Help_Lightning_Config__c.getInstance();
 
-        return config.Login;
+        return config.Login__c;
     }
 
     /**
@@ -63,7 +63,7 @@ public class HLConfiguration {
      */
     public static void setLoginOverride(String login) {
         Help_Lightning_Config__c config = Help_Lightning_Config__c.getInstance();
-        config.Login = login;
+        config.Login__c = login;
 
         upsert config;
     }

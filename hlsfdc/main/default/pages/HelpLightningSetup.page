@@ -1,21 +1,19 @@
 <apex:page controller="HLConfigurationController">
-    <apex:form >
-      <apex:pageBlock title="Help Lightning Configuration">
-        <apex:pageBlockSection columns="2">
-          <!-- <apex:repeat value="{!config}" var="configKey"> -->
-          <!--   <apex:outputText value="{!configKey}"/>: -->
-          <!--   <apex:inputText value="{!config[configKey]}"/><br /> -->
-          <!-- </apex:repeat> -->
-          
-          <apex:outputText value="Enterprise Id" />
-          <apex:inputText value="{!config['enterpriseId']}" />
+  <apex:sectionHeader title="Configure the Help Lightning Component" />
 
-          <apex:outputText value="Private Key" />
-          <apex:inputTextArea rows="10" value="{!config['privateKey']}" />
-        </apex:pageBlockSection>
-        <apex:pageBlockButtons>
-          <apex:commandButton action="{!save}" value="Save" />
-        </apex:pageBlockButtons>
-      </apex:pageBlock>
-    </apex:form>
+  <apex:form >
+    <apex:pageBlock title="Help Lightning Configuration">
+      <apex:pageBlockSection columns="2">
+
+        <apex:outputText value="Enterprise Id" />
+        <apex:inputText value="{!config['enterpriseId']}" />
+
+        <apex:outputText value="Private Key" />
+        <apex:inputTextArea rows="10" cols="70" value="{!config['privateKey']}" />
+      </apex:pageBlockSection>
+      <apex:pageBlockButtons>
+        <apex:commandButton action="{!save}" value="Save" />
+      </apex:pageBlockButtons>
+    </apex:pageBlock>
+  </apex:form>
 </apex:page>

@@ -24,9 +24,6 @@ public with sharing class HLConfigurationController {
 
         config.put('enterpriseId', enterpriseId);
         config.put('privateKey', privateKey);
-
-        // config.put('enterpriseId', '108800aa');
-        // config.put('privateKey', 'asdfasdfasdfasdfasdfasdf');
     }
 
     public PageReference save() {

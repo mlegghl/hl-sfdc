@@ -1,3 +1,12 @@
+/* -*- Mode: java; -*- */
+
+/**
+ * HLConfigurationController.cls
+ *
+ * Copyright (c) 2017 HelpLightning Inc.
+ * https://helplightning.com
+ */
+
 public with sharing class HLConfigurationController {
 
     public Map<String,String> config { get; set; }

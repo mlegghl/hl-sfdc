@@ -1,6 +1,10 @@
 <apex:page controller="HLConfigurationController">
   <apex:sectionHeader title="Configure the Help Lightning Component" />
 
+  <apex:pageMessage summary="The following information should have been provided by Help Lightning. If you have not received this information, please contact your Help Lightning representative"
+                    severity="info"
+                    strength="3" />
+  
   <apex:form >
     <apex:pageBlock title="Help Lightning Configuration">
       <apex:pageBlockSection columns="2">

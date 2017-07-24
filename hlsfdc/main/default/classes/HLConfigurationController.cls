@@ -63,6 +63,10 @@ public with sharing class HLConfigurationController {
         // save
         upsert hlConfig Help_Lightning_Config__c.Id;
 
+        // add a success message
+        ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.Info,
+                                                   'Configuration Saved!'));
+
         return null;
     }
 }

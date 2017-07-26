@@ -16,7 +16,7 @@
     <script>
      var recordId = '{!Case.Id}';
      var myUserContext = "{!$User.UITheme}";
-     $Lightning.use("c:HelpLightningApp", function() {
+     $Lightning.use("helplightning:HelpLightningApp", function() {
          $Lightning.createComponent("helplightning:hlSessions",
                                     {recordId: recordId,
                                      sObjectName: "Case"},

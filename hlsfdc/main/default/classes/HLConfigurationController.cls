@@ -15,7 +15,7 @@ public with sharing class HLConfigurationController {
         config = new Map<String,String>();
 
         // get the ORG defaults
-        helplightning.Help_Lightning_Config__c hlConfig = helplightning.Help_Lightning_Config__c.getOrgDefaults();
+        helplightning__Help_Lightning_Config__c hlConfig = helplightning__Help_Lightning_Config__c.getOrgDefaults();
 
         String enterpriseId = '';
         if (hlConfig.helplightning__Enterprise_Id__c != null)
@@ -37,7 +37,7 @@ public with sharing class HLConfigurationController {
 
     public PageReference save() {
         // get the ORG defaults
-        helplightning.Help_Lightning_Config__c hlConfig = helplightning.Help_Lightning_Config__c.getOrgDefaults();
+        helplightning__Help_Lightning_Config__c hlConfig = helplightning__Help_Lightning_Config__c.getOrgDefaults();
 
         if (config.get('enterpriseId') != '') {
             hlConfig.helplightning__Enterprise_Id__c = config.get('enterpriseId');
@@ -61,7 +61,7 @@ public with sharing class HLConfigurationController {
         }
 
         // save
-        upsert hlConfig helplightning.Help_Lightning_Config__c.Id;
+        upsert hlConfig helplightning__Help_Lightning_Config__c.Id;
 
         // add a success message
         ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.Info,

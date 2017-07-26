@@ -291,48 +291,48 @@ private class HLSessionControllerTest {
         insert workOrder;
 
         // create some fake calls for case 1
-        List<HLCall__c> calls = new List<HLCall__c>();
-        calls.add(new HLCall__c(Session_Id__c = 'aabbccdd',
-                                HLCall_Id__c = 'abcd',
-                                Complete__c = true,
-                                Successful__c = true,
-                                Start_Time__c = DateTime.newInstanceGMT(2017, 6, 28, 11, 30, 0),
-                                Duration__c = 60,
-                                Contact_Email__c = 'contact1@helplightning.com',
-                                Type__c = 'Direct',
-                                Case__c = case1.Id));
-        calls.add(new HLCall__c(Session_Id__c = 'wwxxyyzz',
-                                HLCall_Id__c = 'wxyz',
-                                Complete__c = false,
-                                Successful__c = false,
-                                Start_Time__c = DateTime.newInstanceGMT(2017, 6, 28, 11, 36, 0),
-                                Duration__c = 0,
-                                Contact_Email__c = 'contact1@helplightning.com',
-                                Type__c = 'Direct',
-                                Case__c = case1.Id));
+        List<helplightning__HLCall__c> calls = new List<helplightning__HLCall__c>();
+        calls.add(new helplightning__HLCall__c(helplightning__Session_Id__c = 'aabbccdd',
+                                helplightning__HLCall_Id__c = 'abcd',
+                                helplightning__Complete__c = true,
+                                helplightning__Successful__c = true,
+                                helplightning__Start_Time__c = DateTime.newInstanceGMT(2017, 6, 28, 11, 30, 0),
+                                helplightning__Duration__c = 60,
+                                helplightning__Contact_Email__c = 'contact1@helplightning.com',
+                                helplightning__Type__c = 'Direct',
+                                helplightning__Case__c = case1.Id));
+        calls.add(new helplightning__HLCall__c(helplightning__Session_Id__c = 'wwxxyyzz',
+                                helplightning__HLCall_Id__c = 'wxyz',
+                                helplightning__Complete__c = false,
+                                helplightning__Successful__c = false,
+                                helplightning__Start_Time__c = DateTime.newInstanceGMT(2017, 6, 28, 11, 36, 0),
+                                helplightning__Duration__c = 0,
+                                helplightning__Contact_Email__c = 'contact1@helplightning.com',
+                                helplightning__Type__c = 'Direct',
+                                helplightning__Case__c = case1.Id));
         // add a call to the work order
-        calls.add(new HLCall__c(Session_Id__c = 'jjkkllmm',
-                                HLCall_Id__c = 'jklm',
-                                Complete__c = true,
-                                Successful__c = false,
-                                Start_Time__c = DateTime.newInstanceGMT(2017, 6, 24, 14, 55, 0),
-                                Duration__c = 0,
-                                Contact_Email__c = 'contact2@helplightning.com',
-                                Type__c = 'Direct',
-                                Work_Order__c = workOrder.Id));
+        calls.add(new helplightning__HLCall__c(helplightning__Session_Id__c = 'jjkkllmm',
+                                helplightning__HLCall_Id__c = 'jklm',
+                                helplightning__Complete__c = true,
+                                helplightning__Successful__c = false,
+                                helplightning__Start_Time__c = DateTime.newInstanceGMT(2017, 6, 24, 14, 55, 0),
+                                helplightning__Duration__c = 0,
+                                helplightning__Contact_Email__c = 'contact2@helplightning.com',
+                                helplightning__Type__c = 'Direct',
+                                helplightning__Work_Order__c = workOrder.Id));
         insert calls;
 
         // create a fake configuration
-        Help_Lightning_Config__c config = Help_Lightning_Config__c.getOrgDefaults();
-        config.Enterprise_id__c = '1';
+        helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getOrgDefaults();
+        config.helplightning__Enterprise_id__c = '1';
         config.Private_Key_1__c = 'MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAMZPAm05lQqKpmm0nyBhnqSq9X0e7dEZKvoGpVv6jVrULGCG+icPcdaY5DuZ6bT9PTd7kN7ftAX0aRFPB3FPvyGr96ytiDOr0k4rRckTkB5BmC1369FLieNQXqKVts9oPEaHkF0ST3UgliNZmREE4eLrhghqZcTcHBj9rprLZBx5AgMBAAECgYBBSjgJUAEC9H0vpjkRxzIdEvA';
         config.Private_Key_2__c = '6Hpm70yZ0JQYCT26ErgBiU24+t/YJ6lKSUO1CGnIyNyuORWaW405IVZWkt9W8IuSWGdDvxM85KcdX5+3UzTABUoZ8XQ0YrLfInFc8GT4bP9qfF0jf55MBYNYUHXA1GgE/R4YylQjqxHtAip5EhQJBAOZNgCpDMGErgdl/R2nYFZ6v5LZ1hNgUd2xdcZEPgbKVT3oJhea8L/UgZf/FZjT22TVaP4EfmwXRZqBnqtm1I0sCQQDcb5xg05fiq9pLt/';
         config.Private_Key_3__c = 'DOZSbRwzOeZ6Ks++6v2tRnDCuR3dISW2rKDLNx4HACGGwpXFNUBhyYGn0urSB5UxMKb2DLAkEAqL4yYUT3psrtCoLSvX/hX3M7nmD/JB/i3NiexI3bFxGFuUJPBR/v96h0c/KcD8SqpAfrLd4NhTbH/lHXAktRfwJAUBKC3XE/FOmUDDku0epQZZXgpEPFBc0l8N8ulJgJI51N97kZW3etn0oFpd01PPj6k+T8cgv9OP1OdIPGwN2gbQJBAJqaa';
         config.Private_Key_4__c = 'ppC/arTlRa1amSTnFgEubLcFvDgA6LuxLsdVBCXD4QqUx81fIUMXlw4UiXmlg8ZoFvTtJa+NKJROM1JMl4=';
-        upsert config Help_Lightning_Config__c.Id;
+        upsert config helplightning__Help_Lightning_Config__c.Id;
 
         // validate this was updated
-        System.assertEquals('1', config.Enterprise_id__c);
+        System.assertEquals('1', config.helplightning__Enterprise_id__c);
     }
 
     /**
@@ -352,31 +352,31 @@ private class HLSessionControllerTest {
 
         Contact c;
         // look up a valid case
-        c = HLSessionController.getContactForRecord('Case', caseId);
+        c = helplightning.HLSessionController.getContactForRecord('Case', caseId);
         System.assertNotEquals(c, null);
         System.assertEquals(c.Id, contact1.Id);
         System.assertEquals(c.Name, contact1.Name);
         System.assertEquals(c.Email, contact1.Email);
 
         // look up a valid work order
-        c = HLSessionController.getContactForRecord('WorkOrder', workOrderId);
+        c = helplightning.HLSessionController.getContactForRecord('WorkOrder', workOrderId);
         System.assertNotEquals(c, null);
         System.assertEquals(c.Id, contact2.Id);
         System.assertEquals(c.Name, contact2.Name);
         System.assertEquals(c.Email, contact2.Email);
 
         // look up an invalid case and work order
-        c = HLSessionController.getContactForRecord('Case', workOrderId);
+        c = helplightning.HLSessionController.getContactForRecord('Case', workOrderId);
         System.assertEquals(c, null);
-        c = HLSessionController.getContactForRecord('WorkOrder', caseId);
+        c = helplightning.HLSessionController.getContactForRecord('WorkOrder', caseId);
         System.assertEquals(c, null);
 
         // look up a valid case missing a contact
-        c = HLSessionController.getContactForRecord('Case', case2Id);
+        c = helplightning.HLSessionController.getContactForRecord('Case', case2Id);
         System.assertEquals(c, null);
 
         // look up an unsupported record type
-        c = HLSessionController.getContactForRecord('Contact', contact1.Id);
+        c = helplightning.HLSessionController.getContactForRecord('Contact', contact1.Id);
         System.assertEquals(c, null);
     }
 
@@ -392,17 +392,17 @@ private class HLSessionControllerTest {
 
         Case c;
 
-        c = HLSessionController.getCase(caseId);
+        c = helplightning.HLSessionController.getCase(caseId);
         System.assertEquals(c.Id, caseId);
         System.assertEquals(c.ContactId, contact.Id);
         System.assertEquals(c.ContactEmail, contact.Email);
         System.assertEquals(c.Contact.Name, contact.Name);
 
         // null id
-        System.assertEquals(HLSessionController.getCase(null), null);
+        System.assertEquals(helplightning.HLSessionController.getCase(null), null);
 
         // case with no contacts
-        c = HLSessionController.getCase(case2Id);
+        c = helplightning.HLSessionController.getCase(case2Id);
         System.assertEquals(c.Id, case2Id);
         System.assertEquals(c.ContactId, null);
         System.assertEquals(c.ContactEmail, null);
@@ -418,16 +418,16 @@ private class HLSessionControllerTest {
         Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
         Id invalidId = [SELECT Id from WorkOrder WHERE Subject = 'Work Order 1' LIMIT 1].Id;
 
-        List<HLCall__c> calls = HLSessionController.getCallsForRecord('case', caseId);
+        List<helplightning__HLCall__c> calls = helplightning.HLSessionController.getCallsForRecord('case', caseId);
 
         System.assertEquals(calls.size(), 2);
 
         // test for an invalid Id
-        calls = HLSessionController.getCallsForRecord('case', invalidId);
+        calls = helplightning.HLSessionController.getCallsForRecord('case', invalidId);
         System.assertEquals(calls.size(), 0);
 
         // null Id
-        calls = HLSessionController.getCallsForRecord('case', null);
+        calls = helplightning.HLSessionController.getCallsForRecord('case', null);
         System.assertEquals(calls.size(), 0);
     }
 
@@ -439,16 +439,16 @@ private class HLSessionControllerTest {
         Id workOrderId = [SELECT Id from WorkOrder WHERE Subject = 'Work Order 1' LIMIT 1].Id;
         Id invalidId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
 
-        List<HLCall__c> calls = HLSessionController.getCallsForRecord('WorkOrder', workOrderId);
+        List<helplightning__HLCall__c> calls = helplightning.HLSessionController.getCallsForRecord('WorkOrder', workOrderId);
 
         System.assertEquals(calls.size(), 1);
 
         // test for an invalid Id
-        calls = HLSessionController.getCallsForRecord('WorkOrder', invalidId);
+        calls = helplightning.HLSessionController.getCallsForRecord('WorkOrder', invalidId);
         System.assertEquals(calls.size(), 0);
 
         // null Id
-        calls = HLSessionController.getCallsForRecord('WorkOrder', null);
+        calls = helplightning.HLSessionController.getCallsForRecord('WorkOrder', null);
         System.assertEquals(calls.size(), 0);
     }
 
@@ -457,7 +457,7 @@ private class HLSessionControllerTest {
      */
     @isTest
     static void testGetCallsForRecordInvalid() {
-        List<HLCall__c> calls = HLSessionController.getCallsForRecord('InvalidType', null);
+        List<helplightning__HLCall__c> calls = helplightning.HLSessionController.getCallsForRecord('InvalidType', null);
         System.assertEquals(calls.size(), 0);
     }
 
@@ -466,14 +466,14 @@ private class HLSessionControllerTest {
      */
     @isTest
     static void testSaveCall() {
-        HLCall__c call = [SELECT Id, Complete__c from HLCall__c WHERE Complete__c = false LIMIT 1];
-        call.Complete__c = true;
+        helplightning__HLCall__c call = [SELECT Id, helplightning__Complete__c from helplightning__HLCall__c WHERE helplightning__Complete__c = false LIMIT 1];
+        call.helplightning__Complete__c = true;
 
-        call = HLSessionController.saveCall(call);
-        System.assertEquals(call.Complete__c, true);
+        call = helplightning.HLSessionController.saveCall(call);
+        System.assertEquals(call.helplightning__Complete__c, true);
 
         // validate this doesn't bomb with a null call.
-        call = HLSessionController.saveCall(null);
+        call = helplightning.HLSessionController.saveCall(null);
         System.assertEquals(call, null);
     }
 
@@ -504,22 +504,22 @@ private class HLSessionControllerTest {
         Test.setMock(HttpCalloutMock.class, new UpdateCallsCaseMocker());
 
         System.RunAs(u) {
-            List<HLCall__c> calls = HLSessionController.updateCalls('Case', caseId);
+            List<helplightning__HLCall__c> calls = helplightning.HLSessionController.updateCalls('Case', caseId);
 
             // validate we have 2 calls
             System.assertEquals(calls.size(), 2);
 
             // validate that call id 'wxyz'
             //  has been set to complete.
-            HLCall__c wxyz = null;
-            for (HLCall__c c: calls) {
-                if (c.HLCall_Id__c == 'wxyz')
+            helplightning__HLCall__c wxyz = null;
+            for (helplightning__HLCall__c c: calls) {
+                if (c.helplightning__HLCall_Id__c == 'wxyz')
                     wxyz = c;
             }
 
             System.assertNotEquals(wxyz, null);
-            System.assertEquals(wxyz.Complete__c, true);
-            System.assertEquals(wxyz.Duration__c, 360);
+            System.assertEquals(wxyz.helplightning__Complete__c, true);
+            System.assertEquals(wxyz.helplightning__Duration__c, 360);
         }
 
         Test.stopTest();
@@ -530,7 +530,7 @@ private class HLSessionControllerTest {
      */
     @isTest
     static void testUpdateCallsCaseMissingConfig() {
-        Help_Lightning_Config__c config = Help_Lightning_Config__c.getOrgDefaults();
+        helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getOrgDefaults();
         delete config;
 
         Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
@@ -556,7 +556,7 @@ private class HLSessionControllerTest {
 
         System.RunAs(u) {
             try {
-                HLSessionController.updateCalls('Case', caseId);
+                helplightning.HLSessionController.updateCalls('Case', caseId);
                 System.assert(false, 'Exception wasn\'t raised');
             } catch (AuraHandledException e) {
                 // expected path
@@ -596,7 +596,7 @@ private class HLSessionControllerTest {
         Test.setMock(HttpCalloutMock.class, new UpdateCallsWorkOrderMocker());
 
         System.RunAs(u) {
-            List<HLCall__c> calls = HLSessionController.updateCalls('WorkOrder', workOrderId);
+            List<helplightning__HLCall__c> calls = helplightning.HLSessionController.updateCalls('WorkOrder', workOrderId);
 
             // validate we have 1 calls
             System.assertEquals(calls.size(), 1);
@@ -611,12 +611,12 @@ private class HLSessionControllerTest {
     @isTest
     static void testUpdateCallsInvalid() {
         Id contactId = [SELECT Id FROM Contact WHERE Email='contact1@helplightning.com' LIMIT 1].Id;
-        List<HLCall__c> calls;
+        List<helplightning__HLCall__c> calls;
 
-        calls = HLSessionController.updateCalls('Case', null);
+        calls = helplightning.HLSessionController.updateCalls('Case', null);
         System.assertEquals(calls.size(), 0);
 
-        calls = HLSessionController.updateCalls('Contacts', contactId);
+        calls = helplightning.HLSessionController.updateCalls('Contacts', contactId);
         System.assertEquals(calls.size(), 0);
     }
 
@@ -636,11 +636,11 @@ private class HLSessionControllerTest {
         Test.startTest();
 
         // test a "valid user"
-        result = HLSessionController.isHLUser('support@helplightning.com');
+        result = helplightning.HLSessionController.isHLUser('support@helplightning.com');
         System.assertEquals(true, result);
 
         // test a non help lightning user
-        result = HLSessionController.isHLUser('invalid@helplightning.com');
+        result = helplightning.HLSessionController.isHLUser('invalid@helplightning.com');
         System.assertEquals(false, result);
 
         Test.stopTest();
@@ -651,7 +651,7 @@ private class HLSessionControllerTest {
      */
     @isTest
     static void testIsHLUserMissingConfig() {
-        Help_Lightning_Config__c config = Help_Lightning_Config__c.getOrgDefaults();
+        helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getOrgDefaults();
         delete config;
 
         Test.setMock(HttpCalloutMock.class, new IsHLUserMocker());
@@ -666,7 +666,7 @@ private class HLSessionControllerTest {
 
         // test a "valid user"
         try {
-            HLSessionController.isHLUser('support@helplightning.com');
+            helplightning.HLSessionController.isHLUser('support@helplightning.com');
             System.assert(false, 'Exception wasn\'t raised');
         } catch (AuraHandledException e) {
             // expected path
@@ -704,11 +704,11 @@ private class HLSessionControllerTest {
 
         System.RunAs(u) {
             // try a valid case
-            String sessionId = HLSessionController.makeSessionWith('contact1@helplightning.com');
+            String sessionId = helplightning.HLSessionController.makeSessionWith('contact1@helplightning.com');
             System.assertEquals('aabbccddeeff', sessionId);
 
             // try an invalid case
-            sessionId = HLSessionController.makeSessionWith('invalid-user@helplightning.com');
+            sessionId = helplightning.HLSessionController.makeSessionWith('invalid-user@helplightning.com');
             System.assertEquals(null, sessionId);
         }
 
@@ -720,7 +720,7 @@ private class HLSessionControllerTest {
      */
     @isTest
     static void testMakeSessionWithMissingConfig() {
-        Help_Lightning_Config__c config = Help_Lightning_Config__c.getOrgDefaults();
+        helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getOrgDefaults();
         delete config;
 
         // run as a support@helplightning.com user, since this
@@ -745,7 +745,7 @@ private class HLSessionControllerTest {
         System.RunAs(u) {
             // try a valid case
             try {
-                HLSessionController.makeSessionWith('contact1@helplightning.com');
+                helplightning.HLSessionController.makeSessionWith('contact1@helplightning.com');
                 System.assert(false, 'Exception wasn\'t raised');
             } catch (AuraHandledException e) {
                 // expected path
@@ -796,11 +796,11 @@ private class HLSessionControllerTest {
             Boolean result;
 
             // try a valid case
-            result = HLSessionController.inviteToPersonalRoom('Other User', 'other@helplightning.com');
+            result = helplightning.HLSessionController.inviteToPersonalRoom('Other User', 'other@helplightning.com');
             System.assertEquals(true, result);
 
             // try an invalid case
-            result = HLSessionController.inviteToPersonalRoom('Invalid User', 'invalid-user@helplightning.com');
+            result = helplightning.HLSessionController.inviteToPersonalRoom('Invalid User', 'invalid-user@helplightning.com');
             System.assertEquals(false, result);
         }
 
@@ -808,14 +808,14 @@ private class HLSessionControllerTest {
             Boolean result;
 
             // try a other user, but we are not part of this enterprise
-            result = HLSessionController.inviteToPersonalRoom('Other User', 'other@helplightning.com');
+            result = helplightning.HLSessionController.inviteToPersonalRoom('Other User', 'other@helplightning.com');
             System.assertEquals(false, result);
         }
         System.RunAs(u3) {
             Boolean result;
 
             // simulate us not correctly returning a token
-            result = HLSessionController.inviteToPersonalRoom('Other User', 'other@helplightning.com');
+            result = helplightning.HLSessionController.inviteToPersonalRoom('Other User', 'other@helplightning.com');
             System.assertEquals(false, result);
         }
 
@@ -827,7 +827,7 @@ private class HLSessionControllerTest {
      */
     @isTest
     static void testInviteToPersonalRoomMissingConfig() {
-        Help_Lightning_Config__c config = Help_Lightning_Config__c.getOrgDefaults();
+        helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getOrgDefaults();
         delete config;
 
         // run as a support@helplightning.com user, since this
@@ -851,7 +851,7 @@ private class HLSessionControllerTest {
 
         System.RunAs(u1) {
             try {
-                HLSessionController.inviteToPersonalRoom('Other User', 'other@helplightning.com');
+                helplightning.HLSessionController.inviteToPersonalRoom('Other User', 'other@helplightning.com');
                 System.assert(false, 'Exception wasn\'t raised');
             } catch (AuraHandledException e) {
                 // expected path
@@ -904,19 +904,19 @@ private class HLSessionControllerTest {
 
 
         System.RunAs(u1) {
-            Boolean result = HLSessionController.checkRegistration();
+            Boolean result = helplightning.HLSessionController.checkRegistration();
             System.assertEquals(true, result);
         }
 
         // make sure it works for u2 with an override.
         System.RunAs(u2) {
-            Boolean result = HLSessionController.checkRegistration();
+            Boolean result = helplightning.HLSessionController.checkRegistration();
             System.assertEquals(true, result);
         }
 
         // test an invalid user.
         System.RunAs(u3) {
-            Boolean result = HLSessionController.checkRegistration();
+            Boolean result = helplightning.HLSessionController.checkRegistration();
             System.assertEquals(false, result);
         }
 
@@ -928,7 +928,7 @@ private class HLSessionControllerTest {
      */
     @isTest
     static void testCheckRegistrationMissingConfig() {
-        Help_Lightning_Config__c config = Help_Lightning_Config__c.getOrgDefaults();
+        helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getOrgDefaults();
         delete config;
 
 
@@ -952,7 +952,7 @@ private class HLSessionControllerTest {
 
         System.RunAs(u1) {
             try {
-                HLSessionController.checkRegistration();
+                helplightning.HLSessionController.checkRegistration();
                 System.assert(false, 'Exception wasn\'t raised');
             } catch (AuraHandledException e) {
                 // expected path

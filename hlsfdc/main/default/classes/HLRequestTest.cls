@@ -64,7 +64,7 @@ private class HLRequestTest {
         // set up our mock
         Test.setMock(HttpCalloutMock.class, new HLRequestTestMocker());
 
-        HLRequest request = new HLRequest(token, route);
+        helplightning.HLRequest request = new helplightning.HLRequest(token, route);
         Object result = request.get();
 
         System.assertEquals(result, true);
@@ -78,7 +78,7 @@ private class HLRequestTest {
         // set up our mock
         Test.setMock(HttpCalloutMock.class, new HLRequestTestMocker());
 
-        HLRequest request = new HLRequest(token, route);
+        helplightning.HLRequest request = new helplightning.HLRequest(token, route);
         Object result = request.get();
 
         // null means failure
@@ -98,7 +98,7 @@ private class HLRequestTest {
         params.put('key2', true);
         params.put('key3', 2342);
 
-        HLRequest request = new HLRequest(token, route);
+        helplightning.HLRequest request = new helplightning.HLRequest(token, route);
         Object result = request.get(params);
 
         // The result should be the same map
@@ -119,7 +119,7 @@ private class HLRequestTest {
         params.put('key2', true);
         params.put('key3', 2342);
 
-        HLRequest request = new HLRequest(token, route);
+        helplightning.HLRequest request = new helplightning.HLRequest(token, route);
         Object result = request.post(params);
 
         // The result should be the same map

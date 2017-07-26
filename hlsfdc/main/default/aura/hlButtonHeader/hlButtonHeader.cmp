@@ -7,8 +7,8 @@
     <aura:attribute name="disableCallButton" type="Boolean" default="false" />
 
     <!-- regiser our callback event to use as callbacks for presses on buttons -->
-    <aura:registerEvent name="onCallClick" type="c:hlOnClickEvent" />
-    <aura:registerEvent name="onInviteClick" type="c:hlOnClickEvent" />
+    <aura:registerEvent name="onCallClick" type="helplightning:hlOnClickEvent" />
+    <aura:registerEvent name="onInviteClick" type="helplightning:hlOnClickEvent" />
 
 
     <div class="slds-card__header slds-grid">

@@ -17,7 +17,7 @@
      var recordId = '{!WorkOrder.Id}';
      var myUserContext = "{!$User.UITheme}";
      $Lightning.use("c:HelpLightningApp", function() {
-         $Lightning.createComponent("c:hlSessions",
+         $Lightning.createComponent("helplightning:hlSessions",
                                     {recordId: recordId,
                                      sObjectName: "WorkOrder"},
                                     "lightningComponent",

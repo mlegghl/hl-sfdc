@@ -164,17 +164,17 @@
         var newCall;
 
         if (sObjectName === "Case") {
-                newCall = {'sobjectType': 'HLCall__c',
-                           'Case__c': recordId,
-                           'Contact_Email__c': email,
-                           'Session_Id__c': sessionId,
-                           'Type__c': 'Direct'}
+                newCall = {'sobjectType': 'helplightning__HLCall__c',
+                           'helplightning__Case__c': recordId,
+                           'helplightning__Contact_Email__c': email,
+                           'helplightning__Session_Id__c': sessionId,
+                           'helplightning__Type__c': 'Direct'}
         } else if (sObjectName == "WorkOrder") {
-                newCall = {'sobjectType': 'HLCall__c',
-                           'Work_Order__c': recordId,
-                           'Contact_Email__c': email,
-                           'Session_Id__c': sessionId,
-                           'Type__c': 'Direct'}
+                newCall = {'sobjectType': 'helplightning__HLCall__c',
+                           'helplightning__Work_Order__c': recordId,
+                           'helplightning__Contact_Email__c': email,
+                           'helplightning__Session_Id__c': sessionId,
+                           'helplightning__Type__c': 'Direct'}
         }
 
         var action = component.get("c.saveCall");
@@ -226,7 +226,7 @@
 
                 // if all the calls are complete, stop
                 var complete = calls.every(function(call) {
-                    return call.Complete__c == true;
+                    return call.helplightning__Complete__c == true;
                 });
                 if (complete) {
                     // stop polling

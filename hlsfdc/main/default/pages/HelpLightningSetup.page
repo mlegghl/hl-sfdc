@@ -1,4 +1,4 @@
-<apex:page controller="HLConfigurationController">
+<apex:page controller="helplightning.HLConfigurationController">
   <apex:sectionHeader title="Configure the Help Lightning Component" />
 
   <apex:pageMessages />

@@ -1,3 +1,6 @@
+2017-07-26  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-26 - Make Help_Lightning_Config protected
+
 2017-07-24  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
 	* SFDC-24 - Fix issues found by security scanner
 	* SFDC-14 - Support Salesforce Classic

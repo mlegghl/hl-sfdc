@@ -14,11 +14,7 @@ public with sharing class HLUserConfigurationController {
         config = new Map<String,String>();
 
         // get the user settings
-        Object loginObj = helplightning.HLConfiguration.getLoginOverride();
-        String login = '';
-        if (loginObj != null)
-            login = (String)loginObj;
-
+        String login = helplightning.HLUserHelper.getLogin();
         config.put('login', login);
     }
 

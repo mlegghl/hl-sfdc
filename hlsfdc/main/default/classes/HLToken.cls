@@ -17,7 +17,7 @@ public class HLToken {
         String privateKey = HLConfiguration.getPrivateKey();
         String enterpriseId = HLConfiguration.getEnterpriseId();
 
-        JWT jwt = new JWT('RS256');
+        helplightning.JWT jwt = new helplightning.JWT('RS256');
         jwt.pkcs8 = privateKey;
         jwt.iss = 'Ghazal';
         jwt.sub = 'Partner:' + enterpriseId;

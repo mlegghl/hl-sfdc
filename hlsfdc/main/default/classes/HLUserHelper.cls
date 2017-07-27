@@ -17,7 +17,7 @@ public class HLUserHelper {
      *  user email.
      */
     public static String getLogin() {
-        Object l = HLConfiguration.getLoginOverride();
+        Object l = helplightning.HLConfiguration.getLoginOverride();
 
         if (l != null && (String)l != '') {
             return (String)l;

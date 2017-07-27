@@ -60,55 +60,57 @@ public with sharing class HLSessionController {
      *  a record in Salesforce
      */
     @AuraEnabled
-    public static List<HLCall__c> getCallsForRecord(String sObjectName, Id recordId) {
+    public static List<helplightning__HLCall__c> getCallsForRecord(String sObjectName, Id recordId) {
         if (recordId != null) {
             if (sObjectName == 'Case') {
-                return [ SELECT Id, Session_Id__c,
-                         HLCall_Id__c,
-                         Contact_Email__c,
-                         Complete__c,
-                         Successful__c,
-                         Start_Time__c,
-                         End_Time__c,
-                         Duration__c
-                         FROM HLCall__c
-                         WHERE Case__c = :recordId
-                         ORDER BY Start_Time__c DESC
+                return [ SELECT Id,
+                         helplightning__Session_Id__c,
+                         helplightning__HLCall_Id__c,
+                         helplightning__Contact_Email__c,
+                         helplightning__Complete__c,
+                         helplightning__Successful__c,
+                         helplightning__Start_Time__c,
+                         helplightning__End_Time__c,
+                         helplightning__Duration__c
+                         FROM helplightning__HLCall__c
+                         WHERE helplightning__Case__c = :recordId
+                         ORDER BY helplightning__Start_Time__c DESC
                          ];
             } else if (sObjectName == 'WorkOrder') {
-                return [ SELECT Id, Session_Id__c,
-                         HLCall_Id__c,
-                         Contact_Email__c,
-                         Complete__c,
-                         Successful__c,
-                         Start_Time__c,
-                         End_Time__c,
-                         Duration__c
-                         FROM HLCall__c
-                         WHERE Work_Order__c = :recordId
-                         ORDER BY Start_Time__c DESC
+                return [ SELECT Id,
+                         helplightning__Session_Id__c,
+                         helplightning__HLCall_Id__c,
+                         helplightning__Contact_Email__c,
+                         helplightning__Complete__c,
+                         helplightning__Successful__c,
+                         helplightning__Start_Time__c,
+                         helplightning__End_Time__c,
+                         helplightning__Duration__c
+                         FROM helplightning__HLCall__c
+                         WHERE helplightning__Work_Order__c = :recordId
+                         ORDER BY helplightning__Start_Time__c DESC
                          ];
             } else {
                 System.debug('Invalid record type: ' + sObjectName);
             }
         }
 
-        return new List<HLCall__c>();
+        return new List<helplightning__HLCall__c>();
     }
 
     @AuraEnabled
-    public static HLCall__c saveCall(HLCall__c call) {
+    public static helplightning__HLCall__c saveCall(helplightning__HLCall__c call) {
         if (call != null) {
             upsert call;
 
             return [ SELECT Id,
-                     Session_Id__c,
-                     HLCall_Id__c,
-                     Complete__c,
-                     Successful__c,
-                     Start_Time__c,
-                     Duration__c
-                     FROM HLCall__c
+                     helplightning__Session_Id__c,
+                     helplightning__HLCall_Id__c,
+                     helplightning__Complete__c,
+                     helplightning__Successful__c,
+                     helplightning__Start_Time__c,
+                     helplightning__Duration__c
+                     FROM helplightning__HLCall__c
                      WHERE Id = :call.id
                      ];
         } else {
@@ -121,38 +123,38 @@ public with sharing class HLSessionController {
      * related to a specific record.
      */
     @AuraEnabled
-    public static List<HLCall__c> updateCalls(String sObjectName, Id recordId) {
+    public static List<helplightning__HLCall__c> updateCalls(String sObjectName, Id recordId) {
         try {
             if (recordId == null) {
-                return new List<HLCall__c>();
+                return new List<helplightning__HLCall__c>();
             }
 
             if (sObjectName != 'Case' && sObjectName != 'WorkOrder') {
                 System.debug('Invalid record type: ' + sObjectName);
-                return new List<HLCall__c>();
+                return new List<helplightning__HLCall__c>();
             }
 
-            HLCall__c[] calls;
+            helplightning__HLCall__c[] calls;
 
             if (sObjectName == 'Case') {
                 calls = [SELECT Id,
-                         Session_Id__c,
-                         HLCall_Id__c,
-                         Contact_Email__c,
-                         Start_Time__c
-                         FROM HLCall__c
-                         WHERE Case__c = :recordId
-                         AND Complete__c = false
+                         helplightning__Session_Id__c,
+                         helplightning__HLCall_Id__c,
+                         helplightning__Contact_Email__c,
+                         helplightning__Start_Time__c
+                         FROM helplightning__HLCall__c
+                         WHERE helplightning__Case__c = :recordId
+                         AND helplightning__Complete__c = false
                          LIMIT 25];
             } else if (sObjectName == 'WorkOrder') {
                 calls = [SELECT Id,
-                         Session_Id__c,
-                         HLCall_Id__c,
-                         Contact_Email__c,
-                         Start_Time__c
-                         FROM HLCall__c
-                         WHERE Work_Order__c = :recordId
-                         AND Complete__c = false
+                         helplightning__Session_Id__c,
+                         helplightning__HLCall_Id__c,
+                         helplightning__Contact_Email__c,
+                         helplightning__Start_Time__c
+                         FROM helplightning__HLCall__c
+                         WHERE helplightning__Work_Order__c = :recordId
+                         AND helplightning__Complete__c = false
                          LIMIT 25];
             }
 
@@ -165,11 +167,11 @@ public with sharing class HLSessionController {
              * !mwd - we also need to put a hard limit
              *  on how many calls we check.
              */
-            Map<HLCall__c, Object> callMap = new Map<HLCall__c, Object>();
-            for (HLCall__c call : calls) {
+            Map<helplightning__HLCall__c, Object> callMap = new Map<helplightning__HLCall__c, Object>();
+            for (helplightning__HLCall__c call : calls) {
                 System.debug('getting Info about call ' + call);
-                HLRequest request = new HLRequest(HLToken.build(),
-                                                  '/enterprise/sessions/' + call.Session_Id__c);
+                helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
+                                                                              '/enterprise/sessions/' + call.helplightning__Session_Id__c);
 
                 Object results = request.get();
 
@@ -182,12 +184,12 @@ public with sharing class HLSessionController {
             }
 
             // now iterate through our map
-            for (HLCall__c call : callMap.keySet()) {
+            for (helplightning__HLCall__c call : callMap.keySet()) {
                 Object results = callMap.get(call);
 
                 if (results != null) {
                     // results is a list of calls, try to make matches
-                    HLCall__c matchedCall = HLCallUtil.findCallMatch(call, (Object[])results);
+                    helplightning__HLCall__c matchedCall = helplightning.HLCallUtil.findCallMatch(call, (Object[])results);
                     if (matchedCall != null) {
                         // a match was found, we need to update the
                         //  database with the changes.
@@ -198,7 +200,7 @@ public with sharing class HLSessionController {
 
             // return a fresh list of all calls
             return getCallsForRecord(sObjectName, recordId);
-        } catch (HLConfigurationException e) {
+        } catch (helplightning.HLConfigurationException e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');
         }
     }
@@ -210,11 +212,11 @@ public with sharing class HLSessionController {
     @AuraEnabled
     public static Boolean checkRegistration() {
         try {
-            String myUserEmail = HLUserHelper.getLogin();
+            String myUserEmail = helplightning.HLUserHelper.getLogin();
 
             // Query the users in our enteprise, and filter
             //  for our email.
-            HLRequest request = new HLRequest(HLToken.build(), '/enterprise/users');
+            helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(), '/enterprise/users');
             Object results = request.get(new Map<String,String> {
                     'filter' => 'email=' + myUserEmail
                         });
@@ -225,7 +227,7 @@ public with sharing class HLSessionController {
                 // we are in the list!
                 return true;
             }
-        } catch (HLConfigurationException e) {
+        } catch (helplightning.HLConfigurationException e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');
         }
     }
@@ -242,7 +244,7 @@ public with sharing class HLSessionController {
             Map<String,String> params = new Map<String,String>();
             params.put('search_term', email);
 
-            HLRequest request = new HLRequest(HLToken.build(), '/search');
+            helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(), '/search');
             Object results = request.post(params);
 
             // Unfortunately, the results don't include the email field
@@ -257,7 +259,7 @@ public with sharing class HLSessionController {
 
             return false;
 
-        } catch (HLConfigurationException e) {
+        } catch (helplightning.HLConfigurationException e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');
         }
     }
@@ -271,7 +273,7 @@ public with sharing class HLSessionController {
         System.debug('makeSessionWith');
 
         try {
-            String myUserEmail = HLUserHelper.getLogin();
+            String myUserEmail = helplightning.HLUserHelper.getLogin();
             System.debug('myUserId=' + myUserEmail);
 
             Map<String, String> bodyParams = new Map<String, String> {
@@ -279,7 +281,7 @@ public with sharing class HLSessionController {
                         'receiver_email' => otherUsersEmail
                         };
 
-            HLRequest request = new HLRequest(HLToken.build(), '/enterprise/calls');
+            helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(), '/enterprise/calls');
             Object results = request.post(bodyParams);
             if (results != null) {
                 Map<String, Object> resultsMap = (Map<String,Object>)results;
@@ -290,7 +292,7 @@ public with sharing class HLSessionController {
                 return null;
             }
 
-        } catch (HLConfigurationException e) {
+        } catch (helplightning.HLConfigurationException e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');
         }
     }
@@ -304,12 +306,12 @@ public with sharing class HLSessionController {
         System.debug('inviteToPersonalRoom: ' + otherUsersName + ' ' + otherUsersEmail);
 
         try {
-            String myUserEmail = HLUserHelper.getLogin();
+            String myUserEmail = helplightning.HLUserHelper.getLogin();
             System.debug('myUserId=' + myUserEmail);
 
             // first get a list of users to find us, since
             //  we have to make this request as a specific user
-            HLRequest request = new HLRequest(HLToken.build(), '/enterprise/users');
+            helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(), '/enterprise/users');
             Object results = request.get(new Map<String,String> {
                     'filter' => 'email=' + myUserEmail
                         });
@@ -332,7 +334,7 @@ public with sharing class HLSessionController {
             // Now send out the invite. We use the user
             //  token we retrieved so that this acts
             //  on behalf of that user.
-            request = new HLRequest(userToken, '/personal_room/invite');
+            request = new helplightning.HLRequest(userToken, '/personal_room/invite');
             results = request.post(new Map<String, String> {
                     'name' => otherUsersName,
                         'email' => otherUsersEmail
@@ -345,7 +347,7 @@ public with sharing class HLSessionController {
 
             return true;
 
-        } catch (HLConfigurationException e) {
+        } catch (helplightning.HLConfigurationException e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');
         }
     }

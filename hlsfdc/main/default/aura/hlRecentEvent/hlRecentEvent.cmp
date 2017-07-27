@@ -1,5 +1,5 @@
 <aura:component >
-    <aura:attribute name="item" type="HLCall__c"/>
+    <aura:attribute name="item" type="helplightning__HLCall__c"/>
 
     <!-- internal attributes -->
     <aura:attribute name="status" type="String"/>
@@ -31,7 +31,7 @@
                         <ul class="slds-list_horizontal">
                             <li class="slds-truncate_container_50 slds-m-right_large slds-grid">
                                 <span class="slds-text-title">To:</span>
-                                <span class="slds-text-body_small slds-m-left_xx-small slds-truncate" title="{!v.item.Contact_Email__c}">{!v.item.Contact_Email__c}</span>
+                                <span class="slds-text-body_small slds-m-left_xx-small slds-truncate" title="{!v.item.helplightning__Contact_Email__c}">{!v.item.helplightning__Contact_Email__c}</span>
                             </li>
                             <li class="slds-m-right_large">
                                 <span class="slds-text-title">Status:</span>
@@ -43,13 +43,13 @@
                             <li class="slds-truncate_container_50 slds-m-right_large slds-grid">
                                 <span class="slds-text-title">Start:</span>
                                 <span class="slds-text-body_small slds-m-left_xx-small slds-truncate">
-                                    <ui:outputDateTime value="{!v.item.Start_Time__c}" format="h:mma" />
+                                    <ui:outputDateTime value="{!v.item.helplightning__Start_Time__c}" format="h:mma" />
                                 </span>
                             </li>
                             <li class="slds-m-right_large">
                                 <span class="slds-text-title">End:</span>
                                 <span class="slds-text-body_small slds-m-left_xx-small slds-truncate">
-                                    <ui:outputDateTime value="{!v.item.End_Time__c}" format="h:mma" />
+                                    <ui:outputDateTime value="{!v.item.helplightning__End_Time__c}" format="h:mma" />
                                 </span>
                             </li>
                             <li class="slds-m-right_large">
@@ -65,7 +65,7 @@
             <div class="slds-media__figure slds-media__figure_reverse">
                 <div class="slds-timeline__actions">
                     <p class="slds-timeline__date">
-                        <ui:outputDateTime value="{!v.item.Start_Time__c}" format="MMM d" />
+                        <ui:outputDateTime value="{!v.item.helplightning__Start_Time__c}" format="MMM d" />
                     </p>
                 </div>
             </div>

@@ -1,9 +1,9 @@
-<aura:component controller="HLSessionController" implements="flexipage:availableForRecordHome,force:hasSObjectName,force:hasRecordId" access="global">
+<aura:component controller="helplightning.HLSessionController" implements="flexipage:availableForRecordHome,force:hasSObjectName,force:hasRecordId" access="global">
 
     <aura:attribute name="hasErrors" type="Boolean" default="false" />
     <aura:attribute name="errorMessage" type="String" default="" />
     <aura:attribute name="contact" type="Contact"/>
-    <aura:attribute name="calls" type="HLCall__c[]"/>
+    <aura:attribute name="calls" type="helplightning__HLCall__c[]"/>
     <aura:attribute name="contactIsHLUser" type="Boolean" default="false"/>
     <!-- our timer object used for polling for call changes -->
     <aura:attribute name="pollTimer" type="Object" />
@@ -14,10 +14,10 @@
     <!-- Help Lightning Component -->
     <article class="slds-card">
         <!-- render our button header -->
-        <c:hlButtonHeader showButtons="{!v.hasErrors == false}"
-                          disableCallButton="{!v.contactIsHLUser == false}"
-                          onCallClick="{!c.clickCall}"
-                          onInviteClick="{!c.clickInviteToPersonalRoom}" />
+        <helplightning:hlButtonHeader showButtons="{!v.hasErrors == false}"
+                                      disableCallButton="{!v.contactIsHLUser == false}"
+                                      onCallClick="{!c.clickCall}"
+                                      onInviteClick="{!c.clickInviteToPersonalRoom}" />
 
         <div class="slds-card__body slds-card__body_inner">
             <div class="slds-p-bottom_small">
@@ -41,7 +41,7 @@
 
                 <aura:if isTrue="{!v.calls.length > 0}">
                     <!-- Activity Timeline -->
-                    <c:hlRecentEventTimeline calls="{!v.calls}" />
+                    <helplightning:hlRecentEventTimeline calls="{!v.calls}" />
                 </aura:if>
                 <aura:set attribute="else">
                     <!-- unsupported component -->

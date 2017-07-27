@@ -13,7 +13,7 @@ private class HLConfigurationControllerTest {
 
     @isTest
     static void testController() {
-        HLConfigurationController c = new HLConfigurationController();
+        helplightning.HLConfigurationController c = new helplightning.HLConfigurationController();
         Map<String,String> config = c.config;
 
         System.assert(config.containsKey('enterpriseId'), 'Missing key enterprise_id');
@@ -24,7 +24,7 @@ private class HLConfigurationControllerTest {
 
         c.save();
 
-        c = new HLConfigurationController();
+        c = new helplightning.HLConfigurationController();
         config = c.config;
 
         System.assertEquals('1', config.get('enterpriseId'));

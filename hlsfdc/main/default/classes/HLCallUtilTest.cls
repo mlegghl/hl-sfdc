@@ -21,8 +21,8 @@ private class HLCallUtilTest {
      */
     @isTest
     static void testFindCallMatchCompleted() {
-        HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
+        helplightning__HLCall__c call = new helplightning__HLCall__c(helplightning__Contact_Email__c = 'contact@helplightning.com',
+                                                                     helplightning__Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -47,13 +47,13 @@ private class HLCallUtilTest {
                           TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
-            HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
+            helplightning__HLCall__c result = helplightning.HLCallUtil.findCallMatch(call, hlCalls);
 
             System.assertNotEquals(result, null);
-            System.assertEquals(result.HLCall_Id__c, '1234');
-            System.assertEquals(result.Complete__c, true);
-            System.assertEquals(result.Successful__c, true);
-            System.assertEquals(result.Duration__c, 360);
+            System.assertEquals(result.helplightning__HLCall_Id__c, '1234');
+            System.assertEquals(result.helplightning__Complete__c, true);
+            System.assertEquals(result.helplightning__Successful__c, true);
+            System.assertEquals(result.helplightning__Duration__c, 360);
         }
     }
 
@@ -67,8 +67,8 @@ private class HLCallUtilTest {
      */
     @isTest
     static void testFindCallWithoutMatchTimeout() {
-        HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
+        helplightning__HLCall__c call = new helplightning__HLCall__c(helplightning__Contact_Email__c = 'contact@helplightning.com',
+                                                                     helplightning__Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -83,13 +83,13 @@ private class HLCallUtilTest {
                           TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
-            HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
+            helplightning__HLCall__c result = helplightning.HLCallUtil.findCallMatch(call, hlCalls);
 
             System.assertNotEquals(result, null);
-            System.assertEquals(result.HLCall_Id__c, null);
-            System.assertEquals(result.Complete__c, true);
-            System.assertEquals(result.Successful__c, false);
-            System.assertEquals(result.Duration__c, 0);
+            System.assertEquals(result.helplightning__HLCall_Id__c, null);
+            System.assertEquals(result.helplightning__Complete__c, true);
+            System.assertEquals(result.helplightning__Successful__c, false);
+            System.assertEquals(result.helplightning__Duration__c, 0);
         }
     }
 
@@ -104,8 +104,8 @@ private class HLCallUtilTest {
     @isTest
     static void testFindCallWithoutMatch() {
         // create a call for right now
-        HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                       Start_Time__c = DateTime.now());
+        helplightning__HLCall__c call = new helplightning__HLCall__c(helplightning__Contact_Email__c = 'contact@helplightning.com',
+                                                                     helplightning__Start_Time__c = DateTime.now());
 
         // no matched calls
         Object[] hlCalls = new Object[]{
@@ -120,7 +120,7 @@ private class HLCallUtilTest {
                           TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
-            HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
+            helplightning__HLCall__c result = helplightning.HLCallUtil.findCallMatch(call, hlCalls);
 
             System.assertEquals(result, null);
         }
@@ -139,8 +139,8 @@ private class HLCallUtilTest {
     @isTest
     static void testFindCallWithoutMatch2() {
         // create a call for right now
-        HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                       Start_Time__c = DateTime.now());
+        helplightning__HLCall__c call = new helplightning__HLCall__c(helplightning__Contact_Email__c = 'contact@helplightning.com',
+                                                                     helplightning__Start_Time__c = DateTime.now());
 
         // no matched calls
         Object[] hlCalls = new Object[]{
@@ -176,7 +176,7 @@ private class HLCallUtilTest {
                           TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
-            HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
+            helplightning__HLCall__c result = helplightning.HLCallUtil.findCallMatch(call, hlCalls);
 
             System.assertEquals(result, null);
         }
@@ -194,9 +194,9 @@ private class HLCallUtilTest {
      */
     @isTest
     static void testFindMatchedCallIncomplete() {
-        HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0),
-                                       HLCall_Id__c = '1234');
+        helplightning__HLCall__c call = new helplightning__HLCall__c(helplightning__Contact_Email__c = 'contact@helplightning.com',
+                                                                     helplightning__Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0),
+                                                                     helplightning__HLCall_Id__c = '1234');
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -221,13 +221,13 @@ private class HLCallUtilTest {
                           TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
-            HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
+            helplightning__HLCall__c result = helplightning.HLCallUtil.findCallMatch(call, hlCalls);
 
             System.assertNotEquals(result, null);
-            System.assertEquals(result.HLCall_Id__c, '1234');
-            System.assertEquals(result.Complete__c, false);
-            System.assertEquals(result.Successful__c, false);
-            System.assertEquals(result.Duration__c, null);
+            System.assertEquals(result.helplightning__HLCall_Id__c, '1234');
+            System.assertEquals(result.helplightning__Complete__c, false);
+            System.assertEquals(result.helplightning__Successful__c, false);
+            System.assertEquals(result.helplightning__Duration__c, null);
         }
     }
 
@@ -243,9 +243,9 @@ private class HLCallUtilTest {
      */
     @isTest
     static void testFindMatchedCallComplete() {
-        HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0),
-                                       HLCall_Id__c = '1234');
+        helplightning__HLCall__c call = new helplightning__HLCall__c(helplightning__Contact_Email__c = 'contact@helplightning.com',
+                                                                     helplightning__Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0),
+                                                                     helplightning__HLCall_Id__c = '1234');
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -270,13 +270,13 @@ private class HLCallUtilTest {
                           TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
-            HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
+            helplightning__HLCall__c result = helplightning.HLCallUtil.findCallMatch(call, hlCalls);
 
             System.assertNotEquals(result, null);
-            System.assertEquals(result.HLCall_Id__c, '1234');
-            System.assertEquals(result.Complete__c, true);
-            System.assertEquals(result.Successful__c, false);
-            System.assertEquals(result.Duration__c, 360);
+            System.assertEquals(result.helplightning__HLCall_Id__c, '1234');
+            System.assertEquals(result.helplightning__Complete__c, true);
+            System.assertEquals(result.helplightning__Successful__c, false);
+            System.assertEquals(result.helplightning__Duration__c, 360);
         }
     }
 
@@ -286,8 +286,8 @@ private class HLCallUtilTest {
      */
     @isTest
     static void testFindMatchedCallAsReceiver() {
-        HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
+        helplightning__HLCall__c call = new helplightning__HLCall__c(helplightning__Contact_Email__c = 'contact@helplightning.com',
+                                                                     helplightning__Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -312,13 +312,13 @@ private class HLCallUtilTest {
                           TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
-            HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
+            helplightning__HLCall__c result = helplightning.HLCallUtil.findCallMatch(call, hlCalls);
 
             System.assertNotEquals(result, null);
-            System.assertEquals(result.HLCall_Id__c, '1234');
-            System.assertEquals(result.Complete__c, true);
-            System.assertEquals(result.Successful__c, true);
-            System.assertEquals(result.Duration__c, 360);
+            System.assertEquals(result.helplightning__HLCall_Id__c, '1234');
+            System.assertEquals(result.helplightning__Complete__c, true);
+            System.assertEquals(result.helplightning__Successful__c, true);
+            System.assertEquals(result.helplightning__Duration__c, 360);
         }
     }
 
@@ -329,8 +329,8 @@ private class HLCallUtilTest {
      */
     @isTest
     static void testInvalidDialerReciever() {
-        HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                       Start_Time__c = DateTime.now());
+        helplightning__HLCall__c call = new helplightning__HLCall__c(helplightning__Contact_Email__c = 'contact@helplightning.com',
+                                                                     helplightning__Start_Time__c = DateTime.now());
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -355,7 +355,7 @@ private class HLCallUtilTest {
                           TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
-            HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
+            helplightning__HLCall__c result = helplightning.HLCallUtil.findCallMatch(call, hlCalls);
 
             System.assertEquals(result, null);
         }
@@ -370,8 +370,8 @@ private class HLCallUtilTest {
      */
     @isTest
     static void testMultipleMatches() {
-        HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
+        helplightning__HLCall__c call = new helplightning__HLCall__c(helplightning__Contact_Email__c = 'contact@helplightning.com',
+                                                                     helplightning__Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
 
         // mock up some help lightning calls that the api would have returned
         Object[] hlCalls = new Object[]{
@@ -417,13 +417,13 @@ private class HLCallUtilTest {
                           TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
-            HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
+            helplightning__HLCall__c result = helplightning.HLCallUtil.findCallMatch(call, hlCalls);
 
             System.assertNotEquals(result, null);
-            System.assertEquals(result.HLCall_Id__c, '1234');
-            System.assertEquals(result.Complete__c, true);
-            System.assertEquals(result.Successful__c, true);
-            System.assertEquals(result.Duration__c, 360);
+            System.assertEquals(result.helplightning__HLCall_Id__c, '1234');
+            System.assertEquals(result.helplightning__Complete__c, true);
+            System.assertEquals(result.helplightning__Successful__c, true);
+            System.assertEquals(result.helplightning__Duration__c, 360);
         }
     }
 
@@ -436,8 +436,8 @@ private class HLCallUtilTest {
     @isTest
     static void testMatchInvalidReceiver() {
         // create a call for right now
-        HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                       Start_Time__c = DateTime.now());
+        helplightning__HLCall__c call = new helplightning__HLCall__c(helplightning__Contact_Email__c = 'contact@helplightning.com',
+                                                                     helplightning__Start_Time__c = DateTime.now());
 
         // no matched calls
         Object[] hlCalls = new Object[]{
@@ -462,7 +462,7 @@ private class HLCallUtilTest {
                           TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
-            HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
+            helplightning__HLCall__c result = helplightning.HLCallUtil.findCallMatch(call, hlCalls);
 
             System.assertEquals(result, null);
         }
@@ -477,8 +477,8 @@ private class HLCallUtilTest {
     @isTest
     static void testMatchInvalidDialer() {
         // create a call for right now
-        HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                       Start_Time__c = DateTime.now());
+        helplightning__HLCall__c call = new helplightning__HLCall__c(helplightning__Contact_Email__c = 'contact@helplightning.com',
+                                                                     helplightning__Start_Time__c = DateTime.now());
 
         // no matched calls
         Object[] hlCalls = new Object[]{
@@ -503,7 +503,7 @@ private class HLCallUtilTest {
                           TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
-            HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
+            helplightning__HLCall__c result = helplightning.HLCallUtil.findCallMatch(call, hlCalls);
 
             System.assertEquals(result, null);
         }
@@ -518,9 +518,9 @@ private class HLCallUtilTest {
      */
     @isTest
     static void testMissingMatchedCall() {
-        HLCall__c call = new HLCall__c(Contact_Email__c = 'contact@helplightning.com',
-                                       Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0),
-                                       HLCall_Id__c = '1234');
+        helplightning__HLCall__c call = new helplightning__HLCall__c(helplightning__Contact_Email__c = 'contact@helplightning.com',
+                                                                     helplightning__Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0),
+                                                                     helplightning__HLCall_Id__c = '1234');
 
         // mock up some help lightning calls that the api would have returned
         // Don't include 1234
@@ -546,7 +546,7 @@ private class HLCallUtilTest {
                           TimeZoneSidKey='GMT', UserName='support@helplightning.com');
 
         System.runAs(u) {
-            HLCall__c result = HLCallUtil.findCallMatch(call, hlCalls);
+            helplightning__HLCall__c result = helplightning.HLCallUtil.findCallMatch(call, hlCalls);
 
             System.assertEquals(result, null);
         }

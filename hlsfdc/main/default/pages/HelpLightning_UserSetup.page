@@ -1,0 +1,18 @@
+<apex:page controller="helplightning.HLUserConfigurationController">
+  <apex:sectionHeader title="Configure the Help Lightning Component" />
+
+  <apex:pageMessages />
+  
+  <apex:form >
+    <apex:pageBlock title="Help Lightning User Configuration">
+      <apex:pageBlockSection columns="2">
+
+        <apex:outputText value="Help Lightning Login" />
+        <apex:inputText value="{!config['login']}" size="64" />
+      </apex:pageBlockSection>
+      <apex:pageBlockButtons>
+        <apex:commandButton action="{!save}" value="Save" />
+      </apex:pageBlockButtons>
+    </apex:pageBlock>
+  </apex:form>
+</apex:page>

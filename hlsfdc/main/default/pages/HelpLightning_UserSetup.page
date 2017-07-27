@@ -8,7 +8,7 @@
       <apex:pageBlockSection columns="2">
 
         <apex:outputText value="Help Lightning Login" />
-        <apex:inputText value="{!config['login']}" />
+        <apex:inputText value="{!config['login']}" size="64" />
       </apex:pageBlockSection>
       <apex:pageBlockButtons>
         <apex:commandButton action="{!save}" value="Save" />

@@ -36,7 +36,7 @@
                     // we can't continue
                     component.set("v.hasErrors", true);
                     component.set("v.errorMessage",
-                                  "Unable to log in to Help Lightning. Please configure your Help Lightning account in your Custom Settings.");
+                                  "Unable to log in to Help Lightning. Please <a href=\"/apex/HelpLightning_UserSetup\" class=\"uiOutputURL\" target=\"_blank\">configure</a> your Help Lightning account in your Custom Settings.");
 
                     result = false;
                 }

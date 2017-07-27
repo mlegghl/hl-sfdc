@@ -7,8 +7,8 @@
     <apex:pageBlock title="Help Lightning User Configuration">
       <apex:pageBlockSection columns="2">
 
-        <apex:outputText value="HelpLightning Login" />
-        <apex:inputText value="{!config[login']}" />
+        <apex:outputText value="Help Lightning Login" />
+        <apex:inputText value="{!config['login']}" />
       </apex:pageBlockSection>
       <apex:pageBlockButtons>
         <apex:commandButton action="{!save}" value="Save" />

@@ -399,25 +399,25 @@ public with sharing class HLSessionController {
     }
 
     /** Private Helper Functions **/
-    private boolean isContactFromCaseAccessible() {
+    private static boolean isContactFromCaseAccessible() {
         return (Schema.sObjectType.Contact.fields.Id.isAccessible() &&
                 Schema.sObjectType.Contact.fields.Email.isAccessible() &&
                 Schema.sObjectType.Contact.fields.Name.isAccessible() &&
                 Schema.sObjectType.Case.fields.Id.isAccessible());
     }
-    private boolean isContactFromWorkOrderAccessible() {
+    private static boolean isContactFromWorkOrderAccessible() {
         return (Schema.sObjectType.Contact.fields.Id.isAccessible() &&
                 Schema.sObjectType.Contact.fields.Email.isAccessible() &&
                 Schema.sObjectType.Contact.fields.Name.isAccessible() &&
                 Schema.sObjectType.WorkOrder.fields.Id.isAccessible());
     }
-    private boolean isCaseAccessible() {
+    private static boolean isCaseAccessible() {
         return (Schema.sObjectType.Case.fields.Id.isAccessible() &&
                 Schema.sObjectType.Case.fields.ContactId.isAccessible() &&
                 Schema.sObjectType.Case.fields.ContactEmail.isAccessible() &&
                 Schema.sObjectType.Contact.fields.Name.isAccessible());
     }
-    private boolean isHLCallAccessible() {
+    private static boolean isHLCallAccessible() {
         return (Schema.sObjectType.helplightning__HLCall__c.fields.Id.isAccessible() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Session_Id__c.isAccessible() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__HLCall_Id__c.isAccessible() &&
@@ -428,15 +428,15 @@ public with sharing class HLSessionController {
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__End_Time__c.isAccessible() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Duration__c.isAccessible());
     }
-    private boolean isHLCallWithCaseAccessible() {
+    private static boolean isHLCallWithCaseAccessible() {
         return (HLSessionController.isHLCallAccessible() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Case__c.isAccessible());
     }
-    private boolean isHLCallWithWorkOrderAccessible() {
+    private static boolean isHLCallWithWorkOrderAccessible() {
         return (HLSessionController.isHLCallAccessible() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Work_Order__c.isAccessible());
     }
-    private boolean isHLCallUpdateable() {
+    private static boolean isHLCallUpdateable() {
         return (Schema.sObjectType.helplightning__HLCall__c.fields.Id.isUpdateable() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Session_Id__c.isUpdateable() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__HLCall_Id__c.isUpdateable() &&

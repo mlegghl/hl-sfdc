@@ -7,7 +7,7 @@
  * https://helplightning.com
  */
 
-public class HLConfiguration {
+public with sharing class HLConfiguration {
     /**
      * Get the enterprise id
      */

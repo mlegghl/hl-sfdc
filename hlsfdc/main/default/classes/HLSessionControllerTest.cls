@@ -486,7 +486,7 @@ private class HLSessionControllerTest {
 
         // run as a support@helplightning.com user, since this
         //  looks up the current user to find a match.
-        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        Profile p = [SELECT Id FROM Profile WHERE Name='System Administrator'];
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
@@ -537,7 +537,7 @@ private class HLSessionControllerTest {
 
         // run as a support@helplightning.com user, since this
         //  looks up the current user to find a match.
-        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        Profile p = [SELECT Id FROM Profile WHERE Name='System Administrator'];
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,
@@ -578,7 +578,7 @@ private class HLSessionControllerTest {
 
         // run as a support@helplightning.com user, since this
         //  looks up the current user to find a match.
-        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        Profile p = [SELECT Id FROM Profile WHERE Name='System Administrator'];
         User u = new User(Alias = 'support', Email='support@helplightning.com',
                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                           LocaleSidKey='en_US', ProfileId = p.Id,

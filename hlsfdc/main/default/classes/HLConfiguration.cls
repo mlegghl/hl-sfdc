@@ -65,8 +65,8 @@ public with sharing class HLConfiguration {
         helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getInstance();
         config.helplightning__Login__c = login;
 
-        if (schema.SObjectType.helplightning__Help_Lightning_Config__c.helplightning__Login__c.isUpdateable()) {
-            upsert config;
-        }
+        // any user can override their instance of the custom settings
+        //  and set their Help Lightning login value.
+        upsert config;
     }
 }

@@ -65,6 +65,8 @@ public with sharing class HLConfiguration {
         helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getInstance();
         config.helplightning__Login__c = login;
 
-        upsert config;
+        if (schema.SObjectType.helplightning__Help_Lightning_Config__c.helplightning__Login__c.isUpdateable()) {
+            upsert config;
+        }
     }
 }

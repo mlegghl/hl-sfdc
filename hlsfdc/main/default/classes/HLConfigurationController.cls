@@ -61,9 +61,10 @@ public with sharing class HLConfigurationController {
         }
 
         // save
-        if (schema.SObjectType.helplightning__HLCall__c.isUpdateable() &&
-            schema.SObjectType.helplightning__HLCall__c.isCreateable()) {
+        if (schema.SObjectType.helplightning__Help_Lightning_Config__c.isUpdateable() &&
+            schema.SObjectType.helplightning__Help_Lightning_Config__c.isCreateable()) {
             upsert hlConfig helplightning__Help_Lightning_Config__c.Id;
+
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.Info,
                                                        'Configuration Saved!'));
         } else {

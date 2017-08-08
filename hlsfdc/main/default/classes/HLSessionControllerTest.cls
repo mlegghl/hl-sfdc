@@ -420,15 +420,15 @@ private class HLSessionControllerTest {
 
         List<helplightning__HLCall__c> calls = helplightning.HLSessionController.getCallsForRecord('case', caseId);
 
-        System.assertEquals(calls.size(), 2);
+        System.assertEquals(2, calls.size());
 
         // test for an invalid Id
         calls = helplightning.HLSessionController.getCallsForRecord('case', invalidId);
-        System.assertEquals(calls.size(), 0);
+        System.assertEquals(0, calls.size());
 
         // null Id
         calls = helplightning.HLSessionController.getCallsForRecord('case', null);
-        System.assertEquals(calls.size(), 0);
+        System.assertEquals(0, calls.size());
     }
 
     /**

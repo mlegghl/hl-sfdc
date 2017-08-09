@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+#
+
+## We can't use the normal force:source:pull commands with our
+## Standard DE since it isn't a DX organization. Therefore, if we want
+## to pull down any changes that were made, we have to use the mdapi
+## API. This script fetches the changes through the mdapi, extracts
+## them, and then converts them to our DX format.
+
+if [ x$1 = x"-h" -o x$1 = "x--help" ]; then
+    echo "Usage: $0 [DE org name (Defaults to Standard)]"
+    echo ""
+    echo "Pull down data from a DE using the mdapi, and convert it to DX format."
+    echo "This will probably result in lots of useless changes."
+    exit 1;
+fi
+
+# see if they overrode the de name
+DE="Standard"
+if [ $# -gt 0 ]; then
+    DE=$1
+fi
+
+echo "Pulling down data from DE: $DE"
+
+sfdx force:mdapi:retrieve -s -r ./mdapipkg -u $DE -p 'Help Lightning' || exit 2
+pushd mdapipkg && unzip unpackaged.zip && rm -f unpackaged.zip && popd || exit 2
+sfdx force:mdapi:convert -r ./mdapipkg -d hlsfdc/ || exit 2
+# sfdx won't overwrite files, so it names them .dup, just overwrite the
+#  frickin' things!
+for i in $(find hlsfdc -name '*.dup')
+do
+    mv -f $i ${i%.dup}
+done
+

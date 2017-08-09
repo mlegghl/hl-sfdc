@@ -409,6 +409,36 @@ private class HLSessionControllerTest {
     }
 
     /**
+     * Try to get a contact for a record for a user
+     *  that doesn't have permission.
+     */
+    @isTest
+    static void testGetContactForRecordInsufficientPermission() {
+        // create a very limited user
+        Profile p = [SELECT Id FROM Profile WHERE Name='Chatter Free User'];
+        User u = new User(Alias = 'chatter', Email='chatter-free-record@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='User', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='chatter-free-record@helplightning.com');
+        insert u;
+
+        Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
+        Id workOrderId = [SELECT Id from WorkOrder WHERE Subject = 'Work Order 1' LIMIT 1].Id;
+
+        Contact result = null;
+        System.RunAs(u) {
+            // try a case
+            result = helplightning.HLSessionController.getContactForRecord('Case', caseId);
+            System.assertEquals(null, result);
+
+            // try a work order
+            result = helplightning.HLSessionController.getContactForRecord('WorkOrder', workOrderId);
+            System.assertEquals(null, result);
+        }
+    }
+
+
+    /**
      * Test getting a specific case based on its Id
      */
     @isTest
@@ -436,6 +466,28 @@ private class HLSessionControllerTest {
         System.assertEquals(c.ContactEmail, null);
         System.assertEquals(c.Contact.Name, null);
 
+    }
+
+    /**
+     * Test getting a specific case based on its Id
+     *  with a user with insufficient privilieges
+     */
+    @isTest
+    static void testGetCaseInsufficientPermission() {
+        // create a very limited user
+        Profile p = [SELECT Id FROM Profile WHERE Name='Chatter Free User'];
+        User u = new User(Alias = 'chatter', Email='chatter-free-record@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='User', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='chatter-free-record@helplightning.com');
+        insert u;
+
+        Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
+
+        System.RunAs(u) {
+            Case c = helplightning.HLSessionController.getCase(caseId);
+            System.assertEquals(null, c);
+        }
     }
 
     /**
@@ -517,6 +569,38 @@ private class HLSessionControllerTest {
 
         Test.stopTest();
     }
+
+    /**
+     * Test saving an HLCall with insufficient rights
+     */
+    @isTest
+    static void testSaveCallInsufficientRights() {
+        // create a limited user
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u = new User(Alias = 'standard', Email='test-save-call@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='User', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='test-save-call@helplightning.com');
+        insert u;
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        System.RunAs(u) {
+            helplightning__HLCall__c call = [SELECT Id, helplightning__Complete__c from helplightning__HLCall__c WHERE helplightning__Complete__c = false LIMIT 1];
+            call.helplightning__Complete__c = true;
+
+            call = helplightning.HLSessionController.saveCall(call);
+            System.assertEquals(null, call);
+        }
+
+        Test.stopTest();
+    }
+
 
     /**
      * Test updating the calls for a case

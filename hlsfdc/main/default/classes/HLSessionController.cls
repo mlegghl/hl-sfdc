@@ -126,24 +126,20 @@ public with sharing class HLSessionController {
     @AuraEnabled
     public static helplightning__HLCall__c saveCall(helplightning__HLCall__c call) {
         if (call != null) {
-            if (HLSessionController.isHLCallUpdateable()) {
+            if (HLSessionController.isHLCallAccessible() &&
+                HLSessionController.isHLCallUpdateable()) {
                 upsert call;
 
-                if (HLSessionController.isHLCallAccessible()) {
-                    return [SELECT Id,
-                            helplightning__Session_Id__c,
-                            helplightning__HLCall_Id__c,
-                            helplightning__Complete__c,
-                            helplightning__Successful__c,
-                            helplightning__Start_Time__c,
-                            helplightning__Duration__c
-                            FROM helplightning__HLCall__c
-                            WHERE Id = :call.id
-                            ];
-                } else {
-                    System.debug('Insufficient Access to helplightning__HLCall__c');
-                    return null;
-                }
+                return [SELECT Id,
+                        helplightning__Session_Id__c,
+                        helplightning__HLCall_Id__c,
+                        helplightning__Complete__c,
+                        helplightning__Successful__c,
+                        helplightning__Start_Time__c,
+                        helplightning__Duration__c
+                        FROM helplightning__HLCall__c
+                        WHERE Id = :call.id
+                        ];
             } else {
                 System.debug('Insufficient Write access to helplightning__HLCall__c');
                 return null;

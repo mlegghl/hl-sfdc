@@ -280,7 +280,7 @@ private class HLSessionControllerTest {
         insert psa;
 
         // Do this inside this block to avoid MIXED_DML_OPERATIONS
-        System.runAs(u) {
+        System.runAs(u2) {
             // create some contacts
             List<Contact> contacts = new List<Contact>();
             contacts.add(new Contact(FirstName = 'Contact',
@@ -346,7 +346,9 @@ private class HLSessionControllerTest {
                                                    helplightning__Type__c = 'Direct',
                                                    helplightning__Work_Order__c = workOrder.Id));
             insert calls;
+        }
 
+        System.RunAs(u) {
             // create a fake configuration
             helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getOrgDefaults();
             config.helplightning__Enterprise_id__c = '1';
@@ -358,7 +360,6 @@ private class HLSessionControllerTest {
 
             // validate this was updated
             System.assertEquals('1', config.helplightning__Enterprise_id__c);
-
         }
     }
 
@@ -493,7 +494,7 @@ private class HLSessionControllerTest {
      */
     @isTest
     static void testSaveCall() {
-        User u = [SELECT Id from User WHERE UserName='test-admin@helplightning.com' LIMIT 1];
+        User u = [SELECT Id from User WHERE UserName='test-user@helplightning.com' LIMIT 1];
 
         // We are not allowed to do an DML operations
         //  before doing a call-out. But, we need test data
@@ -524,7 +525,7 @@ private class HLSessionControllerTest {
     static void testUpdateCallsCase() {
         Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
 
-        User u = [SELECT Id from User WHERE UserName='test-admin@helplightning.com' LIMIT 1];
+        User u = [SELECT Id from User WHERE UserName='test-user@helplightning.com' LIMIT 1];
 
         // We are not allowed to do an DML operations
         //  before doing a call-out. But, we need test data
@@ -574,7 +575,7 @@ private class HLSessionControllerTest {
 
         Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
 
-        User u = [SELECT Id from User WHERE UserName='test-admin@helplightning.com' LIMIT 1];
+        User u = [SELECT Id from User WHERE UserName='test-user@helplightning.com' LIMIT 1];
 
 
         // We are not allowed to do an DML operations
@@ -609,7 +610,7 @@ private class HLSessionControllerTest {
     static void testUpdateCallsWorkOrder() {
         Id workOrderId = [SELECT Id from WorkOrder WHERE Subject = 'Work Order 1' LIMIT 1].Id;
 
-        User u = [SELECT Id from User WHERE UserName='test-admin@helplightning.com' LIMIT 1];
+        User u = [SELECT Id from User WHERE UserName='test-user@helplightning.com' LIMIT 1];
 
         // We are not allowed to do an DML operations
         //  before doing a call-out. But, we need test data

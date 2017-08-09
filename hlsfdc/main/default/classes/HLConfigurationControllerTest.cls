@@ -30,4 +30,36 @@ private class HLConfigurationControllerTest {
         System.assertEquals('1', config.get('enterpriseId'));
         System.assertEquals(HLConfigurationControllerTest.privateKey, config.get('privateKey'));
     }
+
+    @isTest
+    static void testControllerInsufficientPermission() {
+        // create a very limited user
+        Profile p = [SELECT Id FROM Profile WHERE Name='Chatter Free User'];
+        User u = new User(Alias = 'chatter', Email='chatter-free-record@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='User', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='chatter-free-record@helplightning.com');
+        insert u;
+
+        helplightning.HLConfigurationController c = new helplightning.HLConfigurationController();
+        Map<String,String> config = c.config;
+
+        System.assert(config.containsKey('enterpriseId'), 'Missing key enterprise_id');
+        System.assert(config.containsKey('privateKey'), 'Missing key privateKey');
+
+        config.put('enterpriseId', '1');
+        config.put('privateKey', HLConfigurationControllerTest.privateKey);
+
+        // try this with a limted permission
+        System.RunAs(u) {
+            c.save();
+        }
+
+        c = new helplightning.HLConfigurationController();
+        config = c.config;
+
+        System.assertEquals('', config.get('enterpriseId'));
+        System.assertEquals('', config.get('privateKey'));
+
+    }
 }

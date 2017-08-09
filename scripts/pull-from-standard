@@ -28,8 +28,9 @@ pushd mdapipkg && unzip unpackaged.zip && rm -f unpackaged.zip && popd || exit 2
 sfdx force:mdapi:convert -r ./mdapipkg -d hlsfdc/ || exit 2
 # sfdx won't overwrite files, so it names them .dup, just overwrite the
 #  frickin' things!
-for i in $(find hlsfdc -name '*.dup')
-do
-    mv -f $i ${i%.dup}
-done
-
+# Make sure we handle filenames with spaces:
+#  https://unix.stackexchange.com/questions/9496/looping-through-files-with-spaces-in-the-names
+find hlsfdc -name '*.dup' -exec sh -c '
+  file="$0"
+  mv -f "$file" "${file%.dup}"
+' {} \;

@@ -272,7 +272,7 @@ private class HLSessionControllerTest {
         Profile p2 = [SELECT Id FROM Profile WHERE Name='Standard User'];
         User u2 = new User(Alias = 'standard', Email='test-user@helplightning.com',
                            EmailEncodingKey='UTF-8', LastName='User', LanguageLocaleKey='en_US',
-                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           LocaleSidKey='en_US', ProfileId = p2.Id,
                            TimeZoneSidKey='America/Chicago', UserName='test-user@helplightning.com');
         insert u2;
         // assign them to the HelpLightning permission set!

@@ -7,7 +7,7 @@
  * https://helplightning.com
  */
 
-public class HLConfiguration {
+public with sharing class HLConfiguration {
     /**
      * Get the enterprise id
      */
@@ -65,6 +65,8 @@ public class HLConfiguration {
         helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getInstance();
         config.helplightning__Login__c = login;
 
+        // any user can override their instance of the custom settings
+        //  and set their Help Lightning login value.
         upsert config;
     }
 }

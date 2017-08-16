@@ -1,4 +1,5 @@
 2017-08-16  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-29 - Support FLS enforcement and Sharing
 	* SFDC-31 - Add missing permissions to the Permission Set
 
 2017-07-27  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>

@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+#
+
+## We can't use the normal force:source:push commands with our
+## Standard DE since it isn't a DX organization (well you can,
+## sometimes with the -f flag, but it isn't reliable). Therefore, if
+## we want to push up any changes that were made, we have to use the
+## mdapi API. This script converts them from DX format to mdapi, and
+## pushes.
+
+if [ x$1 = x"-h" -o x$1 = "x--help" ]; then
+    echo "Usage: $0 [DE org name (Defaults to Standard)]"
+    echo ""
+    echo "Push data to a DE using the mdapi."
+    exit 1;
+fi
+
+# see if they overrode the de name
+DE="Standard"
+if [ $# -gt 0 ]; then
+    DE=$1
+fi
+
+echo "Pushing data to DE: $DE"
+
+D=$(mktemp -d)
+
+sfdx force:source:convert -d $D -r hlsfdc -n 'Help Lightning' || exit 2
+sfdx force:mdapi:deploy -d $D -u $DE -w 180 || exit
+
+rm -fr $D

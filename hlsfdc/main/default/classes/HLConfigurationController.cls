@@ -61,11 +61,16 @@ public with sharing class HLConfigurationController {
         }
 
         // save
-        upsert hlConfig helplightning__Help_Lightning_Config__c.Id;
+        if (schema.SObjectType.helplightning__Help_Lightning_Config__c.isUpdateable() &&
+            schema.SObjectType.helplightning__Help_Lightning_Config__c.isCreateable()) {
+            upsert hlConfig helplightning__Help_Lightning_Config__c.Id;
 
-        // add a success message
-        ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.Info,
-                                                   'Configuration Saved!'));
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.Info,
+                                                       'Configuration Saved!'));
+        } else {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.Error,
+                                                       'Insufficient Access'));
+        }
 
         return null;
     }

@@ -18,18 +18,30 @@ public with sharing class HLSessionController {
     public static Contact getContactForRecord(String sObjectName, Id recordId) {
         if (recordId != null) {
             if (sObjectName == 'Case') {
-                Case[] o = [ SELECT Contact.Id, Contact.Email, Contact.Name from Case
-                             WHERE Id = :recordId
-                             ];
-                if (o != null && o.size() > 0) {
-                    return o.get(0).Contact;
+                if (HLSessionController.isContactFromCaseAccessible()) {
+                    Case[] o = [SELECT Contact.Id, Contact.Email, Contact.Name
+                                FROM Case
+                                WHERE Id = :recordId
+                                ];
+                    if (o != null && o.size() > 0) {
+                        return o.get(0).Contact;
+                    }
+                } else {
+                    System.debug('Insufficient Access to record: ' + sObjectName);
+                    return null;
                 }
             } else if (sObjectName == 'WorkOrder') {
-                WorkOrder[] o = [ SELECT Contact.Id, Contact.Email, Contact.Name from WorkOrder
-                                  WHERE Id = :recordId
-                                  ];
-                if (o != null && o.size() > 0) {
-                    return o.get(0).Contact;
+                if (HLSessionController.isContactFromWorkOrderAccessible()) {
+                    WorkOrder[] o = [SELECT Contact.Id, Contact.Email, Contact.Name
+                                     FROM WorkOrder
+                                     WHERE Id = :recordId
+                                     ];
+                    if (o != null && o.size() > 0) {
+                        return o.get(0).Contact;
+                    }
+                } else {
+                    System.debug('Insufficient Access to record: ' + sObjectName);
+                    return null;
                 }
             } else {
                 System.debug('Invalid record type: ' + sObjectName);
@@ -46,10 +58,15 @@ public with sharing class HLSessionController {
     @AuraEnabled
     public static Case getCase(Id recordId) {
         if (recordId != null) {
-            return [ SELECT Case.Id, Case.ContactId, Case.ContactEmail, Case.Contact.Name
-                     FROM Case
-                     WHERE Id = :recordId
-                     ];
+            if (HLSessionController.isCaseAccessible()) {
+                return [SELECT Case.Id, Case.ContactId, Case.ContactEmail, Case.Contact.Name
+                        FROM Case
+                        WHERE Id = :recordId
+                        ];
+            } else {
+                System.debug('Insufficient Access to record');
+                return null;
+            }
         }
 
         return null;
@@ -63,33 +80,41 @@ public with sharing class HLSessionController {
     public static List<helplightning__HLCall__c> getCallsForRecord(String sObjectName, Id recordId) {
         if (recordId != null) {
             if (sObjectName == 'Case') {
-                return [ SELECT Id,
-                         helplightning__Session_Id__c,
-                         helplightning__HLCall_Id__c,
-                         helplightning__Contact_Email__c,
-                         helplightning__Complete__c,
-                         helplightning__Successful__c,
-                         helplightning__Start_Time__c,
-                         helplightning__End_Time__c,
-                         helplightning__Duration__c
-                         FROM helplightning__HLCall__c
-                         WHERE helplightning__Case__c = :recordId
-                         ORDER BY helplightning__Start_Time__c DESC
-                         ];
+                if (HLSessionController.isHLCallWithCaseAccessible()) {
+                    return [SELECT Id,
+                            helplightning__Session_Id__c,
+                            helplightning__HLCall_Id__c,
+                            helplightning__Contact_Email__c,
+                            helplightning__Complete__c,
+                            helplightning__Successful__c,
+                            helplightning__Start_Time__c,
+                            helplightning__End_Time__c,
+                            helplightning__Duration__c
+                            FROM helplightning__HLCall__c
+                            WHERE helplightning__Case__c = :recordId
+                            ORDER BY helplightning__Start_Time__c DESC
+                            ];
+                } else {
+                    System.debug('Insufficient Access to helplightning__HLCall__c');
+                }
             } else if (sObjectName == 'WorkOrder') {
-                return [ SELECT Id,
-                         helplightning__Session_Id__c,
-                         helplightning__HLCall_Id__c,
-                         helplightning__Contact_Email__c,
-                         helplightning__Complete__c,
-                         helplightning__Successful__c,
-                         helplightning__Start_Time__c,
-                         helplightning__End_Time__c,
-                         helplightning__Duration__c
-                         FROM helplightning__HLCall__c
-                         WHERE helplightning__Work_Order__c = :recordId
-                         ORDER BY helplightning__Start_Time__c DESC
-                         ];
+                if (HLSessionController.isHLCallWithWorkOrderAccessible()) {
+                    return [SELECT Id,
+                            helplightning__Session_Id__c,
+                            helplightning__HLCall_Id__c,
+                            helplightning__Contact_Email__c,
+                            helplightning__Complete__c,
+                            helplightning__Successful__c,
+                            helplightning__Start_Time__c,
+                            helplightning__End_Time__c,
+                            helplightning__Duration__c
+                            FROM helplightning__HLCall__c
+                            WHERE helplightning__Work_Order__c = :recordId
+                            ORDER BY helplightning__Start_Time__c DESC
+                            ];
+                } else {
+                    System.debug('Insufficient Access to helplightning__HLCall__c');
+                }
             } else {
                 System.debug('Invalid record type: ' + sObjectName);
             }
@@ -101,18 +126,24 @@ public with sharing class HLSessionController {
     @AuraEnabled
     public static helplightning__HLCall__c saveCall(helplightning__HLCall__c call) {
         if (call != null) {
-            upsert call;
+            if (HLSessionController.isHLCallAccessible() &&
+                HLSessionController.isHLCallUpdateable()) {
+                upsert call;
 
-            return [ SELECT Id,
-                     helplightning__Session_Id__c,
-                     helplightning__HLCall_Id__c,
-                     helplightning__Complete__c,
-                     helplightning__Successful__c,
-                     helplightning__Start_Time__c,
-                     helplightning__Duration__c
-                     FROM helplightning__HLCall__c
-                     WHERE Id = :call.id
-                     ];
+                return [SELECT Id,
+                        helplightning__Session_Id__c,
+                        helplightning__HLCall_Id__c,
+                        helplightning__Complete__c,
+                        helplightning__Successful__c,
+                        helplightning__Start_Time__c,
+                        helplightning__Duration__c
+                        FROM helplightning__HLCall__c
+                        WHERE Id = :call.id
+                        ];
+            } else {
+                System.debug('Insufficient Write access to helplightning__HLCall__c');
+                return null;
+            }
         } else {
             return null;
         }
@@ -134,30 +165,37 @@ public with sharing class HLSessionController {
                 return new List<helplightning__HLCall__c>();
             }
 
-            helplightning__HLCall__c[] calls;
+            helplightning__HLCall__c[] calls = new List<helplightning__HLCall__c>();
 
             if (sObjectName == 'Case') {
-                calls = [SELECT Id,
-                         helplightning__Session_Id__c,
-                         helplightning__HLCall_Id__c,
-                         helplightning__Contact_Email__c,
-                         helplightning__Start_Time__c
-                         FROM helplightning__HLCall__c
-                         WHERE helplightning__Case__c = :recordId
-                         AND helplightning__Complete__c = false
-                         LIMIT 25];
+                if (HLSessionController.isHLCallWithCaseAccessible()) {
+                    calls = [SELECT Id,
+                             helplightning__Session_Id__c,
+                             helplightning__HLCall_Id__c,
+                             helplightning__Contact_Email__c,
+                             helplightning__Start_Time__c
+                             FROM helplightning__HLCall__c
+                             WHERE helplightning__Case__c = :recordId
+                             AND helplightning__Complete__c = false
+                             LIMIT 25];
+                } else {
+                    System.debug('Insufficient Access to helplightning__HLCall__c');
+                }
             } else if (sObjectName == 'WorkOrder') {
-                calls = [SELECT Id,
-                         helplightning__Session_Id__c,
-                         helplightning__HLCall_Id__c,
-                         helplightning__Contact_Email__c,
-                         helplightning__Start_Time__c
-                         FROM helplightning__HLCall__c
-                         WHERE helplightning__Work_Order__c = :recordId
-                         AND helplightning__Complete__c = false
-                         LIMIT 25];
+                if (HLSessionController.isHLCallWithWorkOrderAccessible()) {
+                    calls = [SELECT Id,
+                             helplightning__Session_Id__c,
+                             helplightning__HLCall_Id__c,
+                             helplightning__Contact_Email__c,
+                             helplightning__Start_Time__c
+                             FROM helplightning__HLCall__c
+                             WHERE helplightning__Work_Order__c = :recordId
+                             AND helplightning__Complete__c = false
+                             LIMIT 25];
+                } else {
+                    System.debug('Insufficient Access to helplightning__HLCall__c');
+                }
             }
-
 
             /**
              * !mwd - we cannot make callouts
@@ -193,7 +231,11 @@ public with sharing class HLSessionController {
                     if (matchedCall != null) {
                         // a match was found, we need to update the
                         //  database with the changes.
-                        update matchedCall;
+                        if (schema.SObjectType.helplightning__HLCall__c.isUpdateable()) {
+                            update matchedCall;
+                        } else {
+                            System.debug('Insufficient Access for updatting helplightning__HLCall__c');
+                        }
                     }
                 }
             }
@@ -325,7 +367,7 @@ public with sharing class HLSessionController {
             Map<String,Object> entry = (Map<String,Object>)entries[0];
             System.debug('entry=' + entry);
             String userToken = (String)entry.get('token');
-            System.debug('token=' + userToken);
+
             if (userToken == null) {
                 System.debug('Invalid user token');
                 return false;
@@ -350,5 +392,52 @@ public with sharing class HLSessionController {
         } catch (helplightning.HLConfigurationException e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');
         }
+    }
+
+    /** Private Helper Functions **/
+    private static boolean isContactFromCaseAccessible() {
+        return (Schema.sObjectType.Contact.fields.Id.isAccessible() &&
+                Schema.sObjectType.Contact.fields.Email.isAccessible() &&
+                Schema.sObjectType.Contact.fields.Name.isAccessible() &&
+                Schema.sObjectType.Case.fields.Id.isAccessible());
+    }
+    private static boolean isContactFromWorkOrderAccessible() {
+        return (Schema.sObjectType.Contact.fields.Id.isAccessible() &&
+                Schema.sObjectType.Contact.fields.Email.isAccessible() &&
+                Schema.sObjectType.Contact.fields.Name.isAccessible() &&
+                Schema.sObjectType.WorkOrder.fields.Id.isAccessible());
+    }
+    private static boolean isCaseAccessible() {
+        return (Schema.sObjectType.Case.fields.Id.isAccessible() &&
+                Schema.sObjectType.Case.fields.ContactId.isAccessible() &&
+                Schema.sObjectType.Case.fields.ContactEmail.isAccessible() &&
+                Schema.sObjectType.Contact.fields.Name.isAccessible());
+    }
+    private static boolean isHLCallAccessible() {
+        return (Schema.sObjectType.helplightning__HLCall__c.fields.Id.isAccessible() &&
+                Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Session_Id__c.isAccessible() &&
+                Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__HLCall_Id__c.isAccessible() &&
+                Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Contact_Email__c.isAccessible() &&
+                Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Complete__c.isAccessible() &&
+                Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Successful__c.isAccessible() &&
+                Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Start_Time__c.isAccessible() &&
+                Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__End_Time__c.isAccessible() &&
+                Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Duration__c.isAccessible());
+    }
+    private static boolean isHLCallWithCaseAccessible() {
+        return (HLSessionController.isHLCallAccessible() &&
+                Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Case__c.isAccessible());
+    }
+    private static boolean isHLCallWithWorkOrderAccessible() {
+        return (HLSessionController.isHLCallAccessible() &&
+                Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Work_Order__c.isAccessible());
+    }
+    private static boolean isHLCallUpdateable() {
+        return (Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Session_Id__c.isUpdateable() &&
+                Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__HLCall_Id__c.isUpdateable() &&
+                Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Complete__c.isUpdateable() &&
+                Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Successful__c.isUpdateable() &&
+                Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Start_Time__c.isUpdateable() &&
+                Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Duration__c.isUpdateable());
     }
 }

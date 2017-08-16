@@ -11,18 +11,33 @@
 private class HLUserConfigurationControllerTest {
     @isTest
     static void testController() {
-        helplightning.HLUserConfigurationController c = new helplightning.HLUserConfigurationController();
-        Map<String,String> config = c.config;
+        // create a non admin user
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u = new User(Alias = 'standard', Email='test-user@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='User', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='test-user@helplightning.com');
+        insert u;
+        // assign them to the HelpLightning permission set!
+        PermissionSet permissionSet = [SELECT id, Name from PermissionSet WHERE Name='HelpLightning'];
+        PermissionSetAssignment psa = new PermissionSetAssignment(AssigneeId = u.Id, PermissionSetId = permissionSet.Id);
+        insert psa;
 
-        System.assert(config.containsKey('login'), 'Missing key login');
+        System.runAs(u) {
 
-        config.put('login', 'controllertest@helplightning.com');
+            helplightning.HLUserConfigurationController c = new helplightning.HLUserConfigurationController();
+            Map<String,String> config = c.config;
 
-        c.save();
+            System.assert(config.containsKey('login'), 'Missing key login');
 
-        c = new helplightning.HLUserConfigurationController();
-        config = c.config;
+            config.put('login', 'controllertest@helplightning.com');
 
-        System.assertEquals('controllertest@helplightning.com', config.get('login'));
+            c.save();
+
+            c = new helplightning.HLUserConfigurationController();
+            config = c.config;
+
+            System.assertEquals('controllertest@helplightning.com', config.get('login'));
+        }
     }
 }

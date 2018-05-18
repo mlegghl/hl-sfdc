@@ -387,6 +387,7 @@ public with sharing class HLSessionController {
             // return the a map with the session id and the gss auth info
             videoResults.put('token', (String)us.get('token'));
             videoResults.put('session_id', sessionId);
+            videoResults.put('display_name', UserInfo.getName());
 
             return videoResults;
         } catch (helplightning.HLConfigurationException e) {

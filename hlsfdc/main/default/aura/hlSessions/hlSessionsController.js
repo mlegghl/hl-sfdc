@@ -52,19 +52,31 @@
         var contact = component.get("v.contact");
         var email = contact.Email;
 
-        var action = component.get("c.makeSessionWith");
+        var action = component.get("c.makeSessionWith2");
         action.setParams({"otherUsersEmail": email});
         action.setCallback(this, function(response) {
             var state = response.getState();
             if (component.isValid() && state == "SUCCESS") {
+                var r = response.getReturnValue();
+
+                var userToken = r.token;
+                var sessionId = r.session_id;
+                var gssToken = r.gss_info.token;
+                var gssUrl = r.gss_info.wsserver;
+
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId,
-                                     email, response.getReturnValue());
+                                     email, sessionId);
+
+                var url = 'https://app-dev.helplightning.net/webCall?displayName=&nameOrEmail=&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
+
+                // open a new window with this url
+                window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900')
+
             } else {
-                console.log("HL::makeSessionWith response failed: " + state);
+                console.log("HL::makeSessionWith2 response failed: " + state);
             }
         });
-
         $A.enqueueAction(action);
     },
 

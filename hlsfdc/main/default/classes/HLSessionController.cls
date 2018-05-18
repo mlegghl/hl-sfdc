@@ -340,6 +340,107 @@ public with sharing class HLSessionController {
     }
 
     /**
+     * Create an HL session between us and another
+     *  user actually using sessions.
+     * This will return the Gss Auth info
+     */
+    @AuraEnabled
+    public static Map<String,Object> makeSessionWith2(String otherUsersEmail) {
+        System.debug('makeSessionWith2');
+
+        try {
+            // get our info
+            Map<String, Object> us = HLSessionController.getInfo();
+
+            // get a token for the other user
+            Map<String,String> params = new Map<String,String>();
+            params.put('search_term', otherUsersEmail);
+
+            helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
+                                                                          '/search');
+            Object results = request.post(params);
+            if (results == null || ((Object[])results).size() == 0) {
+                throw new AuraHandledException('Invalid contact');
+            }
+            Map<String, Object> c = (Map<String, Object>)(((Object[])results).get(0));
+            String contactToken = (String)c.get('token');
+
+            // make a new session
+            request = new helplightning.HLRequest((String)us.get('token'),
+                                                  '/sessions');
+            Map<String,Object> sessionParams = new Map<String,Object>();
+            List<String> l = new List<String>();
+            l.add(contactToken);
+            sessionParams.put('contact_tokens', l);
+
+            Map<String,Object> sessionResults = (Map<String,Object>)(request.post(sessionParams));
+            String sessionId = (String)sessionResults.get('id');
+
+            // ring the other person
+            request = new helplightning.HLRequest((String)us.get('token'),
+                                                  '/sessions/' + sessionId + '/video');
+            Map<String,String> videoParams = new Map<String,String>();
+            videoParams.put('session_token', (String)sessionResults.get('token'));
+
+            Map<String,Object> videoResults = (Map<String,Object>)(request.post(videoParams));
+
+            // return the a map with the session id and the gss auth info
+            videoResults.put('token', (String)us.get('token'));
+            videoResults.put('session_id', sessionId);
+
+            return videoResults;
+        } catch (helplightning.HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
+        }
+    }
+
+    /**
+     * Get our token
+     */
+    @AuraEnabled
+    public static Map<String, Object> getInfo() {
+        try {
+            String myUserEmail = helplightning.HLUserHelper.getLogin();
+
+            Map<String, Object> u = HLSessionController.getHLUser(myUserEmail);
+
+            Map<String, Object> user = new Map<String, Object>();
+            user.put('id', u.get('id'));
+            user.put('name', u.get('name'));
+            user.put('username', u.get('username'));
+            user.put('email', u.get('email'));
+            user.put('avatarURL', ((Map<String, Object>)(u.get('avatar'))).get('original'));
+            user.put('token', u.get('token'));
+
+            return user;
+        } catch (helplightning.HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
+        }
+    }
+
+    /**
+     * We want to initiate a call with another HL user.
+     * We need to get this contact's information
+     */
+    @AuraEnabled
+    public static Map<String, Object> getUserInfo(String userEmail) {
+        try {
+            Map<String, Object> u = HLSessionController.getHLUser(userEmail);
+
+            Map<String, Object> user = new Map<String, Object>();
+            user.put('id', u.get('id'));
+            user.put('name', u.get('name'));
+            user.put('email', u.get('email'));
+            user.put('avatarURL', ((Map<String, Object>)(u.get('avatar'))).get('original'));
+            user.put('token', u.get('token'));
+
+            return user;
+        } catch (helplightning.HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
+        }
+    }
+
+    /**
      * Invite a user to a personal room.
      *  This will send out an email to them.
      */
@@ -439,5 +540,24 @@ public with sharing class HLSessionController {
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Successful__c.isUpdateable() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Start_Time__c.isUpdateable() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Duration__c.isUpdateable());
+    }
+
+    private static Map<String, Object> getHLUser(String email) {
+        // Query the users in our enteprise, and filter
+        //  for our email.
+        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(), '/enterprise/users');
+        Object results = request.get(new Map<String,String> {
+                'filter' => 'email=' + email
+                    });
+        if (results == null || ((Map<String,Object>)results).get('total_entries') != 1) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
+        } else {
+            // we are in the list!
+            Map<String, Object> r = (Map<String, Object>)results;
+            List<Object> l = (List<Object>)r.get('entries');
+            Map<String, Object> e = (Map<String, Object>)l.get(0);
+
+            return e;
+        }
     }
 }

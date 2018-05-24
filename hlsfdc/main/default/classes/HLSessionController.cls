@@ -258,12 +258,8 @@ public with sharing class HLSessionController {
 
             // Query the users in our enteprise, and filter
             //  for our email.
-            helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(), '/enterprise/users');
-            Object results = request.get(new Map<String,String> {
-                    'filter' => 'email=' + myUserEmail
-                        });
-            if (results == null || ((Map<String,Object>)results).get('total_entries') != 1) {
-                System.debug('Error finding our user. Unexpected results are: ' + results);
+            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(myUserEmail);
+            if (users.size() == 0) {
                 return false;
             } else {
                 // we are in the list!
@@ -283,11 +279,8 @@ public with sharing class HLSessionController {
         System.debug('isHLUser: ' + email);
 
         try {
-            Map<String,String> params = new Map<String,String>();
-            params.put('search_term', email);
+            List<helplightning.HLSearchUser> users = helplightning.HLGaldRclient.searchUsers(email);
 
-            helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(), '/search');
-            Object results = request.post(params);
 
             // Unfortunately, the results don't include the email field
             //  (for privacy reasons), so we can't 100% verify this is
@@ -295,9 +288,8 @@ public with sharing class HLSessionController {
             //  fields outside of our control). Therefore, we'll just assume
             //  that if our results list > 0, then this email is probably
             //  a user.
-            if (results != null && ((Object[])results).size() > 0) {
+            if (!users.isEmpty())
                 return true;
-            }
 
             return false;
 

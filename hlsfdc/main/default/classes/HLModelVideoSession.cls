@@ -14,12 +14,26 @@ public class HLModelVideoSession {
      *  which includes everything needed to
      *  connect to Gss.
      */
+    public HLModelVideoSession(String token, String serverURL, String serverWSURL) {
+        this.token = token;
+        this.serverURL = serverURL;
+        this.serverWSURL = serverWSURL;
+    }
 
     /**
      * Build a new model from a JSON
      *  response object
      */
     public static HLModelVideoSession build(Object sessionObject) {
-        return new HLModelVideoSession();
+        Map<String, Map<String,String>> s = (Map<String, Map<String,String>>)sessionObject;
+        Map<String,String> gss = s.get('gss_info');
+
+        return new HLModelVideoSession(gss.get('token'),
+                                       gss.get('server'),
+                                       gss.get('wsserver'));
     }
+
+    public String token = '';
+    public String serverURL = '';
+    public String serverWSURL = '';
 }

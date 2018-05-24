@@ -104,10 +104,10 @@ public class HLGaldrClient {
      */
     public static HLModelVideoSession sessionRequestVideo(String userToken, HLModelSession session) {
         Map<String,String> videoParams = new Map<String,String>();
-        videoParams.put('session_token', session.token);
+        videoParams.put('user_token', userToken);
 
-        helplightning.HLRequest request = new helplightning.HLRequest(userToken,
-                                                                      '/sessions/' + session.id + '/video');
+        helplightning.HLRequest request = new helplightning.HLRequest(session.token,
+                                                                      '/session/video');
         Object results = request.post(videoParams);
 
         return HLModelVideoSession.build(results);

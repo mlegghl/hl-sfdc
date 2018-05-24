@@ -332,38 +332,23 @@ public with sharing class HLSessionController {
             helplightning.HLModelEnterpriseUser us = HLSessionController.getHLUser(myUserEmail);
 
             // get a token for the other user
-            Map<String,String> params = new Map<String,String>();
-            params.put('search_term', otherUsersEmail);
-
-            helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
-                                                                          '/search');
-            Object results = request.post(params);
-            if (results == null || ((Object[])results).size() == 0) {
+            List<helplightning.HLModelSearchUser> os = helplightning.HLGaldrClient.searchUsers(otherUsersEmail);
+            if (os == null || os.size() == 0) {
                 throw new AuraHandledException('Invalid contact');
             }
-            Map<String, Object> c = (Map<String, Object>)(((Object[])results).get(0));
-            String contactToken = (String)c.get('token');
+            String contactToken = os.get(0).token;
 
             // make a new session
-            request = new helplightning.HLRequest(us.authToken,
-                                                  '/sessions');
-            Map<String,Object> sessionParams = new Map<String,Object>();
-            List<String> l = new List<String>();
-            l.add(contactToken);
-            sessionParams.put('contact_tokens', l);
-
-            Map<String,Object> sessionResults = (Map<String,Object>)(request.post(sessionParams));
-            String sessionId = (String)sessionResults.get('id');
+            helplightning.HLModelSession session = helplightning.HLGaldrClient.createsession(us.authToken, new List<String>{contactToken});
+            String sessionId = session.id;
 
             // ring the other person
-            request = new helplightning.HLRequest(us.authToken,
-                                                  '/sessions/' + sessionId + '/video');
-            Map<String,String> videoParams = new Map<String,String>();
-            videoParams.put('session_token', (String)sessionResults.get('token'));
+            helplightning.HLModelVideoSession videoSession = helplightning.HLGaldrClient.sessionRequestVideo(us.authToken, session);
 
-            Map<String,Object> videoResults = (Map<String,Object>)(request.post(videoParams));
+            Map<String,Object> videoResults = new Map<String,Object>();
 
             // return the a map with the session id and the gss auth info
+            videoResults.put('gss_info', videoSession.serialize());
             videoResults.put('token', us.authToken);
             videoResults.put('session_id', sessionId);
             videoResults.put('display_name', UserInfo.getName());
@@ -526,20 +511,13 @@ public with sharing class HLSessionController {
     }
 
     private static helplightning.HLModelEnterpriseUser getHLUser(String email) {
-        // Query the users in our enteprise, and filter
-        //  for our email.
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(), '/enterprise/users');
-        Object results = request.get(new Map<String,String> {
-                'filter' => 'email=' + email
-                    });
-        if (results == null || ((Map<String,Object>)results).get('total_entries') != 1) {
-            throw new AuraHandledException('The Help Lightning component must be configured first.');
-        } else {
-            // we are in the list!
-            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLModelEnterpriseUser.buildMany(results);
+        List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(email);
 
-            // return the first item
-            return users.get(0);
+        if (users.size() == 0) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
         }
+
+        // return the first item
+        return users.get(0);
     }
 }

@@ -33,6 +33,16 @@ public class HLModelVideoSession {
                                        gss.get('wsserver'));
     }
 
+    public Map<String,Object> serialize() {
+        return new Map<String,Object>{
+            'gss_info' => new Map<String,String>{
+                    'token' => token,
+                    'serverURL' => serverURL,
+                    'serverWSURL' => serverWSURL
+                }
+        };
+    }
+
     public String token = '';
     public String serverURL = '';
     public String serverWSURL = '';

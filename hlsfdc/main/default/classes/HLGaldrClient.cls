@@ -50,13 +50,13 @@ public class HLGaldrClient {
      * Get the details for a specific call in our
      *  enterprise
      */
-    public static helplightning.HLModelCall getEnterpriseCall(String callId) {
+    public static List<helplightning.HLModelCall> getEnterpriseCall(String callId) {
         helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
                                                                       '/enterprise/sessions/' + callId);
 
-        Object result = request.get();
+        Object results = request.get();
 
-        return HLModelCall.build(result);
+        return HLModelCall.buildMany(results);
     }
 
     /**

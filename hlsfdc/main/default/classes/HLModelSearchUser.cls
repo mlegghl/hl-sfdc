@@ -22,20 +22,24 @@ public class HLModelSearchUser {
 
     public static HLModelSearchUser build(Object result) {
         Map<String,Object> s = (Map<String,Object>)result;
-        Map<String,String> avatar = (Map<String,String>)s.get('avatar');
+        Map<String,Object> avatar = (Map<String,Object>)s.get('avatar');
 
         return new HLModelSearchUser((Integer)s.get('id'),
                                      (String)s.get('name'),
                                      (String)s.get('username'),
-                                     (String)avatar.get('full'),
+                                     (String)avatar.get('original'),
                                      (String)s.get('token'));
     }
 
     public static List<HLModelSearchUser> buildMany(Object resultsObject) {
         List<HLModelSearchUser> users = new List<HLModelSearchUser>();
 
-        for (Object u: (List<Object>)resultsObject) {
-            users.add(HLModelSearchUser.build(u));
+        if (resultsObject != null && resultsObject instanceOf List<Object>) {
+            List<Object> l = (List<Object>)resultsObject;
+
+            for (Object u: (List<Object>)resultsObject) {
+                users.add(HLModelSearchUser.build(u));
+            }
         }
 
         return users;

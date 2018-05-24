@@ -24,13 +24,13 @@ public class HLModelSessionUser {
     public static HLModelSessionUser build(Object resultsObject) {
         Map<String,Object> s = (Map<String,Object>)resultsObject;
 
-        Map<String,String> avatar = (Map<String,String>)s.get('avatar');
+        Map<String,Object> avatar = (Map<String,Object>)s.get('avatar');
 
         String id = (String)s.get('id');
         String name = (String)s.get('name');
         String token = (String)s.get('token');
         String username = (String)s.get('username');
-        String avatarURL = avatar.get('full');
+        String avatarURL = (String)avatar.get('original');
 
         return new HLModelSessionUser(id, name, token, username, avatarURL);
     }

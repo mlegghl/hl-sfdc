@@ -279,7 +279,7 @@ public with sharing class HLSessionController {
         System.debug('isHLUser: ' + email);
 
         try {
-            List<helplightning.HLSearchUser> users = helplightning.HLGaldRclient.searchUsers(email);
+            List<helplightning.HLModelSearchUser> users = helplightning.HLGaldrClient.searchUsers(email);
 
 
             // Unfortunately, the results don't include the email field
@@ -288,7 +288,7 @@ public with sharing class HLSessionController {
             //  fields outside of our control). Therefore, we'll just assume
             //  that if our results list > 0, then this email is probably
             //  a user.
-            if (!users.isEmpty())
+            if (users.size() > 0)
                 return true;
 
             return false;
@@ -310,22 +310,8 @@ public with sharing class HLSessionController {
             String myUserEmail = helplightning.HLUserHelper.getLogin();
             System.debug('myUserId=' + myUserEmail);
 
-            Map<String, String> bodyParams = new Map<String, String> {
-                    'dialer_email' => myUserEmail,
-                        'receiver_email' => otherUsersEmail
-                        };
-
-            helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(), '/enterprise/calls');
-            Object results = request.post(bodyParams);
-            if (results != null) {
-                Map<String, Object> resultsMap = (Map<String,Object>)results;
-                System.debug('results=' + resultsMap);
-
-                return (String)resultsMap.get('id');
-            } else {
-                return null;
-            }
-
+            String sessionId = helplightning.HLGaldrClient.makeEnterpriseCall(myUserEmail, otherUsersEmail);
+            return sessionId;
         } catch (helplightning.HLConfigurationException e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');
         }

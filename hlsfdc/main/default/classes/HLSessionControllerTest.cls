@@ -108,10 +108,15 @@ private class HLSessionControllerTest {
                 if (body.get('search_term') == 'support@helplightning.com') {
                     result.add(new Map<String,Object>{
                             'id' => 234,
-                                'name' => 'Support',
-                                'username' => 'support',
-                                'active' => true
-                                });
+                            'name' => 'Support',
+                            'username' => 'support',
+                            'active' => true,
+                            'token' => 'my-token',
+                            'avatar' => new Map<String,String> {
+                                    'original' => '/path/to/avatar.jpg',
+                                    'thumb' => '/path/to/avatar-thumb.jpg'
+                            }
+                        });
                 }
 
                 response.setStatusCode(200);

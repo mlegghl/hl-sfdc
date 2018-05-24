@@ -45,7 +45,7 @@ public class HLModelEnterpriseUser {
                                          (String)u.get('personal_room_url'));
     }
     /**
-     * Build man users from a JSON
+     * Build many users from a JSON
      *  response object
      */
     public static List<HLModelEnterpriseUser> buildMany(Object resultsObject) {

@@ -21,6 +21,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>HLModelCall</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>HLModelEnterpriseUser</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -29,7 +33,19 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>HLModelSession</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>HLModelSessionUser</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>HLModelUser</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>HLModelVideoSession</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>

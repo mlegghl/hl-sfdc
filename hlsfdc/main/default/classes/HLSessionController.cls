@@ -350,7 +350,8 @@ public with sharing class HLSessionController {
 
         try {
             // get our info
-            Map<String, Object> us = HLSessionController.getInfo();
+            String myUserEmail = helplightning.HLUserHelper.getLogin();
+            helplightning.HLModelEnterpriseUser us = HLSessionController.getHLUser(myUserEmail);
 
             // get a token for the other user
             Map<String,String> params = new Map<String,String>();
@@ -366,7 +367,7 @@ public with sharing class HLSessionController {
             String contactToken = (String)c.get('token');
 
             // make a new session
-            request = new helplightning.HLRequest((String)us.get('token'),
+            request = new helplightning.HLRequest(us.authToken,
                                                   '/sessions');
             Map<String,Object> sessionParams = new Map<String,Object>();
             List<String> l = new List<String>();
@@ -377,7 +378,7 @@ public with sharing class HLSessionController {
             String sessionId = (String)sessionResults.get('id');
 
             // ring the other person
-            request = new helplightning.HLRequest((String)us.get('token'),
+            request = new helplightning.HLRequest(us.authToken,
                                                   '/sessions/' + sessionId + '/video');
             Map<String,String> videoParams = new Map<String,String>();
             videoParams.put('session_token', (String)sessionResults.get('token'));
@@ -385,7 +386,7 @@ public with sharing class HLSessionController {
             Map<String,Object> videoResults = (Map<String,Object>)(request.post(videoParams));
 
             // return the a map with the session id and the gss auth info
-            videoResults.put('token', (String)us.get('token'));
+            videoResults.put('token', us.authToken);
             videoResults.put('session_id', sessionId);
             videoResults.put('display_name', UserInfo.getName());
 
@@ -403,15 +404,16 @@ public with sharing class HLSessionController {
         try {
             String myUserEmail = helplightning.HLUserHelper.getLogin();
 
-            Map<String, Object> u = HLSessionController.getHLUser(myUserEmail);
+            helplightning.HLModelEnterpriseUser u = HLSessionController.getHLUser(myUserEmail);
 
-            Map<String, Object> user = new Map<String, Object>();
-            user.put('id', u.get('id'));
-            user.put('name', u.get('name'));
-            user.put('username', u.get('username'));
-            user.put('email', u.get('email'));
-            user.put('avatarURL', ((Map<String, Object>)(u.get('avatar'))).get('original'));
-            user.put('token', u.get('token'));
+            // Map<String, Object> user = new Map<String, Object>();
+            // user.put('id', u.get('id'));
+            // user.put('name', u.get('name'));
+            // user.put('username', u.get('username'));
+            // user.put('email', u.get('email'));
+            // user.put('avatarURL', ((Map<String, Object>)(u.get('avatar'))).get('original'));
+            // user.put('token', u.get('token'));
+            Map<String, Object> user = u.serialize();
 
             return user;
         } catch (helplightning.HLConfigurationException e) {
@@ -426,14 +428,16 @@ public with sharing class HLSessionController {
     @AuraEnabled
     public static Map<String, Object> getUserInfo(String userEmail) {
         try {
-            Map<String, Object> u = HLSessionController.getHLUser(userEmail);
+            helplightning.HLModelEnterpriseUser u = HLSessionController.getHLUser(userEmail);
+            //Map<String, Object> u = HLSessionController.getHLUser(userEmail);
 
-            Map<String, Object> user = new Map<String, Object>();
-            user.put('id', u.get('id'));
-            user.put('name', u.get('name'));
-            user.put('email', u.get('email'));
-            user.put('avatarURL', ((Map<String, Object>)(u.get('avatar'))).get('original'));
-            user.put('token', u.get('token'));
+            // Map<String, Object> user = new Map<String, Object>();
+            // user.put('id', u.get('id'));
+            // user.put('name', u.get('name'));
+            // user.put('email', u.get('email'));
+            // user.put('avatarURL', ((Map<String, Object>)(u.get('avatar'))).get('original'));
+            // user.put('token', u.get('token'));
+            Map<String, Object> user = u.serialize();
 
             return user;
         } catch (helplightning.HLConfigurationException e) {
@@ -543,7 +547,7 @@ public with sharing class HLSessionController {
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Duration__c.isUpdateable());
     }
 
-    private static Map<String, Object> getHLUser(String email) {
+    private static helplightning.HLModelEnterpriseUser getHLUser(String email) {
         // Query the users in our enteprise, and filter
         //  for our email.
         helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(), '/enterprise/users');
@@ -554,11 +558,10 @@ public with sharing class HLSessionController {
             throw new AuraHandledException('The Help Lightning component must be configured first.');
         } else {
             // we are in the list!
-            Map<String, Object> r = (Map<String, Object>)results;
-            List<Object> l = (List<Object>)r.get('entries');
-            Map<String, Object> e = (Map<String, Object>)l.get(0);
+            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLModelEnterpriseUser.buildMany(results);
 
-            return e;
+            // return the first item
+            return users.get(0);
         }
     }
 }

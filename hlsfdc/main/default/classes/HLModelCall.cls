@@ -51,8 +51,10 @@ public class HLModelCall {
     public static List<HLModelCall> buildMany(Object results) {
         List<HLModelCall> calls = new List<HLModelCall>();
 
-        for (Object call: (List<Object>)results) {
-            calls.add(HLModelCall.build(call));
+        if (results != null) {
+            for (Object call: (List<Object>)results) {
+                calls.add(HLModelCall.build(call));
+            }
         }
 
         return calls;

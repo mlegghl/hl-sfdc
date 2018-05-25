@@ -18,7 +18,7 @@ public class HLGaldrClient {
      *  a registered user with a specific email address.
      */
     public static List<helplightning.HLModelSearchUser> searchUsers(String searchTerm) {
-        Map<String, Object> params = new Map<String, String>();
+        Map<String, Object> params = new Map<String, Object>();
         params.put('search_term', searchTerm);
         params.put('include_token', true);
 

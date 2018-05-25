@@ -144,10 +144,18 @@ private class HLSessionControllerTest {
                     result.put('total_entries', 1);
                     result.put('entries', new List<Object> {
                             new Map<String,Object>{
-                                'active' => true,
-                                    'token' => 'valid-token',
-                                    'email' => 'support@helplightning.com'
-                                    }
+                                'id' => 24,
+                                'name' => 'Support',
+                                'username' => 'support',
+                                'email' => 'support@helplightning.com',
+                                'available' => true,
+                                'status' => 0,
+                                'avatar' => new Map<String,String> {
+                                        'original' => 'orig.jpg',
+                                        'thumb' => 'thumb.jpg'
+                                    },
+                                'token' => 'valid-token'
+                                }
                         });
                 } else if (endpoint.getQuery() == 'filter=email=override1534@helplightning.com&') {
                     // this is a valid user, but we are going to fake
@@ -155,9 +163,18 @@ private class HLSessionControllerTest {
                     result.put('total_entries', 1);
                     result.put('entries', new List<Object> {
                             new Map<String,Object>{
-                                'active' => true,
-                                    'email' => 'override1534@helplightning.com'
-                                    }
+                                'id' => 242,
+                                'name' => 'Override',
+                                'username' => 'override1534',
+                                'email' => 'override1534@helplightning.com',
+                                'available' => true,
+                                'status' => 0,
+                                'avatar' => new Map<String,String> {
+                                        'original' => 'orig.jpg',
+                                        'thumb' => 'thumb.jpg'
+                                    },
+                                'token' => 'valid-token'
+                                }
                         });
                 } else {
                     result.put('total_entries', 0);

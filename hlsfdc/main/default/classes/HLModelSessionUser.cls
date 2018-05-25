@@ -12,7 +12,7 @@ public class HLModelSessionUser {
      * This is the model that represents
      *  a Help Lightning User in a Session object.
      */
-    public HLModelSessionUser(String id, String name, String token,
+    public HLModelSessionUser(Integer id, String name, String token,
                               String username, String avatarURL) {
         this.id = id;
         this.name = name;
@@ -26,7 +26,7 @@ public class HLModelSessionUser {
 
         Map<String,Object> avatar = (Map<String,Object>)s.get('avatar');
 
-        String id = (String)s.get('id');
+        Integer id = (Integer)s.get('id');
         String name = (String)s.get('name');
         String token = (String)s.get('token');
         String username = (String)s.get('username');
@@ -35,7 +35,7 @@ public class HLModelSessionUser {
         return new HLModelSessionUser(id, name, token, username, avatarURL);
     }
 
-    public String id = '';
+    public Integer id;
     public String name = '';
     public String token = '';
     public String username = '';

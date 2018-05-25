@@ -25,6 +25,9 @@ public class HLModelSession {
      *  response object
      */
     public static HLModelSession build(Object sessionObject) {
+        if (sessionObject == null)
+            return null;
+
         Map<String,Object> s = (Map<String,Object>)sessionObject;
 
         String id = (String)s.get('id');
@@ -32,7 +35,7 @@ public class HLModelSession {
         Boolean videoActive = (Boolean)s.get('video_active');
         List<helplightning.HLModelSessionUser> users = new List<helplightning.HLModelSessionUser>();
 
-        for (Map<String,Object> u: (List<Map<String,Object>>)s.get('users')) {
+        for (Object u: (List<Object>)s.get('users')) {
             users.add(helplightning.HLModelSessionUser.build(u));
         }
 

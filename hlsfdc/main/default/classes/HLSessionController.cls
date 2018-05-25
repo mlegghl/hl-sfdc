@@ -205,29 +205,33 @@ public with sharing class HLSessionController {
              * !mwd - we also need to put a hard limit
              *  on how many calls we check.
              */
-            Map<helplightning__HLCall__c, Object> callMap = new Map<helplightning__HLCall__c, Object>();
+            Map<helplightning__HLCall__c, List<helplightning.HLModelCall>> callMap =
+                new Map<helplightning__HLCall__c, List<helplightning.HLModelCall>>();
+
             for (helplightning__HLCall__c call : calls) {
                 System.debug('getting Info about call ' + call);
-                helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
-                                                                              '/enterprise/sessions/' + call.helplightning__Session_Id__c);
+                List<helplightning.HLModelCall> hlCalls = helplightning.HLGaldrClient.getEnterpriseCall(call.helplightning__Session_Id__c);
 
-                Object results = request.get();
+                // helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
+                //                                                               '/enterprise/sessions/' + call.helplightning__Session_Id__c);
 
-                // try to find a match based on a fuzzy start time
-                System.debug('result of /sessions/calls/ ' + results);
+                // Object results = request.get();
 
-                if (results != null) {
-                    callMap.put(call, results);
+                // // try to find a match based on a fuzzy start time
+                // System.debug('result of /sessions/calls/ ' + results);
+
+                if (hlCalls != null && hlCalls.size() > 0) {
+                    callMap.put(call, hlCalls);
                 }
             }
 
             // now iterate through our map
             for (helplightning__HLCall__c call : callMap.keySet()) {
-                Object results = callMap.get(call);
+                List<helplightning.HLModelCall> results = callMap.get(call);
 
                 if (results != null) {
                     // results is a list of calls, try to make matches
-                    helplightning__HLCall__c matchedCall = helplightning.HLCallUtil.findCallMatch(call, (Object[])results);
+                    helplightning__HLCall__c matchedCall = helplightning.HLCallUtil.findCallMatch(call, results);
                     if (matchedCall != null) {
                         // a match was found, we need to update the
                         //  database with the changes.

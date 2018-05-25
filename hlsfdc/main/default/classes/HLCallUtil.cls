@@ -16,7 +16,7 @@ public class HLCallUtil {
      *
      * @return a new HLCall__c or null if no match
      */
-    public static helplightning__HLCall__c findCallMatch(helplightning__HLCall__c call, Object[] hlCalls) {
+    public static helplightning__HLCall__c findCallMatch(helplightning__HLCall__c call, List<helplightning.HLModelCall> hlCalls) {
         System.debug('findCallMatch');
 
         // make a clone. We don't want to have any side-effects
@@ -33,7 +33,7 @@ public class HLCallUtil {
         if (updatedCall.helplightning__HLCall_id__c == null || updatedCall.helplightning__HLCall_Id__c.equals('')) {
             // we haven't found a matching help lightning call
             //  see if any of these are close based on time
-            Map<String,Object> closestObject = findClosestCall(call, hlCalls, 90000);
+            helplightning.HLModelCall closestObject = findClosestCall(call, hlCalls, 90000);
             System.debug('closestObject=' + closestObject);
 
             // if our closest match is within 90 seconds, we'll consider this good
@@ -57,16 +57,15 @@ public class HLCallUtil {
                 System.debug('found a match!');
 
                 // update everything we can
-                updatedCall.helplightning__HLCall_id__c = (String)closestObject.get('call_id');
+                updatedCall.helplightning__HLCall_id__c = closestObject.callId;
 
-                if ((Boolean)closestObject.get('complete')) {
+                if (closestObject.complete) {
                     System.debug('setting call as complete');
-                    DateTime endTime = (DateTime)JSON.deserialize('"' + closestObject.get('end_time') + '"', DateTime.class);
 
                     updatedCall.helplightning__Complete__c = true;
-                    updatedCall.helplightning__Successful__c = (Boolean)closestObject.get('successful');
-                    updatedCall.helplightning__Duration__c = (Decimal)closestObject.get('duration');
-                    updatedCall.helplightning__End_time__c = endTime;
+                    updatedCall.helplightning__Successful__c = closestObject.successful;
+                    updatedCall.helplightning__Duration__c = closestObject.duration;
+                    updatedCall.helplightning__End_time__c = closestObject.endTime;
 
                 } else {
                     // The call is still pending.
@@ -82,20 +81,18 @@ public class HLCallUtil {
             // we have a known call id, just find
             //  the correct call then
 
-            for (Object c: hlCalls) {
-                Map<String,Object> cc = (Map<String,Object>)c;
-                String callId = (String)cc.get('call_id');
+            for (helplightning.HLModelCall c: hlCalls) {
+                String callId = c.callId;
 
                 if (updatedCall.helplightning__HLCall_Id__c.equals(callId)) {
                     // do an update
-                    if ((Boolean)cc.get('complete')) {
+                    if (c.complete) {
                         System.debug('setting call as complete');
-                        DateTime endTime = (DateTime)JSON.deserialize('"' + cc.get('end_time') + '"', DateTime.class);
 
                         updatedCall.helplightning__Complete__c = true;
-                        updatedCall.helplightning__Successful__c = (Boolean)cc.get('successful');
-                        updatedCall.helplightning__Duration__c = (Decimal)cc.get('duration');
-                        updatedCall.helplightning__End_time__c = endTime;
+                        updatedCall.helplightning__Successful__c = c.successful;
+                        updatedCall.helplightning__Duration__c = c.duration;
+                        updatedCall.helplightning__End_time__c = c.endTime;
                     } else {
                         System.debug('call is still pending');
                     }
@@ -115,17 +112,19 @@ public class HLCallUtil {
      *  withingSeconds.
      * If no match is found, NULL is returned
      */
-    public static Map<String, Object> findClosestCall(helplightning__HLCall__c call, Object[] hlCalls,
+    public static helplightning.HLModelCall findClosestCall(helplightning__HLCall__c call, List<helplightning.HLModelCall> hlCalls,
                                                       Integer withinSeconds) {
-        Map<String,Object> closestObject = null;
+        helplightning.HLModelCall closestObject = null;
         Long closestTime = -1;
 
-        for (Object c: hlCalls) {
-            Map<String,Object> cc = (Map<String,Object>)c;
-            System.debug('checking call ' + cc);
+        for (helplightning.HLModelCall c: hlCalls) {
+            // Map<String,Object> cc = (Map<String,Object>)c;
+            // System.debug('checking call ' + cc);
 
-            String dialer = (String)((Map<String,Object>)cc.get('dialer')).get('email');
-            String receiver = (String)((Map<String,Object>)cc.get('receiver')).get('email');
+            // String dialer = (String)((Map<String,Object>)cc.get('dialer')).get('email');
+            // String receiver = (String)((Map<String,Object>)cc.get('receiver')).get('email');
+            String dialer = c.dialer.email;
+            String receiver = c.receiver.email;
 
             // first make sure the receiver of this call
             //  matches the reciever of our desired call
@@ -147,14 +146,15 @@ public class HLCallUtil {
             }
 
             // We parse the time by deserialize the time as a json string :- \
-            DateTime d = (DateTime)JSON.deserialize('"' + cc.get('start_time') + '"', DateTime.class);
-            System.debug('start_time=' + d);
+            //DateTime d = (DateTime)JSON.deserialize('"' + cc.get('start_time') + '"', DateTime.class);
+            //System.debug('start_time=' + d);
+            DateTime d = c.startTime;
 
             // find the difference in time
             Long timeDifference = Math.abs(call.helplightning__Start_Time__c.getTime() - d.getTime());
             if (closestTime == -1 || timeDifference < closestTime) {
                 closestTime = timeDifference;
-                closestObject = cc;
+                closestObject = c;
             }
         }
 

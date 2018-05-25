@@ -236,10 +236,16 @@ private class HLSessionControllerTest {
                     result.put('total_entries', 1);
                     result.put('entries', new List<Object> {
                             new Map<String,Object>{
+                                'id' => 234,
+                                'name' => 'Support',
+                                'username' => 'support',
                                 'active' => true,
-                                    'token' => 'valid-token',
-                                    'email' => 'support@helplightning.com'
-                                    }
+                                'token' => 'my-token',
+                                'avatar' => new Map<String,String> {
+                                        'original' => '/path/to/avatar.jpg',
+                                        'thumb' => '/path/to/avatar-thumb.jpg'
+                                }
+                            }
                         });
                 } else if (endpoint.getQuery() == 'filter=email=support3@helplightning.com&') {
                     // this is a valid user, but we are going to fake
@@ -247,9 +253,15 @@ private class HLSessionControllerTest {
                     result.put('total_entries', 1);
                     result.put('entries', new List<Object> {
                             new Map<String,Object>{
+                                'id' => 234,
+                                'name' => 'Support 3',
+                                'username' => 'support3',
                                 'active' => true,
-                                    'email' => 'support3@helplightning.com'
-                                    }
+                                'avatar' => new Map<String,String> {
+                                        'original' => '/path/to/avatar.jpg',
+                                        'thumb' => '/path/to/avatar-thumb.jpg'
+                                }
+                            }
                         });
                 } else {
                     result.put('total_entries', 0);

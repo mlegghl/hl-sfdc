@@ -422,21 +422,14 @@ public with sharing class HLSessionController {
 
             // first get a list of users to find us, since
             //  we have to make this request as a specific user
-            helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(), '/enterprise/users');
-            Object results = request.get(new Map<String,String> {
-                    'filter' => 'email=' + myUserEmail
-                        });
-            if (results == null || ((Map<String,Object>)results).get('total_entries') != 1) {
-                System.debug('Error finding our user. Unexpected results are: ' + results);
+            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(myUserEmail);
+            if (users == null || users.size() == 0) {
+                System.debug('Error finding our user.');
                 return false;
             }
-            Map<String,Object> resultsMap = (Map<String,Object>)results;
-            Object[] entries = (Object[])resultsMap.get('entries');
-            // We are the first Entry
-            Map<String,Object> entry = (Map<String,Object>)entries[0];
-            System.debug('entry=' + entry);
-            String userToken = (String)entry.get('token');
 
+            // use the first user.
+            String userToken = users.get(0).authToken;
             if (userToken == null) {
                 System.debug('Invalid user token');
                 return false;
@@ -445,13 +438,10 @@ public with sharing class HLSessionController {
             // Now send out the invite. We use the user
             //  token we retrieved so that this acts
             //  on behalf of that user.
-            request = new helplightning.HLRequest(userToken, '/personal_room/invite');
-            results = request.post(new Map<String, String> {
-                    'name' => otherUsersName,
-                        'email' => otherUsersEmail
-                        });
-
-            if (results == null) {
+            Boolean result = helplightning.HLGaldrClient.sendPersonalRoomInvite(userToken,
+                                                                                otherUsersName,
+                                                                                otherUsersEmail);
+            if (result == false) {
                 System.debug('Failed to invite');
                 return false;
             }

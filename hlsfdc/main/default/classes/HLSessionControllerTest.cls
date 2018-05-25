@@ -28,27 +28,45 @@ private class HLSessionControllerTest {
                 List<Object> calls = new List<Object>();
                 if (sessionId == 'aabbccdd') {
                     Map<String,Object> call = new Map<String,Object>{
+                            'session_id' => 'aabbccdd',
                             'call_id' => 'abcd',
-                                'dialer' => 'support@helplightning.com',
-                                'receiver' => 'contact1@helplightning.com',
-                                'start_time' => '2017-06-28T11:30:02-05',
-                                'end_time' => '2017-06-28T11:40:02-05',
-                                'complete' => true,
-                                'successful' => true,
-                                'duration' => 600
-                                };
+                            'dialer' => new Map<String,Object>{
+                                    'id' => '432',
+                                    'name' => 'support',
+                                    'email' => 'support@helplightning.com'
+                                    },
+                            'receiver' => new Map<String,Object>{
+                                    'id' => '22',
+                                    'name' => 'contact1',
+                                    'email' => 'contact1@helplightning.com'
+                                    },
+                            'start_time' => '2017-06-28T11:30:02-05',
+                            'end_time' => '2017-06-28T11:40:02-05',
+                            'complete' => true,
+                            'successful' => true,
+                            'duration' => 600
+                            };
                     calls.add(call);
                 } else if (sessionId == 'wwxxyyzz') {
                     Map<String,Object> call = new Map<String,Object>{
+                            'session_id' => 'wwxxyyzz',
                             'call_id' => 'wxyz',
-                                'dialer' => 'support@helplightning.com',
-                                'receiver' => 'contact1@helplightning.com',
-                                'start_time' => '2017-06-28T11:36:05-05',
-                                'end_time' => '2017-06-28T11:42:05-05',
-                                'complete' => true,
-                                'successful' => false,
-                                'duration' => 360
-                                };
+                            'dialer' => new Map<String,Object>{
+                                    'id' => '432',
+                                    'name' => 'support',
+                                    'email' => 'support@helplightning.com'
+                                    },
+                            'receiver' => new Map<String,Object>{
+                                    'id' => '22',
+                                    'name' => 'contact1',
+                                    'email' => 'contact1@helplightning.com'
+                                    },
+                            'start_time' => '2017-06-28T11:36:05-05',
+                            'end_time' => '2017-06-28T11:42:05-05',
+                            'complete' => true,
+                            'successful' => false,
+                            'duration' => 360
+                            };
                     calls.add(call);
                 }
 

@@ -25,12 +25,15 @@ public class HLModelVideoSession {
      *  response object
      */
     public static HLModelVideoSession build(Object sessionObject) {
-        Map<String, Map<String,String>> s = (Map<String, Map<String,String>>)sessionObject;
-        Map<String,String> gss = s.get('gss_info');
+        if (sessionObject == null)
+            return null;
 
-        return new HLModelVideoSession(gss.get('token'),
-                                       gss.get('server'),
-                                       gss.get('wsserver'));
+        Map<String, Object> s = (Map<String, Object>)sessionObject;
+        Map<String, Object> gss = (Map<String, Object>)s.get('gss_info');
+
+        return new HLModelVideoSession((String)gss.get('token'),
+                                       (String)gss.get('server'),
+                                       (String)gss.get('wsserver'));
     }
 
     public Map<String,Object> serialize() {

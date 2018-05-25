@@ -75,8 +75,8 @@ public class HLModelEnterpriseUser {
         m.put('available', this.available);
         m.put('status', this.status);
         m.put('avatarURL', this.avatarURL);
-        m.put('this.authToken', this.authToken);
-        m.put('this.personalRoomURL', this.personalRoomURL);
+        m.put('authToken', this.authToken);
+        m.put('personalRoomURL', this.personalRoomURL);
 
         return m;
     }

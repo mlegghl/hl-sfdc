@@ -12,7 +12,7 @@ public class HLModelSearchUser {
      * A model representing a user as a result of a search.
      */
     public HLModelSearchUser(Integer id, String name, String username,
-                             String avatarURL, String authToken) {
+                             String avatarURL, String token) {
         this.id = id;
         this.name = name;
         this.username = username;

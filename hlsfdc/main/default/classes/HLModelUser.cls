@@ -21,7 +21,4 @@ public class HLModelUser {
     public static HLModelUser build(Object u) {
         return null;
     }
-
-
-
 }

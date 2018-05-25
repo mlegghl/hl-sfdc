@@ -360,55 +360,6 @@ public with sharing class HLSessionController {
     }
 
     /**
-     * Get our token
-     */
-    @AuraEnabled
-    public static Map<String, Object> getInfo() {
-        try {
-            String myUserEmail = helplightning.HLUserHelper.getLogin();
-
-            helplightning.HLModelEnterpriseUser u = HLSessionController.getHLUser(myUserEmail);
-
-            // Map<String, Object> user = new Map<String, Object>();
-            // user.put('id', u.get('id'));
-            // user.put('name', u.get('name'));
-            // user.put('username', u.get('username'));
-            // user.put('email', u.get('email'));
-            // user.put('avatarURL', ((Map<String, Object>)(u.get('avatar'))).get('original'));
-            // user.put('token', u.get('token'));
-            Map<String, Object> user = u.serialize();
-
-            return user;
-        } catch (helplightning.HLConfigurationException e) {
-            throw new AuraHandledException('The Help Lightning component must be configured first.');
-        }
-    }
-
-    /**
-     * We want to initiate a call with another HL user.
-     * We need to get this contact's information
-     */
-    @AuraEnabled
-    public static Map<String, Object> getUserInfo(String userEmail) {
-        try {
-            helplightning.HLModelEnterpriseUser u = HLSessionController.getHLUser(userEmail);
-            //Map<String, Object> u = HLSessionController.getHLUser(userEmail);
-
-            // Map<String, Object> user = new Map<String, Object>();
-            // user.put('id', u.get('id'));
-            // user.put('name', u.get('name'));
-            // user.put('email', u.get('email'));
-            // user.put('avatarURL', ((Map<String, Object>)(u.get('avatar'))).get('original'));
-            // user.put('token', u.get('token'));
-            Map<String, Object> user = u.serialize();
-
-            return user;
-        } catch (helplightning.HLConfigurationException e) {
-            throw new AuraHandledException('The Help Lightning component must be configured first.');
-        }
-    }
-
-    /**
      * Invite a user to a personal room.
      *  This will send out an email to them.
      */

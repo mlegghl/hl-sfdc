@@ -13,7 +13,7 @@ public class HLModelEnterpriseUser {
      *  a Help Lightning Enterprise User object.
      */
     public HLModelEnterpriseUser(Integer id, String name, String username,
-                                 String email, String available, String status,
+                                 String email, Boolean available, Integer status,
                                  String avatarURL, String authToken,
                                  String personalRoomURL) {
         this.id = id;
@@ -33,14 +33,15 @@ public class HLModelEnterpriseUser {
      */
     public static HLModelEnterpriseUser build(Object userObject) {
         Map<String, Object> u = (Map<String, Object>)userObject;
+        Map<String,Object> avatar = (Map<String,Object>)u.get('avatar');
 
         return new HLModelEnterpriseUser((Integer)u.get('id'),
                                          (String)u.get('name'),
                                          (String)u.get('username'),
                                          (String)u.get('email'),
-                                         (String)u.get('available'),
-                                         (String)u.get('status'),
-                                         (String)u.get('avatar'),
+                                         (Boolean)u.get('available'),
+                                         (Integer)u.get('status'),
+                                         (String)avatar.get('original'),
                                          (String)u.get('token'),
                                          (String)u.get('personal_room_url'));
     }
@@ -49,14 +50,17 @@ public class HLModelEnterpriseUser {
      *  response object
      */
     public static List<HLModelEnterpriseUser> buildMany(Object resultsObject) {
-        Map<String, Object> r = (Map<String, Object>)resultsObject;
-        // get the entries
-        List<Object> entries = (List<Object>)r.get('entries');
-
-        // iterate through the entries, building models
         List<HLModelEnterpriseUser> users = new List<HLModelEnterpriseUser>();
-        for (Object u: entries) {
-            users.add(HLModelEnterpriseUser.build(u));
+
+        if (resultsObject != null) {
+            Map<String, Object> r = (Map<String, Object>)resultsObject;
+            // get the entries
+            List<Object> entries = (List<Object>)r.get('entries');
+
+            // iterate through the entries, building models
+            for (Object u: entries) {
+                users.add(HLModelEnterpriseUser.build(u));
+            }
         }
 
         return users;
@@ -81,8 +85,8 @@ public class HLModelEnterpriseUser {
     public String username = '';
     public String name = '';
     public String email = '';
-    public String available = '';
-    public String status = '';
+    public Boolean available = true;
+    public Integer status = 0;
     public String avatarURL = '';
     public String authToken = '';
     public String personalRoomURL = '';

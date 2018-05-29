@@ -30,10 +30,7 @@ public class HLModelVideoSessionTest {
         Object o = JSON.deserializeUntyped(HLModelVideoSessionTest.result);
         helplightning.HLModelVideoSession s = helplightning.HLModelVideoSession.build(o);
 
-        Map<String,Object> s2 = s.serialize();
-        System.assertEquals(s2.keySet(), new Set<String>{'gss_info'});
-
-        Map<String,String> gss = (Map<String,String>)s2.get('gss_info');
+        Map<String,Object> gss = s.serialize();
         System.assertEquals(gss.get('token'), (Object)'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJHaGF6YWwiLCJleHAiOjE1Mjk4NTQ1ODMsImlhdCI6MTUyNzI2MjU4MywiaXNzIjoiR2hhemFsIiwianRpIjoiOTYwNjQ1ZmUtYmQ3Mi00MGY0LTk4ZDgtMTczYzAzMDk5MzNiIiwibmJmIjoxNTI3MjYyNTgyLCJwZW0iOnsic2Vzc2lvbiI6MTA3NTF9LCJzdWIiOiJTZXNzaW9uOmFmMzA0MjYyLWQyMzItNDA0YS05YjhiLTdjMTNlZTU3MDY2MSIsInR5cCI6ImFjY2VzcyIsInZlciI6IjEwMCJ9.8hIO8_h0SevOU6w5DP-_-t1lcrzTp_9BePRojbBanzA');
         System.assertEquals(gss.get('serverURL'), (Object)'gss+ssl://containers-us.helplightning.net:40178');
         System.assertEquals(gss.get('serverWSURL'), (Object)'wss://containers-us.helplightning.net:40177');

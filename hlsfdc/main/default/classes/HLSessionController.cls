@@ -303,32 +303,13 @@ public with sharing class HLSessionController {
     }
 
     /**
-     * Create an HL session between us
-     *  and another user
-     */
-    @AuraEnabled
-    public static String makeSessionWith(String otherUsersEmail) {
-        System.debug('makeSessionWith');
-
-        try {
-            String myUserEmail = helplightning.HLUserHelper.getLogin();
-            System.debug('myUserId=' + myUserEmail);
-
-            String sessionId = helplightning.HLGaldrClient.makeEnterpriseCall(myUserEmail, otherUsersEmail);
-            return sessionId;
-        } catch (helplightning.HLConfigurationException e) {
-            throw new AuraHandledException('The Help Lightning component must be configured first.');
-        }
-    }
-
-    /**
      * Create an HL session between us and another
      *  user actually using sessions.
      * This will return the Gss Auth info
      */
     @AuraEnabled
-    public static Map<String,Object> makeSessionWith2(String otherUsersEmail) {
-        System.debug('makeSessionWith2');
+    public static Map<String,Object> makeSessionWith(String otherUsersEmail) {
+        System.debug('makeSessionWith');
 
         try {
             // get our info
@@ -338,7 +319,7 @@ public with sharing class HLSessionController {
             // get a token for the other user
             List<helplightning.HLModelSearchUser> os = helplightning.HLGaldrClient.searchUsers(otherUsersEmail);
             if (os == null || os.size() == 0) {
-                throw new AuraHandledException('Invalid contact');
+                return null;
             }
             String contactToken = os.get(0).token;
 
@@ -349,15 +330,12 @@ public with sharing class HLSessionController {
             // ring the other person
             helplightning.HLModelVideoSession videoSession = helplightning.HLGaldrClient.sessionRequestVideo(us.authToken, session);
 
-            Map<String,Object> videoResults = new Map<String,Object>();
+            // build a model
+            helplightning.HLModelSessionAuth sessionAuth = new
+                helplightning.HLModelSessionAuth(us.authToken, sessionId,
+                                                 UserInfo.getName(), videoSession);
 
-            // return the a map with the session id and the gss auth info
-            videoResults.put('gss_info', videoSession.serialize());
-            videoResults.put('token', us.authToken);
-            videoResults.put('session_id', sessionId);
-            videoResults.put('display_name', UserInfo.getName());
-
-            return videoResults;
+            return sessionAuth.serialize();
         } catch (helplightning.HLConfigurationException e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');
         }

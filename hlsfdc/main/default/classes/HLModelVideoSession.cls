@@ -37,12 +37,10 @@ public class HLModelVideoSession {
     }
 
     public Map<String,Object> serialize() {
-        return new Map<String,Object>{
-            'gss_info' => new Map<String,String>{
-                    'token' => token,
-                    'serverURL' => serverURL,
-                    'serverWSURL' => serverWSURL
-                }
+        return new Map<String,String>{
+            'token' => token,
+            'serverURL' => serverURL,
+            'serverWSURL' => serverWSURL
         };
     }
 

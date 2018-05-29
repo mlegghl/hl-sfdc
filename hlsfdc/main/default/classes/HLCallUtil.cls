@@ -118,11 +118,6 @@ public class HLCallUtil {
         Long closestTime = -1;
 
         for (helplightning.HLModelCall c: hlCalls) {
-            // Map<String,Object> cc = (Map<String,Object>)c;
-            // System.debug('checking call ' + cc);
-
-            // String dialer = (String)((Map<String,Object>)cc.get('dialer')).get('email');
-            // String receiver = (String)((Map<String,Object>)cc.get('receiver')).get('email');
             String dialer = c.dialer.email;
             String receiver = c.receiver.email;
 
@@ -145,9 +140,6 @@ public class HLCallUtil {
                 continue;
             }
 
-            // We parse the time by deserialize the time as a json string :- \
-            //DateTime d = (DateTime)JSON.deserialize('"' + cc.get('start_time') + '"', DateTime.class);
-            //System.debug('start_time=' + d);
             DateTime d = c.startTime;
 
             // find the difference in time

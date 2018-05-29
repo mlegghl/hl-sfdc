@@ -932,6 +932,11 @@ private class HLSessionControllerTest {
                           LocaleSidKey='en_US', ProfileId = p.Id,
                           TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
         insert u;
+        User u2 = new User(Alias = 'support2', Email='support2@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support 2', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support2@helplightning.com');
+        insert u2;
 
         // We are not allowed to do an DML operations
         //  before doing a call-out. But, we need test data
@@ -959,6 +964,18 @@ private class HLSessionControllerTest {
             // try an invalid case
             authInfo = helplightning.HLSessionController.makeSessionWith('invalid-user@helplightning.com');
             System.assertEquals(null, authInfo);
+        }
+        System.RunAs(u2) {
+            // try as a user that isn't part of this enterprise
+            try {
+                helplightning.HLSessionController.makeSessionWith('contact1@helplightning.com');
+                System.assert(false, 'Exception wasn\'t raised');
+            } catch (AuraHandledException e) {
+                // expected path
+                System.assert(true);
+            } catch (Exception e) {
+                System.assert(false, 'Caught incorrect exception');
+            }
         }
 
         Test.stopTest();

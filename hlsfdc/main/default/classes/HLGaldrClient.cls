@@ -60,30 +60,6 @@ public class HLGaldrClient {
         return HLModelCall.buildMany(results);
     }
 
-    /**
-     * Create a new video session between two users based on
-     *  their email addresses.
-     *
-     * @return the Id of the session
-     */
-    public static String makeEnterpriseCall(String dialerEmail, String receiverEmail) {
-        Map<String, String> bodyParams = new Map<String, String>();
-        bodyParams.put('dialer_email', dialerEmail);
-        bodyParams.put('receiver_email', receiverEmail);
-
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
-                                                                      '/enterprise/calls');
-        Object results = request.post(bodyParams);
-
-        if (results != null) {
-            Map<String, Object> resultsMap = (Map<String,Object>)results;
-
-            return (String)resultsMap.get('id');
-        } else {
-            return null;
-        }
-    }
-
     /** User Methods **/
 
     /**

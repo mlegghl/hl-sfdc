@@ -52,7 +52,7 @@
         var contact = component.get("v.contact");
         var email = contact.Email;
 
-        var action = component.get("c.makeSessionWith2");
+        var action = component.get("c.makeSessionWith");
         action.setParams({"otherUsersEmail": email});
         action.setCallback(this, function(response) {
             var state = response.getState();
@@ -63,7 +63,7 @@
                 var sessionId = r.session_id;
                 var name = encodeURIComponent(r.display_name);
                 var gssToken = r.gss_info.token;
-                var gssUrl = r.gss_info.wsserver;
+                var gssUrl = r.gss_info.serverWSURL;
 
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId,
@@ -75,7 +75,7 @@
                 window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900')
 
             } else {
-                console.log("HL::makeSessionWith2 response failed: " + state);
+                console.log("HL::makeSessionWith response failed: " + state);
             }
         });
         $A.enqueueAction(action);

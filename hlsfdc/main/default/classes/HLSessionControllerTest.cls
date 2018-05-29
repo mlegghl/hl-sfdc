@@ -951,10 +951,10 @@ private class HLSessionControllerTest {
         System.RunAs(u) {
             // try a valid case
             Map<String,Object> authInfo = helplightning.HLSessionController.makeSessionWith('contact1@helplightning.com');
-            Map<String,Object> gssInfo = (Map<String,Object>)authInfo.get('gss_info');
+            Map<String,Object> gssInfo = (Map<String,Object>)authInfo.get('gssInfo');
             System.assertEquals('valid-token', authInfo.get('token'));
-            System.assertEquals('session_abcd', authInfo.get('session_id'));
-            System.assertEquals('Support', authInfo.get('display_name'));
+            System.assertEquals('session_abcd', authInfo.get('sessionId'));
+            System.assertEquals('Support', authInfo.get('displayName'));
             System.assertEquals('gss-token', gssInfo.get('token'));
             System.assertEquals('gss+ssl://gss-001.helplightning.net', gssInfo.get('serverURL'));
             System.assertEquals('wss://gss-001.helplightning.net', gssInfo.get('serverWSURL'));

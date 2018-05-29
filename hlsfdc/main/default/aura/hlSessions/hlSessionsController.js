@@ -60,10 +60,10 @@
                 var r = response.getReturnValue();
 
                 var userToken = r.token;
-                var sessionId = r.session_id;
-                var name = encodeURIComponent(r.display_name);
-                var gssToken = r.gss_info.token;
-                var gssUrl = r.gss_info.serverWSURL;
+                var sessionId = r.sessionId;
+                var name = encodeURIComponent(r.displayName);
+                var gssToken = r.gssInfo.token;
+                var gssUrl = r.gssInfo.serverWSURL;
 
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId,

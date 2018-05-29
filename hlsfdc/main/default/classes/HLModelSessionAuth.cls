@@ -25,9 +25,9 @@ public class HLModelSessionAuth {
     public Map<String,Object> serialize() {
         return new Map<String,Object> {
             'token' => userToken,
-            'session_id' => sessionId,
-            'display_name' => userDisplayName,
-            'gss_info' => sessionAuth.serialize()
+            'sessionId' => sessionId,
+            'displayName' => userDisplayName,
+            'gssInfo' => sessionAuth.serialize()
         };
     }
 

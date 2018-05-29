@@ -212,14 +212,6 @@ public with sharing class HLSessionController {
                 System.debug('getting Info about call ' + call);
                 List<helplightning.HLModelCall> hlCalls = helplightning.HLGaldrClient.getEnterpriseCall(call.helplightning__Session_Id__c);
 
-                // helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
-                //                                                               '/enterprise/sessions/' + call.helplightning__Session_Id__c);
-
-                // Object results = request.get();
-
-                // // try to find a match based on a fuzzy start time
-                // System.debug('result of /sessions/calls/ ' + results);
-
                 if (hlCalls != null && hlCalls.size() > 0) {
                     callMap.put(call, hlCalls);
                 }

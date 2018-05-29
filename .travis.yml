@@ -15,19 +15,20 @@ env:
 
 before_install:
   - openssl aes-256-cbc -K $d2e4104f247f_key -iv $d2e4104f247f_iv -in assets/server.key.enc -out assets/server.key -d
-  - export SFDX_AUTOUPDATE_DISABLE=true
+  - export SFDX_AUTOUPDATE_DISABLE=false
   - export SFDX_USE_GENERIC_UNIX_KEYCHAIN=true
   - export SFDX_DOMAIN_RETRY=300
   - mkdir sfdx
   - wget -qO- $URL | tar xJf - --strip-components=1 -C ./sfdx/
   - "./sfdx/install"
   - export PATH=./sfdx/$(pwd):$PATH
-  - sfdx update
+  - sfdx --version
+  - sfdx plugins --core
   - sfdx force:auth:jwt:grant --clientid $HLSFDC_CONSUMERKEY --jwtkeyfile assets/server.key --username $HLSFDC_USERNAME --setdefaultdevhubusername -a HubOrg
 
 script:
-  - sfdx force:org:create -v HubOrg -s -f config/project-scratch-def.json -a ciorg
+  - sfdx force:org:create -v HubOrg -s -f config/project-scratch-def.json -a ciorg --wait 2
   - sfdx force:source:push -u ciorg
   - sfdx force:user:permset:assign -u ciorg -n HelpLightning
-  - sfdx force:apex:test:run -u ciorg -c -r human
+  - sfdx force:apex:test:run -u ciorg -c -r human --wait 10
   - sfdx force:org:delete -u ciorg -p

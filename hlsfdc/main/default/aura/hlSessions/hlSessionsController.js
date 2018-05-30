@@ -57,14 +57,27 @@
         action.setCallback(this, function(response) {
             var state = response.getState();
             if (component.isValid() && state == "SUCCESS") {
+                var r = response.getReturnValue();
+
+                var userToken = r.token;
+                var sessionId = r.sessionId;
+                var name = encodeURIComponent(r.displayName);
+                var gssToken = r.gssInfo.token;
+                var gssUrl = r.gssInfo.serverWSURL;
+
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId,
-                                     email, response.getReturnValue());
+                                     email, sessionId);
+
+                var url = 'https://app.helplightning.net/webCall?displayName=' + name + '&nameOrEmail=&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
+
+                // open a new window with this url
+                window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900')
+
             } else {
                 console.log("HL::makeSessionWith response failed: " + state);
             }
         });
-
         $A.enqueueAction(action);
     },
 

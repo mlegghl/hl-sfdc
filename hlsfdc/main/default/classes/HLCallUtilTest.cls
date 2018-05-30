@@ -25,18 +25,16 @@ private class HLCallUtilTest {
                                                                      helplightning__Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
 
         // mock up some help lightning calls that the api would have returned
-        Object[] hlCalls = new Object[]{
-            new Map<String,Object>{
-                'call_id' => '1234',
-                    'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
-                    'receiver' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
-                    'start_time' => '2016-10-14T11:46:01-00',
-                    'end_time' => '2016-10-14T11:52:00-00',
-                    'complete' => true,
-                    'successful' => true,
-                    'duration' => (6 * 60)
-                    }
-        };
+        List<helplightning.HLModelCall> hlCalls = new List<helplightning.HLModelCall>{
+                new helplightning.HLModelCall('aabbccdd', '1234',
+                                              DateTime.newInstanceGmt(2016, 10, 14, 11, 46, 1),
+                                              DateTime.newInstanceGmt(2016, 10, 14, 11, 52, 0),
+                                              true, 6 * 60, true,
+                                              new helplightning.HLModelCallUser('12', 'Support',
+                                                                                'support@helplightning.com'),
+                                              new helplightning.HLModelCallUser('32', 'Contact',
+                                                                                'contact@helplightning.com'))
+            };
 
         // run as a support@helplightning.com user, since this
         //  looks up the current user to find a match.
@@ -71,8 +69,7 @@ private class HLCallUtilTest {
                                                                      helplightning__Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
 
         // mock up some help lightning calls that the api would have returned
-        Object[] hlCalls = new Object[]{
-        };
+        List<helplightning.HLModelCall> hlCalls = new List<helplightning.HLModelCall>();
 
         // run as a support@helplightning.com user, since this
         //  looks up the current user to find a match.
@@ -108,8 +105,7 @@ private class HLCallUtilTest {
                                                                      helplightning__Start_Time__c = DateTime.now());
 
         // no matched calls
-        Object[] hlCalls = new Object[]{
-        };
+        List<helplightning.HLModelCall> hlCalls = new List<helplightning.HLModelCall>();
 
         // run as a support@helplightning.com user, since this
         //  looks up the current user to find a match.
@@ -143,27 +139,23 @@ private class HLCallUtilTest {
                                                                      helplightning__Start_Time__c = DateTime.now());
 
         // no matched calls
-        Object[] hlCalls = new Object[]{
-            new Map<String,Object>{
-                'call_id' => 'aabb',
-                    'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
-                    'receiver' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
-                    'start_time' => '2016-10-14T10:20:01-00',
-                    'end_time' => '2016-10-14T10:22:00-00',
-                    'complete' => true,
-                    'successful' => true,
-                    'duration' => (6 * 60)
-                    },
-            new Map<String,Object>{
-                'call_id' => 'ccdd',
-                    'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
-                    'receiver' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
-                    'start_time' => '2016-10-14T10:25:31-00',
-                    'end_time' => '2016-10-14T10:26:00-00',
-                    'complete' => true,
-                    'successful' => false,
-                    'duration' => 0
-                    }
+        List<helplightning.HLModelCall> hlCalls = new List<helplightning.HLModelCall>{
+                new helplightning.HLModelCall('aabbccdd', 'aabb',
+                                              DateTime.newInstanceGmt(2016, 10, 14, 10, 20, 1),
+                                              DateTime.newInstanceGmt(2016, 10, 14, 10, 22, 0),
+                                              true, 6 * 60, true,
+                                              new helplightning.HLModelCallUser('12', 'Support',
+                                                                                'support@helplightning.com'),
+                                              new helplightning.HLModelCallUser('32', 'Contact',
+                                                                                'contact@helplightning.com')),
+                new helplightning.HLModelCall('aabbccdd', 'ccdd',
+                                              DateTime.newInstanceGmt(2016, 10, 14, 10, 25, 31),
+                                              DateTime.newInstanceGmt(2016, 10, 14, 10, 26, 0),
+                                              true, 0, false,
+                                              new helplightning.HLModelCallUser('12', 'Support',
+                                                                                'support@helplightning.com'),
+                                              new helplightning.HLModelCallUser('32', 'Contact',
+                                                                                'contact@helplightning.com'))
 
         };
 
@@ -199,18 +191,16 @@ private class HLCallUtilTest {
                                                                      helplightning__HLCall_Id__c = '1234');
 
         // mock up some help lightning calls that the api would have returned
-        Object[] hlCalls = new Object[]{
-            new Map<String,Object>{
-                'call_id' => '1234',
-                    'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
-                    'receiver' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
-                    'start_time' => '2016-10-14T11:46:01-00',
-                    'end_time' => '',
-                    'complete' => false,
-                    'successful' => false,
-                    'duration' => 0
-                    }
-        };
+        List<helplightning.HLModelCall> hlCalls = new List<helplightning.HLModelCall>{
+                new helplightning.HLModelCall('aabbccdd', '1234',
+                                              DateTime.newInstanceGmt(2016, 10, 14, 11, 46, 1),
+                                              null,
+                                              false, 0, false,
+                                              new helplightning.HLModelCallUser('12', 'Support',
+                                                                                'support@helplightning.com'),
+                                              new helplightning.HLModelCallUser('32', 'Contact',
+                                                                                'contact@helplightning.com'))
+            };
 
         // run as a support@helplightning.com user, since this
         //  looks up the current user to find a match.
@@ -248,18 +238,16 @@ private class HLCallUtilTest {
                                                                      helplightning__HLCall_Id__c = '1234');
 
         // mock up some help lightning calls that the api would have returned
-        Object[] hlCalls = new Object[]{
-            new Map<String,Object>{
-                'call_id' => '1234',
-                    'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
-                    'receiver' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
-                    'start_time' => '2016-10-14T11:46:01-00',
-                    'end_time' => '2016-10-14T11:52:01-00',
-                    'complete' => true,
-                    'successful' => false,
-                    'duration' => 360
-                    }
-        };
+        List<helplightning.HLModelCall> hlCalls = new List<helplightning.HLModelCall>{
+                new helplightning.HLModelCall('aabbccdd', '1234',
+                                              DateTime.newInstanceGmt(2016, 10, 14, 11, 46, 1),
+                                              DateTime.newInstanceGmt(2016, 10, 14, 11, 52, 0),
+                                              true, 360, false,
+                                              new helplightning.HLModelCallUser('12', 'Support',
+                                                                                'support@helplightning.com'),
+                                              new helplightning.HLModelCallUser('32', 'Contact',
+                                                                                'contact@helplightning.com'))
+            };
 
         // run as a support@helplightning.com user, since this
         //  looks up the current user to find a match.
@@ -290,18 +278,16 @@ private class HLCallUtilTest {
                                                                      helplightning__Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
 
         // mock up some help lightning calls that the api would have returned
-        Object[] hlCalls = new Object[]{
-            new Map<String,Object>{
-                'call_id' => '1234',
-                    'dialer' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
-                    'receiver' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
-                    'start_time' => '2016-10-14T11:46:01-00',
-                    'end_time' => '2016-10-14T11:52:00-00',
-                    'complete' => true,
-                    'successful' => true,
-                    'duration' => (6 * 60)
-                    }
-        };
+        List<helplightning.HLModelCall> hlCalls = new List<helplightning.HLModelCall>{
+                new helplightning.HLModelCall('aabbccdd', '1234',
+                                              DateTime.newInstanceGmt(2016, 10, 14, 11, 46, 1),
+                                              DateTime.newInstanceGmt(2016, 10, 14, 11, 52, 0),
+                                              true, 6 * 60, true,
+                                              new helplightning.HLModelCallUser('12', 'Support',
+                                                                                'support@helplightning.com'),
+                                              new helplightning.HLModelCallUser('32', 'Contact',
+                                                                                'contact@helplightning.com'))
+            };
 
         // run as a support@helplightning.com user, since this
         //  looks up the current user to find a match.
@@ -333,18 +319,16 @@ private class HLCallUtilTest {
                                                                      helplightning__Start_Time__c = DateTime.now());
 
         // mock up some help lightning calls that the api would have returned
-        Object[] hlCalls = new Object[]{
-            new Map<String,Object>{
-                'call_id' => '1234',
-                    'dialer' => new Map<String,String>{ 'email' => 'user1@helplightning.com' },
-                    'receiver' => new Map<String,String>{ 'email' => 'user2@helplightning.com' },
-                    'start_time' => '2016-10-14T11:46:01-00',
-                    'end_time' => '2016-10-14T11:52:00-00',
-                    'complete' => true,
-                    'successful' => true,
-                    'duration' => (6 * 60)
-                    }
-        };
+        List<helplightning.HLModelCall> hlCalls = new List<helplightning.HLModelCall>{
+                new helplightning.HLModelCall('aabbccdd', '1234',
+                                              DateTime.newInstanceGmt(2016, 10, 14, 11, 46, 1),
+                                              DateTime.newInstanceGmt(2016, 10, 14, 11, 52, 0),
+                                              true, 6 * 60, true,
+                                              new helplightning.HLModelCallUser('14', 'User1',
+                                                                                'user1@helplightning.com'),
+                                              new helplightning.HLModelCallUser('4', 'User2',
+                                                                                'user2@helplightning.com'))
+            };
 
         // run as a support@helplightning.com user, since this
         //  looks up the current user to find a match.
@@ -374,39 +358,32 @@ private class HLCallUtilTest {
                                                                      helplightning__Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
 
         // mock up some help lightning calls that the api would have returned
-        Object[] hlCalls = new Object[]{
-            new Map<String,Object>{
-                'call_id' => 'aabbcc',
-                    'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
-                    'receiver' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
-                    'start_time' => '2016-10-14T11:45:50-00',
-                    'end_time' => '2016-10-14T11:50:34-00',
-                    'complete' => true,
-                    'successful' => true,
-                    'duration' => 284
-                    },
-            new Map<String,Object>{
-                'call_id' => '1234',
-                    'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
-                    'receiver' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
-                    'start_time' => '2016-10-14T11:46:01-00',
-                    'end_time' => '2016-10-14T11:52:00-00',
-                    'complete' => true,
-                    'successful' => true,
-                    'duration' => 360
-                    },
-            new Map<String,Object>{
-                'call_id' => 'xxyyzz',
-                    'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
-                    'receiver' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
-                    'start_time' => '2016-10-14T11:46:12-00',
-                    'end_time' => '2016-10-14T11:56:32-00',
-                    'complete' => true,
-                    'successful' => true,
-                    'duration' => 620
-                    }
-
-        };
+        List<helplightning.HLModelCall> hlCalls = new List<helplightning.HLModelCall>{
+                new helplightning.HLModelCall('aabbccdd', 'aabbcc',
+                                              DateTime.newInstanceGmt(2016, 10, 14, 11, 45, 50),
+                                              DateTime.newInstanceGmt(2016, 10, 14, 11, 50, 34),
+                                              true, 284, true,
+                                              new helplightning.HLModelCallUser('12', 'Support',
+                                                                                'support@helplightning.com'),
+                                              new helplightning.HLModelCallUser('32', 'Contact',
+                                                                                'contact@helplightning.com')),
+                new helplightning.HLModelCall('aabbccdd', '1234',
+                                              DateTime.newInstanceGmt(2016, 10, 14, 11, 46, 1),
+                                              DateTime.newInstanceGmt(2016, 10, 14, 11, 52, 0),
+                                              true, 360, true,
+                                              new helplightning.HLModelCallUser('12', 'Support',
+                                                                                'support@helplightning.com'),
+                                              new helplightning.HLModelCallUser('32', 'Contact',
+                                                                                'contact@helplightning.com')),
+                new helplightning.HLModelCall('aabbccdd', 'xxyyzz',
+                                              DateTime.newInstanceGmt(2016, 10, 14, 11, 46, 12),
+                                              DateTime.newInstanceGmt(2016, 10, 14, 11, 56, 32),
+                                              true, 620, true,
+                                              new helplightning.HLModelCallUser('12', 'Support',
+                                                                                'support@helplightning.com'),
+                                              new helplightning.HLModelCallUser('32', 'Contact',
+                                                                                'contact@helplightning.com'))
+            };
 
         // run as a support@helplightning.com user, since this
         //  looks up the current user to find a match.
@@ -440,18 +417,16 @@ private class HLCallUtilTest {
                                                                      helplightning__Start_Time__c = DateTime.now());
 
         // no matched calls
-        Object[] hlCalls = new Object[]{
-            new Map<String,Object>{
-                'call_id' => 'aabb',
-                    'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
-                    'receiver' => new Map<String,String>{ 'email' => 'invalid-contact@helplightning.com' },
-                    'start_time' => '2016-10-14T10:20:01-00',
-                    'end_time' => '2016-10-14T10:22:00-00',
-                    'complete' => true,
-                    'successful' => true,
-                    'duration' => (6 * 60)
-                    }
-        };
+        List<helplightning.HLModelCall> hlCalls = new List<helplightning.HLModelCall>{
+                new helplightning.HLModelCall('aabbccdd', 'aabb',
+                                              DateTime.newInstanceGmt(2016, 10, 14, 10, 20, 1),
+                                              DateTime.newInstanceGmt(2016, 10, 14, 10, 22, 0),
+                                              true, 6 * 60, true,
+                                              new helplightning.HLModelCallUser('12', 'Support',
+                                                                                'support@helplightning.com'),
+                                              new helplightning.HLModelCallUser('xx', 'Invalid',
+                                                                                'invalid-contact@helplightning.com'))
+            };
 
         // run as a support@helplightning.com user, since this
         //  looks up the current user to find a match.
@@ -481,18 +456,16 @@ private class HLCallUtilTest {
                                                                      helplightning__Start_Time__c = DateTime.now());
 
         // no matched calls
-        Object[] hlCalls = new Object[]{
-            new Map<String,Object>{
-                'call_id' => 'aabb',
-                    'dialer' => new Map<String,String>{ 'email' => 'invalid-contact@helplightning.com' },
-                    'receiver' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
-                    'start_time' => '2016-10-14T10:20:01-00',
-                    'end_time' => '2016-10-14T10:22:00-00',
-                    'complete' => true,
-                    'successful' => true,
-                    'duration' => (6 * 60)
-                    }
-        };
+        List<helplightning.HLModelCall> hlCalls = new List<helplightning.HLModelCall>{
+                new helplightning.HLModelCall('aabbccdd', 'aabb',
+                                              DateTime.newInstanceGmt(2016, 10, 14, 10, 20, 1),
+                                              DateTime.newInstanceGmt(2016, 10, 14, 10, 22, 0),
+                                              true, 6 * 60, true,
+                                              new helplightning.HLModelCallUser('xx', 'Invalid',
+                                                                                'invalid-contact@helplightning.com'),
+                                              new helplightning.HLModelCallUser('12', 'Support',
+                                                                                'support@helplightning.com'))
+            };
 
         // run as a support@helplightning.com user, since this
         //  looks up the current user to find a match.
@@ -524,18 +497,16 @@ private class HLCallUtilTest {
 
         // mock up some help lightning calls that the api would have returned
         // Don't include 1234
-        Object[] hlCalls = new Object[]{
-            new Map<String,Object>{
-                'call_id' => 'aabbcc',
-                    'dialer' => new Map<String,String>{ 'email' => 'support@helplightning.com' },
-                    'receiver' => new Map<String,String>{ 'email' => 'contact@helplightning.com' },
-                    'start_time' => '2016-10-14T11:46:01-00',
-                    'end_time' => '',
-                    'complete' => false,
-                    'successful' => false,
-                    'duration' => 0
-                    }
-        };
+        List<helplightning.HLModelCall> hlCalls = new List<helplightning.HLModelCall>{
+                new helplightning.HLModelCall('aabbccdd', 'aabb',
+                                              DateTime.newInstanceGmt(2016, 10, 14, 11, 46, 1),
+                                              null,
+                                              false, 0, false,
+                                              new helplightning.HLModelCallUser('12', 'Support',
+                                                                                'support@helplightning.com'),
+                                              new helplightning.HLModelCallUser('32', 'Contact',
+                                                                                'contact@helplightning.com'))
+            };
 
         // run as a support@helplightning.com user, since this
         //  looks up the current user to find a match.

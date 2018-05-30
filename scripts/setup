@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#
+# Set up a new scratch environment
+#
+
+## You must do an sfdx force:auth first and give
+##  your DevHub enabled org an alias. Fill in
+##  your alias for the HUBORG variable below.
+HUBORG="ISV"
+
+N=$1
+
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 scratchName"
+    exit 1
+fi
+
+
+echo "Creating new scratch org $N from $HUBORG..."
+
+sfdx force:org:create -v ${HUBORG} -s -f config/project-scratch-def.json -a $N && \
+    sfdx force:source:push -u $N && \
+    sfdx force:user:permset:assign -u $N -n HelpLightning && \
+    sfdx force:org:open -r -u $N

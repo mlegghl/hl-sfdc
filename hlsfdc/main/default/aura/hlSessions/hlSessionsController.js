@@ -69,7 +69,7 @@
                 helper.createNewCall(component, helper, sObjectName, rId,
                                      email, sessionId);
 
-                var url = 'https://app.helplightning.net/webCall?displayName=' + name + '&nameOrEmail=&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
+                var url = 'https://app-dev.helplightning.net/webCall?displayName=' + name + '&nameOrEmail=&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
 
                 // open a new window with this url
                 window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900')
@@ -82,18 +82,35 @@
     },
 
     clickInviteToPersonalRoom : function(component, event, helper) {
+        var sObjectName = component.get("v.sObjectName");
+        var rId = component.get("v.recordId");
+
         var contact = component.get("v.contact");
         var email = contact.Email;
-        var name = contact.Name;
+        var contactName = contact.Name;
 
         var action = component.get("c.inviteToPersonalRoom");
-        action.setParams({"otherUsersName": name, "otherUsersEmail": email});
+        action.setParams({"otherUsersName": contactName, "otherUsersEmail": email});
         action.setCallback(this, function(response) {
             var state = response.getState();
             if (component.isValid() && state == "SUCCESS") {
                 console.log("successfully invited to personal room");
+                var r = response.getReturnValue();
 
-                // !mwd - show a status update about this
+                var userToken = r.token;
+                var sessionId = r.sessionId;
+                var name = encodeURIComponent(r.displayName);
+                var gssToken = r.gssInfo.token;
+                var gssUrl = r.gssInfo.serverWSURL;
+
+                // create a new HLCall
+                helper.createNewCall(component, helper, sObjectName, rId,
+                                     email, sessionId);
+
+                var url = 'https://app-dev.helplightning.net/webCall?displayName=' + name + '&nameOrEmail=&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
+
+                // open a new window with this url
+                window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900')
             } else {
                 console.log("HL::inviteToPersonalRoom response failed: " + state);
             }

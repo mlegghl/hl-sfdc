@@ -14,8 +14,7 @@ public class HLModelEnterpriseUser {
      */
     public HLModelEnterpriseUser(Integer id, String name, String username,
                                  String email, Boolean available, Integer status,
-                                 String avatarURL, String authToken,
-                                 String personalRoomURL) {
+                                 String avatarURL, String authToken) {
         this.id = id;
         this.name = name;
         this.username = username;
@@ -24,7 +23,6 @@ public class HLModelEnterpriseUser {
         this.status = status;
         this.avatarURL = avatarURL;
         this.authToken = authToken;
-        this.personalRoomURL = personalRoomURL;
     }
 
     /**
@@ -42,8 +40,7 @@ public class HLModelEnterpriseUser {
                                          (Boolean)u.get('available'),
                                          (Integer)u.get('status'),
                                          (String)avatar.get('original'),
-                                         (String)u.get('token'),
-                                         (String)u.get('personal_room_url'));
+                                         (String)u.get('token'));
     }
     /**
      * Build many users from a JSON
@@ -76,7 +73,6 @@ public class HLModelEnterpriseUser {
         m.put('status', this.status);
         m.put('avatarURL', this.avatarURL);
         m.put('authToken', this.authToken);
-        m.put('personalRoomURL', this.personalRoomURL);
 
         return m;
     }
@@ -89,5 +85,4 @@ public class HLModelEnterpriseUser {
     public Integer status = 0;
     public String avatarURL = '';
     public String authToken = '';
-    public String personalRoomURL = '';
 }

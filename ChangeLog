@@ -1,3 +1,6 @@
+2018-06-01  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-28 - Use webjs to show video inside of SFDC
+
 2018-05-29  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
 	* SFDC-33 - Fix travis to work with new ISV org
 

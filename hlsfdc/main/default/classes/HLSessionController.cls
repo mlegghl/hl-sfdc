@@ -205,29 +205,25 @@ public with sharing class HLSessionController {
              * !mwd - we also need to put a hard limit
              *  on how many calls we check.
              */
-            Map<helplightning__HLCall__c, Object> callMap = new Map<helplightning__HLCall__c, Object>();
+            Map<helplightning__HLCall__c, List<helplightning.HLModelCall>> callMap =
+                new Map<helplightning__HLCall__c, List<helplightning.HLModelCall>>();
+
             for (helplightning__HLCall__c call : calls) {
                 System.debug('getting Info about call ' + call);
-                helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
-                                                                              '/enterprise/sessions/' + call.helplightning__Session_Id__c);
+                List<helplightning.HLModelCall> hlCalls = helplightning.HLGaldrClient.getEnterpriseCall(call.helplightning__Session_Id__c);
 
-                Object results = request.get();
-
-                // try to find a match based on a fuzzy start time
-                System.debug('result of /sessions/calls/ ' + results);
-
-                if (results != null) {
-                    callMap.put(call, results);
+                if (hlCalls != null && hlCalls.size() > 0) {
+                    callMap.put(call, hlCalls);
                 }
             }
 
             // now iterate through our map
             for (helplightning__HLCall__c call : callMap.keySet()) {
-                Object results = callMap.get(call);
+                List<helplightning.HLModelCall> results = callMap.get(call);
 
                 if (results != null) {
                     // results is a list of calls, try to make matches
-                    helplightning__HLCall__c matchedCall = helplightning.HLCallUtil.findCallMatch(call, (Object[])results);
+                    helplightning__HLCall__c matchedCall = helplightning.HLCallUtil.findCallMatch(call, results);
                     if (matchedCall != null) {
                         // a match was found, we need to update the
                         //  database with the changes.
@@ -258,12 +254,8 @@ public with sharing class HLSessionController {
 
             // Query the users in our enteprise, and filter
             //  for our email.
-            helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(), '/enterprise/users');
-            Object results = request.get(new Map<String,String> {
-                    'filter' => 'email=' + myUserEmail
-                        });
-            if (results == null || ((Map<String,Object>)results).get('total_entries') != 1) {
-                System.debug('Error finding our user. Unexpected results are: ' + results);
+            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(myUserEmail);
+            if (users.size() == 0) {
                 return false;
             } else {
                 // we are in the list!
@@ -283,11 +275,8 @@ public with sharing class HLSessionController {
         System.debug('isHLUser: ' + email);
 
         try {
-            Map<String,String> params = new Map<String,String>();
-            params.put('search_term', email);
+            List<helplightning.HLModelSearchUser> users = helplightning.HLGaldrClient.searchUsers(email);
 
-            helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(), '/search');
-            Object results = request.post(params);
 
             // Unfortunately, the results don't include the email field
             //  (for privacy reasons), so we can't 100% verify this is
@@ -295,9 +284,8 @@ public with sharing class HLSessionController {
             //  fields outside of our control). Therefore, we'll just assume
             //  that if our results list > 0, then this email is probably
             //  a user.
-            if (results != null && ((Object[])results).size() > 0) {
+            if (users.size() > 0)
                 return true;
-            }
 
             return false;
 
@@ -307,33 +295,39 @@ public with sharing class HLSessionController {
     }
 
     /**
-     * Create an HL session between us
-     *  and another user
+     * Create an HL session between us and another
+     *  user actually using sessions.
+     * This will return the Gss Auth info
      */
     @AuraEnabled
-    public static String makeSessionWith(String otherUsersEmail) {
+    public static Map<String,Object> makeSessionWith(String otherUsersEmail) {
         System.debug('makeSessionWith');
 
         try {
+            // get our info
             String myUserEmail = helplightning.HLUserHelper.getLogin();
-            System.debug('myUserId=' + myUserEmail);
+            helplightning.HLModelEnterpriseUser us = HLSessionController.getHLUser(myUserEmail);
 
-            Map<String, String> bodyParams = new Map<String, String> {
-                    'dialer_email' => myUserEmail,
-                        'receiver_email' => otherUsersEmail
-                        };
-
-            helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(), '/enterprise/calls');
-            Object results = request.post(bodyParams);
-            if (results != null) {
-                Map<String, Object> resultsMap = (Map<String,Object>)results;
-                System.debug('results=' + resultsMap);
-
-                return (String)resultsMap.get('id');
-            } else {
+            // get a token for the other user
+            List<helplightning.HLModelSearchUser> os = helplightning.HLGaldrClient.searchUsers(otherUsersEmail);
+            if (os == null || os.size() == 0) {
                 return null;
             }
+            String contactToken = os.get(0).token;
 
+            // make a new session
+            helplightning.HLModelSession session = helplightning.HLGaldrClient.createsession(us.authToken, new List<String>{contactToken});
+            String sessionId = session.id;
+
+            // ring the other person
+            helplightning.HLModelVideoSession videoSession = helplightning.HLGaldrClient.sessionRequestVideo(us.authToken, session);
+
+            // build a model
+            helplightning.HLModelSessionAuth sessionAuth = new
+                helplightning.HLModelSessionAuth(us.authToken, sessionId,
+                                                 UserInfo.getName(), videoSession);
+
+            return sessionAuth.serialize();
         } catch (helplightning.HLConfigurationException e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');
         }
@@ -353,21 +347,14 @@ public with sharing class HLSessionController {
 
             // first get a list of users to find us, since
             //  we have to make this request as a specific user
-            helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(), '/enterprise/users');
-            Object results = request.get(new Map<String,String> {
-                    'filter' => 'email=' + myUserEmail
-                        });
-            if (results == null || ((Map<String,Object>)results).get('total_entries') != 1) {
-                System.debug('Error finding our user. Unexpected results are: ' + results);
+            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(myUserEmail);
+            if (users == null || users.size() == 0) {
+                System.debug('Error finding our user.');
                 return false;
             }
-            Map<String,Object> resultsMap = (Map<String,Object>)results;
-            Object[] entries = (Object[])resultsMap.get('entries');
-            // We are the first Entry
-            Map<String,Object> entry = (Map<String,Object>)entries[0];
-            System.debug('entry=' + entry);
-            String userToken = (String)entry.get('token');
 
+            // use the first user.
+            String userToken = users.get(0).authToken;
             if (userToken == null) {
                 System.debug('Invalid user token');
                 return false;
@@ -376,13 +363,10 @@ public with sharing class HLSessionController {
             // Now send out the invite. We use the user
             //  token we retrieved so that this acts
             //  on behalf of that user.
-            request = new helplightning.HLRequest(userToken, '/personal_room/invite');
-            results = request.post(new Map<String, String> {
-                    'name' => otherUsersName,
-                        'email' => otherUsersEmail
-                        });
-
-            if (results == null) {
+            Boolean result = helplightning.HLGaldrClient.sendPersonalRoomInvite(userToken,
+                                                                                otherUsersName,
+                                                                                otherUsersEmail);
+            if (result == false) {
                 System.debug('Failed to invite');
                 return false;
             }
@@ -439,5 +423,16 @@ public with sharing class HLSessionController {
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Successful__c.isUpdateable() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Start_Time__c.isUpdateable() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Duration__c.isUpdateable());
+    }
+
+    private static helplightning.HLModelEnterpriseUser getHLUser(String email) {
+        List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(email);
+
+        if (users.size() == 0) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
+        }
+
+        // return the first item
+        return users.get(0);
     }
 }

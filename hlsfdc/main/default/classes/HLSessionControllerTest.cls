@@ -28,27 +28,45 @@ private class HLSessionControllerTest {
                 List<Object> calls = new List<Object>();
                 if (sessionId == 'aabbccdd') {
                     Map<String,Object> call = new Map<String,Object>{
+                            'session_id' => 'aabbccdd',
                             'call_id' => 'abcd',
-                                'dialer' => 'support@helplightning.com',
-                                'receiver' => 'contact1@helplightning.com',
-                                'start_time' => '2017-06-28T11:30:02-05',
-                                'end_time' => '2017-06-28T11:40:02-05',
-                                'complete' => true,
-                                'successful' => true,
-                                'duration' => 600
-                                };
+                            'dialer' => new Map<String,Object>{
+                                    'id' => '432',
+                                    'name' => 'support',
+                                    'email' => 'support@helplightning.com'
+                                    },
+                            'receiver' => new Map<String,Object>{
+                                    'id' => '22',
+                                    'name' => 'contact1',
+                                    'email' => 'contact1@helplightning.com'
+                                    },
+                            'start_time' => '2017-06-28T11:30:02-05',
+                            'end_time' => '2017-06-28T11:40:02-05',
+                            'complete' => true,
+                            'successful' => true,
+                            'duration' => 600
+                            };
                     calls.add(call);
                 } else if (sessionId == 'wwxxyyzz') {
                     Map<String,Object> call = new Map<String,Object>{
+                            'session_id' => 'wwxxyyzz',
                             'call_id' => 'wxyz',
-                                'dialer' => 'support@helplightning.com',
-                                'receiver' => 'contact1@helplightning.com',
-                                'start_time' => '2017-06-28T11:36:05-05',
-                                'end_time' => '2017-06-28T11:42:05-05',
-                                'complete' => true,
-                                'successful' => false,
-                                'duration' => 360
-                                };
+                            'dialer' => new Map<String,Object>{
+                                    'id' => '432',
+                                    'name' => 'support',
+                                    'email' => 'support@helplightning.com'
+                                    },
+                            'receiver' => new Map<String,Object>{
+                                    'id' => '22',
+                                    'name' => 'contact1',
+                                    'email' => 'contact1@helplightning.com'
+                                    },
+                            'start_time' => '2017-06-28T11:36:05-05',
+                            'end_time' => '2017-06-28T11:42:05-05',
+                            'complete' => true,
+                            'successful' => false,
+                            'duration' => 360
+                            };
                     calls.add(call);
                 }
 
@@ -108,10 +126,15 @@ private class HLSessionControllerTest {
                 if (body.get('search_term') == 'support@helplightning.com') {
                     result.add(new Map<String,Object>{
                             'id' => 234,
-                                'name' => 'Support',
-                                'username' => 'support',
-                                'active' => true
-                                });
+                            'name' => 'Support',
+                            'username' => 'support',
+                            'active' => true,
+                            'token' => 'my-token',
+                            'avatar' => new Map<String,String> {
+                                    'original' => '/path/to/avatar.jpg',
+                                    'thumb' => '/path/to/avatar-thumb.jpg'
+                            }
+                        });
                 }
 
                 response.setStatusCode(200);
@@ -139,10 +162,18 @@ private class HLSessionControllerTest {
                     result.put('total_entries', 1);
                     result.put('entries', new List<Object> {
                             new Map<String,Object>{
-                                'active' => true,
-                                    'token' => 'valid-token',
-                                    'email' => 'support@helplightning.com'
-                                    }
+                                'id' => 24,
+                                'name' => 'Support',
+                                'username' => 'support',
+                                'email' => 'support@helplightning.com',
+                                'available' => true,
+                                'status' => 0,
+                                'avatar' => new Map<String,String> {
+                                        'original' => 'orig.jpg',
+                                        'thumb' => 'thumb.jpg'
+                                    },
+                                'token' => 'valid-token'
+                                }
                         });
                 } else if (endpoint.getQuery() == 'filter=email=override1534@helplightning.com&') {
                     // this is a valid user, but we are going to fake
@@ -150,9 +181,18 @@ private class HLSessionControllerTest {
                     result.put('total_entries', 1);
                     result.put('entries', new List<Object> {
                             new Map<String,Object>{
-                                'active' => true,
-                                    'email' => 'override1534@helplightning.com'
-                                    }
+                                'id' => 242,
+                                'name' => 'Override',
+                                'username' => 'override1534',
+                                'email' => 'override1534@helplightning.com',
+                                'available' => true,
+                                'status' => 0,
+                                'avatar' => new Map<String,String> {
+                                        'original' => 'orig.jpg',
+                                        'thumb' => 'thumb.jpg'
+                                    },
+                                'token' => 'valid-token'
+                                }
                         });
                 } else {
                     result.put('total_entries', 0);
@@ -176,20 +216,98 @@ private class HLSessionControllerTest {
             HttpResponse response = new HttpResponse();
             response.setHeader('Content-Type', 'application/json');
 
-            if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1/enterprise/calls')) {
+            if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1/enterprise/users')) {
+                Map<String, Object> result = new Map<String, Object>();
+
+                if (endpoint.getQuery() == 'filter=email=support@helplightning.com&') {
+                    result.put('total_entries', 1);
+                    result.put('entries', new List<Object> {
+                            new Map<String,Object>{
+                                'id' => 24,
+                                'name' => 'Support',
+                                'username' => 'support',
+                                'email' => 'support@helplightning.com',
+                                'available' => true,
+                                'status' => 0,
+                                'avatar' => new Map<String,String> {
+                                        'original' => 'orig.jpg',
+                                        'thumb' => 'thumb.jpg'
+                                    },
+                                'token' => 'valid-token'
+                                }
+                        });
+                } else {
+                    result.put('total_entries', 0);
+                    result.put('entries', new List<Object>{});
+                }
+                response.setStatusCode(200);
+                response.setBody(JSON.serialize(result));
+
+            } else if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1/search')) {
                 Map<String,Object> body = (Map<String,Object>)JSON.deserializeUntyped(req.getBody());
 
-                if (body.get('receiver_email') == 'contact1@helplightning.com') {
-
-                    Map<String,Object> result = new Map<String,Object>();
-                    result.put('id', 'aabbccddeeff');
-
-                    response.setStatusCode(200);
-                    response.setBody(JSON.serialize(result));
-                } else {
-                    // fake an error here
-                    response.setStatusCode(500);
+                List<Object> result = new List<Object>();
+                if (body.get('search_term') == 'contact1@helplightning.com') {
+                    result.add(new Map<String,Object>{
+                            'id' => 265,
+                            'name' => 'Contact 1',
+                            'username' => 'contact1',
+                            'active' => true,
+                            'token' => 'my-token',
+                            'avatar' => new Map<String,String> {
+                                    'original' => '/path/to/avatar.jpg',
+                                    'thumb' => '/path/to/avatar-thumb.jpg'
+                            }
+                        });
                 }
+
+                response.setStatusCode(200);
+                response.setBody(JSON.serialize(result));
+
+            } else if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1/sessions')) {
+                Map<String,Object> result = new Map<String,Object>{
+                        'id' => 'session_abcd',
+                        'token' => 'session_abcd_token',
+                        'video_active' => false,
+                        'users' => new List<Object>{
+                                new Map<String,Object> {
+                                    'id' => 5,
+                                    'name' => 'Support',
+                                    'token' => 'support-public-token',
+                                    'username' => 'support',
+                                    'avatar' => new Map<String,String> {
+                                            'original' => 'avatar1.jpg',
+                                            'thumb' => 'avatar1_thumb.jpg'
+                                            }
+                                },
+                                new Map<String,Object> {
+                                    'id' => 265,
+                                    'name' => 'Contact 1',
+                                    'token' => 'contact-public-token',
+                                    'username' => 'contact1',
+                                    'avatar' => new Map<String,String> {
+                                            'original' => 'avatar2.jpg',
+                                            'thumb' => 'avatar2_thumb.jpg'
+                                            }
+                                }
+                            }
+                    };
+
+                response.setStatusCode(200);
+                response.setBody(JSON.serialize(result));
+
+            } else if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1/session/video')) {
+                Map<String,Object> result = new Map<String,Object>{
+                        'gss_info' => new Map<String,Object>{
+                                'token' => 'gss-token',
+                                'server' => 'gss+ssl://gss-001.helplightning.net',
+                                'wsserver' => 'wss://gss-001.helplightning.net'
+                            }
+                    };
+
+                response.setStatusCode(200);
+                response.setBody(JSON.serialize(result));
+
             } else {
                 response.setStatusCode(500);
             }
@@ -214,10 +332,16 @@ private class HLSessionControllerTest {
                     result.put('total_entries', 1);
                     result.put('entries', new List<Object> {
                             new Map<String,Object>{
+                                'id' => 234,
+                                'name' => 'Support',
+                                'username' => 'support',
                                 'active' => true,
-                                    'token' => 'valid-token',
-                                    'email' => 'support@helplightning.com'
-                                    }
+                                'token' => 'my-token',
+                                'avatar' => new Map<String,String> {
+                                        'original' => '/path/to/avatar.jpg',
+                                        'thumb' => '/path/to/avatar-thumb.jpg'
+                                }
+                            }
                         });
                 } else if (endpoint.getQuery() == 'filter=email=support3@helplightning.com&') {
                     // this is a valid user, but we are going to fake
@@ -225,9 +349,15 @@ private class HLSessionControllerTest {
                     result.put('total_entries', 1);
                     result.put('entries', new List<Object> {
                             new Map<String,Object>{
+                                'id' => 234,
+                                'name' => 'Support 3',
+                                'username' => 'support3',
                                 'active' => true,
-                                    'email' => 'support3@helplightning.com'
-                                    }
+                                'avatar' => new Map<String,String> {
+                                        'original' => '/path/to/avatar.jpg',
+                                        'thumb' => '/path/to/avatar-thumb.jpg'
+                                }
+                            }
                         });
                 } else {
                     result.put('total_entries', 0);
@@ -802,6 +932,11 @@ private class HLSessionControllerTest {
                           LocaleSidKey='en_US', ProfileId = p.Id,
                           TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
         insert u;
+        User u2 = new User(Alias = 'support2', Email='support2@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support 2', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support2@helplightning.com');
+        insert u2;
 
         // We are not allowed to do an DML operations
         //  before doing a call-out. But, we need test data
@@ -815,12 +950,32 @@ private class HLSessionControllerTest {
 
         System.RunAs(u) {
             // try a valid case
-            String sessionId = helplightning.HLSessionController.makeSessionWith('contact1@helplightning.com');
-            System.assertEquals('aabbccddeeff', sessionId);
+            Map<String,Object> authInfo = helplightning.HLSessionController.makeSessionWith('contact1@helplightning.com');
+            Map<String,Object> gssInfo = (Map<String,Object>)authInfo.get('gssInfo');
+            System.assertEquals('valid-token', authInfo.get('token'));
+            System.assertEquals('session_abcd', authInfo.get('sessionId'));
+            System.assertEquals('Support', authInfo.get('displayName'));
+            System.assertEquals('gss-token', gssInfo.get('token'));
+            System.assertEquals('gss+ssl://gss-001.helplightning.net', gssInfo.get('serverURL'));
+            System.assertEquals('wss://gss-001.helplightning.net', gssInfo.get('serverWSURL'));
+
+            //System.assertEquals('aabbccddeeff', sessionId);
 
             // try an invalid case
-            sessionId = helplightning.HLSessionController.makeSessionWith('invalid-user@helplightning.com');
-            System.assertEquals(null, sessionId);
+            authInfo = helplightning.HLSessionController.makeSessionWith('invalid-user@helplightning.com');
+            System.assertEquals(null, authInfo);
+        }
+        System.RunAs(u2) {
+            // try as a user that isn't part of this enterprise
+            try {
+                helplightning.HLSessionController.makeSessionWith('contact1@helplightning.com');
+                System.assert(false, 'Exception wasn\'t raised');
+            } catch (AuraHandledException e) {
+                // expected path
+                System.assert(true);
+            } catch (Exception e) {
+                System.assert(false, 'Caught incorrect exception');
+            }
         }
 
         Test.stopTest();

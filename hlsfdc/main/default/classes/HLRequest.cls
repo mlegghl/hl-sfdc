@@ -34,16 +34,21 @@ public class HLRequest {
     }
 
     public Object get() {
-        return get(new Map<String,Object>());
+        return get(new Map<String,String>());
     }
 
-    public Object get(Map<String,Object> params) {
+    public Object get(Map<String,String> params) {
         // encode our parameters
-        String paramStr = '?';
+        String paramStr = '';
+        String sep = '?';
         for (String k : params.keySet()) {
-            Object v = params.get(k);
+            // encode the parameter
+            String v = EncodingUtil.urlEncode(params.get(k), 'UTF-8');
 
-            paramStr = paramStr + k + '=' + v + '&';
+            paramStr = paramStr + sep + k + '=' + v;
+
+            // change the separator to &
+            sep = '&';
         }
         String route = this.route + paramStr;
 

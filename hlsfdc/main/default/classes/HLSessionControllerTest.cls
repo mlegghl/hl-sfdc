@@ -158,7 +158,7 @@ private class HLSessionControllerTest {
             if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1/enterprise/users')) {
                 Map<String, Object> result = new Map<String, Object>();
 
-                if (endpoint.getQuery() == 'filter=email=support@helplightning.com&') {
+                if (endpoint.getQuery() == 'filter=email%3Dsupport%40helplightning.com') {
                     result.put('total_entries', 1);
                     result.put('entries', new List<Object> {
                             new Map<String,Object>{
@@ -175,7 +175,7 @@ private class HLSessionControllerTest {
                                 'token' => 'valid-token'
                                 }
                         });
-                } else if (endpoint.getQuery() == 'filter=email=override1534@helplightning.com&') {
+                } else if (endpoint.getQuery() == 'filter=email%3Doverride1534%40helplightning.com') {
                     // this is a valid user, but we are going to fake
                     //  not return a valid token
                     result.put('total_entries', 1);
@@ -219,7 +219,7 @@ private class HLSessionControllerTest {
             if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1/enterprise/users')) {
                 Map<String, Object> result = new Map<String, Object>();
 
-                if (endpoint.getQuery() == 'filter=email=support@helplightning.com&') {
+                if (endpoint.getQuery() == 'filter=email%3Dsupport%40helplightning.com') {
                     result.put('total_entries', 1);
                     result.put('entries', new List<Object> {
                             new Map<String,Object>{
@@ -328,7 +328,7 @@ private class HLSessionControllerTest {
             if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1/enterprise/users')) {
                 Map<String, Object> result = new Map<String, Object>();
 
-                if (endpoint.getQuery() == 'filter=email=support@helplightning.com&') {
+                if (endpoint.getQuery() == 'filter=email%3Dsupport%40helplightning.com') {
                     result.put('total_entries', 1);
                     result.put('entries', new List<Object> {
                             new Map<String,Object>{
@@ -343,7 +343,7 @@ private class HLSessionControllerTest {
                                 }
                             }
                         });
-                } else if (endpoint.getQuery() == 'filter=email=support3@helplightning.com&') {
+                } else if (endpoint.getQuery() == 'filter=email%3Dsupport3%40helplightning.com') {
                     // this is a valid user, but we are going to fake
                     //  not return a valid token
                     result.put('total_entries', 1);

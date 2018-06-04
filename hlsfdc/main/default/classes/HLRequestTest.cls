@@ -27,12 +27,22 @@ private class HLRequestTest {
                 } else if (endpoint.getPath() == '/api/v1/get-test-failure') {
                     response.setStatusCode(500);
                 } else if (endpoint.getPath() == '/api/v1/get-test-parameters') {
-                    System.assertEquals(endpoint.getQuery(), 'key1=asdf&key2=true&key3=2342&');
+                    System.assertEquals(endpoint.getQuery(), 'key1=asdf&key2=1&key3=2342');
+
+                    Map<String,String> body = new Map<String,String>();
+                    body.put('key1', 'asdf');
+                    body.put('key2', '1');
+                    body.put('key3', '2342');
+
+                    response.setBody(JSON.serialize(body));
+                    response.setStatusCode(200);
+                } else if (endpoint.getPath() == '/api/v1/get-test-encoded-parameters') {
+                    System.assertEquals(endpoint.getQuery(), 'key1=email%2Bsomething%40example.com&key2=this%3C%2B%3Ethat&key3=%D0%90%D1%80%D0%BA%D0%BE%D0%BD%D0%B0');
 
                     Map<String,Object> body = new Map<String,Object>();
-                    body.put('key1', 'asdf');
-                    body.put('key2', true);
-                    body.put('key3', 2342);
+                    body.put('key1', 'email%2Bsomething%40example.com');
+                    body.put('key2', 'this%3C%2B%3Ethat');
+                    body.put('key3', '%D0%90%D1%80%D0%BA%D0%BE%D0%BD%D0%B0');
 
                     response.setBody(JSON.serialize(body));
                     response.setStatusCode(200);
@@ -67,7 +77,7 @@ private class HLRequestTest {
         helplightning.HLRequest request = new helplightning.HLRequest(token, route);
         Object result = request.get();
 
-        System.assertEquals(result, true);
+        System.assertEquals(true, result);
     }
 
     @isTest
@@ -82,7 +92,7 @@ private class HLRequestTest {
         Object result = request.get();
 
         // null means failure
-        System.assertEquals(result, null);
+        System.assertEquals(null, result);
     }
 
     @isTest
@@ -93,17 +103,17 @@ private class HLRequestTest {
         // set up our mock
         Test.setMock(HttpCalloutMock.class, new HLRequestTestMocker());
 
-        Map<String,Object> params = new Map<String,Object>();
+        Map<String,String> params = new Map<String,String>();
         params.put('key1', 'asdf');
-        params.put('key2', true);
-        params.put('key3', 2342);
+        params.put('key2', '1');
+        params.put('key3', '2342');
 
         helplightning.HLRequest request = new helplightning.HLRequest(token, route);
         Object result = request.get(params);
 
         // The result should be the same map
         //  of parameters.
-        System.assertEquals(result, params);
+        System.assertEquals(params, result);
     }
 
     @isTest
@@ -124,6 +134,31 @@ private class HLRequestTest {
 
         // The result should be the same map
         //  of parameters.
-        System.assertEquals(result, true);
+        System.assertEquals(true, result);
+    }
+
+    @isTest
+    static void testParmetersAreEncoded() {
+        String token = 'fake-token';
+        String route = '/get-test-encoded-parameters';
+
+        // set up our mock
+        Test.setMock(HttpCalloutMock.class, new HLRequestTestMocker());
+
+        Map<String,String> params = new Map<String,String>();
+        params.put('key1', 'email+something@example.com');
+        params.put('key2', 'this<+>that');
+        params.put('key3', 'Аркона');
+
+        helplightning.HLRequest request = new helplightning.HLRequest(token, route);
+        Object result = request.get(params);
+
+        // assert the params are encoded
+        Map<String,String> expected = new Map<String,String>{
+                'key1' => 'email%2Bsomething%40example.com',
+                'key2' => 'this%3C%2B%3Ethat',
+                'key3' => '%D0%90%D1%80%D0%BA%D0%BE%D0%BD%D0%B0'
+        };
+        System.assertEquals(expected, result);
     }
 }

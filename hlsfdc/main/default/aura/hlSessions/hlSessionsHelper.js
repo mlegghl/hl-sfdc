@@ -153,7 +153,7 @@
         $A.enqueueAction(action);
     },
 
-    createNewCall : function(component, helper, sObjectName, recordId, email, sessionId) {
+    createNewCall : function(component, helper, sObjectName, recordId, email, sessionId, fromInvite) {
         console.log("creating new session and attaching it to a " + sObjectName);
         var supportedComponent = (sObjectName === "Case" || sObjectName === "WorkOrder");
         if (!supportedComponent) {
@@ -163,18 +163,20 @@
 
         var newCall;
 
+        var callType = fromInvite ? "Invitation" : "Direct"
+
         if (sObjectName === "Case") {
                 newCall = {'sobjectType': 'helplightning__HLCall__c',
                            'helplightning__Case__c': recordId,
                            'helplightning__Contact_Email__c': email,
                            'helplightning__Session_Id__c': sessionId,
-                           'helplightning__Type__c': 'Direct'}
+                           'helplightning__Type__c': callType}
         } else if (sObjectName == "WorkOrder") {
                 newCall = {'sobjectType': 'helplightning__HLCall__c',
                            'helplightning__Work_Order__c': recordId,
                            'helplightning__Contact_Email__c': email,
                            'helplightning__Session_Id__c': sessionId,
-                           'helplightning__Type__c': 'Direct'}
+                           'helplightning__Type__c': callType}
         }
 
         var action = component.get("c.saveCall");

@@ -4,6 +4,7 @@
     <!-- internal attributes -->
     <aura:attribute name="status" type="String"/>
     <aura:attribute name="duration" type="String"/>
+    <aura:attribute name="icon" type="String"/>
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
 
@@ -16,21 +17,26 @@
                     <div class="slds-media__figure slds-timeline__icon">
                         <aura:if isTrue="{!v.status == 'Completed'}">
                             <span class="slds-icon_container slds-icon_small slds-icon-standard-flow" title="Help Lightning Call">
-                                <lightning:icon class="slds-icon hl-icon-white slds-m-around_xx-small" iconName="utility:forward" size="x-small" />
+                                <lightning:icon class="slds-icon hl-icon-white slds-m-around_xx-small" iconName="{!v.icon}" size="x-small" />
                             </span>
                             <aura:set attribute="else">
                                 <span class="slds-icon_container slds-icon_small slds-icon-standard-performance" title="Help Lightning Call">
-                                    <lightning:icon class="slds-icon hl-icon-white slds-m-around_xx-small" iconName="utility:forward" size="x-small" />
+                                    <lightning:icon class="slds-icon hl-icon-white slds-m-around_xx-small" iconName="{!v.icon}" size="x-small" />
                                 </span>
                             </aura:set>
                         </aura:if>
                     </div>
                     <div class="slds-media__body">
-                        <h3 class="slds-truncate" title="Initiated Help Lightning Call">Initiated Help Lightning Call</h3>
+                        <aura:if isTrue="{!v.item.helplightning__Type__c == 'Direct'}">
+                            <h3 class="slds-truncate" title="Initiated Help Lightning Call">Initiated Help Lightning Call</h3>
+                            <aura:set attribute="else">
+                                <h3 class="slds-truncate" title="Received Help Lightning Call">Received Help Lightning Call</h3>
+                            </aura:set>
+                        </aura:if>
                         <!-- To: / Status: Line -->
                         <ul class="slds-list_horizontal">
                             <li class="slds-truncate_container_50 slds-m-right_large slds-grid">
-                                <span class="slds-text-title">To:</span>
+                                <span class="slds-text-title">With:</span>
                                 <span class="slds-text-body_small slds-m-left_xx-small slds-truncate" title="{!v.item.helplightning__Contact_Email__c}">{!v.item.helplightning__Contact_Email__c}</span>
                             </li>
                             <li class="slds-m-right_large">

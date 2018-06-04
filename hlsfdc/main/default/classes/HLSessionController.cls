@@ -89,7 +89,8 @@ public with sharing class HLSessionController {
                             helplightning__Successful__c,
                             helplightning__Start_Time__c,
                             helplightning__End_Time__c,
-                            helplightning__Duration__c
+                            helplightning__Duration__c,
+                            helplightning__Type__c
                             FROM helplightning__HLCall__c
                             WHERE helplightning__Case__c = :recordId
                             ORDER BY helplightning__Start_Time__c DESC

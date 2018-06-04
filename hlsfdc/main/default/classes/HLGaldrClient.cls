@@ -63,6 +63,17 @@ public class HLGaldrClient {
     /** User Methods **/
 
     /**
+     * Get the account info of a single user (us).
+     */
+    public static HLModelAccount getInfo(String userToken) {
+        helplightning.HLRequest request = new helplightning.HLRequest(userToken,
+                                                                      '/info');
+        Object result = request.get();
+
+        return HLModelAccount.build(userToken, result);
+    }
+
+    /**
      * Create a new session with some other users.
      */
     public static HLModelSession createSession(String userToken, List<String> contactTokens) {
@@ -72,6 +83,17 @@ public class HLGaldrClient {
         helplightning.HLRequest request = new helplightning.HLRequest(userToken,
                                                                       '/sessions');
         Object result = request.post(sessionParams);
+
+        return HLModelSession.build(result);
+    }
+
+    /**
+     * Get info about an existing session
+     */
+    public static HLModelSession getSession(String userToken, String sessionId) {
+        helplightning.HLRequest request = new helplightning.HLRequest(userToken,
+                                                                      '/sessions/' + sessionId);
+        Object result = request.get();
 
         return HLModelSession.build(result);
     }

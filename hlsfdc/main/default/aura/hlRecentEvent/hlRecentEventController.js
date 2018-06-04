@@ -13,6 +13,12 @@
             component.set("v.status", "In Progress");
         }
 
+        if (item.helplightning__Type__c == 'Direct') {
+            component.set("v.icon", 'utility:forward');
+        } else {
+            component.set("v.icon", 'utility:back');
+        }
+
         // figure out the duration
         if (item.helplightning__Complete__c) {
             if (item.helplightning__Duration__c > 60 * 60) {

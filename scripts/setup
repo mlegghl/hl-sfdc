@@ -18,7 +18,7 @@ fi
 
 echo "Creating new scratch org $N from $HUBORG..."
 
-sfdx force:org:create -v ${HUBORG} -s -f config/project-scratch-def.json -a $N && \
+sfdx force:org:create -v ${HUBORG} -s -f config/project-scratch-def.json -d 30 -a $N && \
     sfdx force:source:push -u $N && \
     sfdx force:user:permset:assign -u $N -n HelpLightning && \
     sfdx force:org:open -r -u $N

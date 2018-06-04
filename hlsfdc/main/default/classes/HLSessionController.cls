@@ -89,7 +89,8 @@ public with sharing class HLSessionController {
                             helplightning__Successful__c,
                             helplightning__Start_Time__c,
                             helplightning__End_Time__c,
-                            helplightning__Duration__c
+                            helplightning__Duration__c,
+                            helplightning__Type__c
                             FROM helplightning__HLCall__c
                             WHERE helplightning__Case__c = :recordId
                             ORDER BY helplightning__Start_Time__c DESC
@@ -338,7 +339,7 @@ public with sharing class HLSessionController {
      *  This will send out an email to them.
      */
     @AuraEnabled
-    public static Boolean inviteToPersonalRoom(String otherUsersName, String otherUsersEmail) {
+    public static Map<String,Object> inviteToPersonalRoom(String otherUsersName, String otherUsersEmail) {
         System.debug('inviteToPersonalRoom: ' + otherUsersName + ' ' + otherUsersEmail);
 
         try {
@@ -350,14 +351,14 @@ public with sharing class HLSessionController {
             List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(myUserEmail);
             if (users == null || users.size() == 0) {
                 System.debug('Error finding our user.');
-                return false;
+                return null;
             }
 
             // use the first user.
             String userToken = users.get(0).authToken;
             if (userToken == null) {
                 System.debug('Invalid user token');
-                return false;
+                return null;
             }
 
             // Now send out the invite. We use the user
@@ -368,10 +369,24 @@ public with sharing class HLSessionController {
                                                                                 otherUsersEmail);
             if (result == false) {
                 System.debug('Failed to invite');
-                return false;
+                return null;
             }
 
-            return true;
+            // get our user info, which will give us our personal room session
+            helplightning.HLModelAccount account = helplightning.HLGaldrClient.getInfo(userToken);
+
+            // get the session info
+            helplightning.HLModelSession session = helplightning.HLGaldrClient.getSession(userToken, account.personalRoomSessionId);
+
+            // request video on this session
+            helplightning.HLModelVideoSession videoSession = helplightning.HLGaldrClient.sessionRequestVideo(userToken, session);
+
+            // build a model
+            helplightning.HLModelSessionAuth sessionAuth = new
+                helplightning.HLModelSessionAuth(userToken, session.id,
+                                                 UserInfo.getName(), videoSession);
+
+            return sessionAuth.serialize();
 
         } catch (helplightning.HLConfigurationException e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');

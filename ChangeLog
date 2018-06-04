@@ -1,4 +1,5 @@
 2018-06-04  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-34 - Pop open Help Space when inviting a user
 	* SFDC-32 - URLencode parameters
 
 2018-06-01  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>

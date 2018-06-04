@@ -374,6 +374,56 @@ private class HLSessionControllerTest {
                     response.setStatusCode(200);
                     response.setBody(JSON.serialize(true));
                 }
+            } else if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1/info')) {
+                Map<String, Object> result = new Map<String, Object>{
+                        'id' => 234,
+                        'name' => 'Support',
+                        'username' => 'support',
+                        'email' => 'support@helplightning.com',
+                        'avatar' => new Map<String,String> {
+                                'original' => '/path/to/avatar.jpg',
+                                'thumb' => '/path/to/avatar-thumb.jpg'
+                                },
+                        'available' => true,
+                        'active' => true,
+                        'status' => 0,
+                        'personal_room_url' => '/meet/support',
+                        'personal_room_session_id' => 'xxx-yyyy-zzz'
+                        };
+
+                response.setStatusCode(200);
+                response.setBody(JSON.serialize(result));
+            } else if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1/sessions/xxx-yyyy-zzz')) {
+                Map<String,Object> result = new Map<String,Object>{
+                        'id' => 'xxx-yyyy-zzz',
+                        'token' => 'session_token',
+                        'video_active' => false,
+                        'users' => new List<Object>{
+                                new Map<String,Object> {
+                                    'id' => 5,
+                                    'name' => 'Support',
+                                    'token' => 'support-public-token',
+                                    'username' => 'support',
+                                    'avatar' => new Map<String,String> {
+                                            'original' => 'avatar1.jpg',
+                                            'thumb' => 'avatar1_thumb.jpg'
+                                            }
+                                }
+                            }
+                    };
+                response.setStatusCode(200);
+                response.setBody(JSON.serialize(result));
+            } else if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1/session/video')) {
+                Map<String,Object> result = new Map<String,Object>{
+                        'gss_info' => new Map<String,Object>{
+                                'token' => 'gss-token',
+                                'server' => 'gss+ssl://gss-001.helplightning.net',
+                                'wsserver' => 'wss://gss-001.helplightning.net'
+                            }
+                    };
+
+                response.setStatusCode(200);
+                response.setBody(JSON.serialize(result));
             } else {
                 response.setStatusCode(500);
             }
@@ -1059,30 +1109,38 @@ private class HLSessionControllerTest {
         Test.setMock(HttpCalloutMock.class, new InviteToPersonalRoomMocker());
 
         System.RunAs(u1) {
-            Boolean result;
+            Map<String,Object> result;
 
             // try a valid case
             result = helplightning.HLSessionController.inviteToPersonalRoom('Other User', 'other@helplightning.com');
-            System.assertEquals(true, result);
+
+            Map<String,Object> gssInfo = (Map<String,Object>)result.get('gssInfo');
+
+            System.assertEquals('my-token', result.get('token'));
+            System.assertEquals('xxx-yyyy-zzz', result.get('sessionId'));
+            System.assertEquals('Support', result.get('displayName'));
+            System.assertEquals('gss-token', gssInfo.get('token'));
+            System.assertEquals('gss+ssl://gss-001.helplightning.net', gssInfo.get('serverURL'));
+            System.assertEquals('wss://gss-001.helplightning.net', gssInfo.get('serverWSURL'));
 
             // try an invalid case
             result = helplightning.HLSessionController.inviteToPersonalRoom('Invalid User', 'invalid-user@helplightning.com');
-            System.assertEquals(false, result);
+            System.assertEquals(null, result);
         }
 
         System.RunAs(u2) {
-            Boolean result;
+            Map<String,Object> result;
 
             // try a other user, but we are not part of this enterprise
             result = helplightning.HLSessionController.inviteToPersonalRoom('Other User', 'other@helplightning.com');
-            System.assertEquals(false, result);
+            System.assertEquals(null, result);
         }
         System.RunAs(u3) {
-            Boolean result;
+            Map<String,Object> result;
 
             // simulate us not correctly returning a token
             result = helplightning.HLSessionController.inviteToPersonalRoom('Other User', 'other@helplightning.com');
-            System.assertEquals(false, result);
+            System.assertEquals(null, result);
         }
 
         Test.stopTest();

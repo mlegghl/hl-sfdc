@@ -1,3 +1,6 @@
+2018-12-05  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-36 - Fix travis certs
+
 2018-06-04  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
 	* SFDC-34 - Pop open Help Space when inviting a user
 	* SFDC-32 - URLencode parameters

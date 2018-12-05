@@ -1,4 +1,5 @@
 2018-12-05  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-35 - Set default access to global
 	* SFDC-36 - Fix travis certs
 
 2018-06-04  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>

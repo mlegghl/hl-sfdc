@@ -1,4 +1,4 @@
-<aura:application extends="ltng:outApp" >
+<aura:application access="GLOBAL" extends="ltng:outApp" >
   <aura:dependency resource="helplightning:hlSessions" />
   <aura:dependency resource="helplightning:hlButtonHeader" />
   <aura:dependency resource="helplightning:hlOnClickEvent" type="EVENT"/>

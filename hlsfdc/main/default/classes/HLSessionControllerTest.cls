@@ -318,7 +318,7 @@ private class HLSessionControllerTest {
     /**
      * Mocker for the testInviteToPersonalRoom
      */
-    class InviteToPersonalRoomMocker implements HttpCalloutMock {
+class InviteToPersonalRoomMocker implements HttpCalloutMock {
         public HTTPResponse respond(HTTPRequest req) {
             URL endpoint = new URL(req.getEndpoint());
 
@@ -365,7 +365,7 @@ private class HLSessionControllerTest {
                 }
                 response.setStatusCode(200);
                 response.setBody(JSON.serialize(result));
-            } else if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1/personal_room/invite')) {
+            } else if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1/sessions/link/invite')) {
                 Map<String,Object> body = (Map<String,Object>)JSON.deserializeUntyped(req.getBody());
                 if (body.get('email') == 'invalid-user@helplightning.com') {
                     // simulate invalid

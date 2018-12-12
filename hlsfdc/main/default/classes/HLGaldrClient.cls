@@ -112,7 +112,7 @@ public class HLGaldrClient {
         return HLModelVideoSession.build(results);
     }
 
-    public static Boolean sendPersonalRoomInvite(String userToken, String toName, String toEmail) {
+    public static Boolean sendOneTimeUseLinkViaEmail(String userToken, String toName, String toEmail) {
         Map<String,String> params = new Map<String,String>();
         params.put('name', toName);
         params.put('recipientEmail', toEmail);

@@ -81,7 +81,7 @@
         $A.enqueueAction(action);
     },
 
-    clickInviteToPersonalRoom : function(component, event, helper) {
+    clickEmailOneTimeUseLink : function(component, event, helper) {
         var sObjectName = component.get("v.sObjectName");
         var rId = component.get("v.recordId");
 
@@ -89,7 +89,7 @@
         var email = contact.Email;
         var contactName = contact.Name;
 
-        var action = component.get("c.inviteToPersonalRoom");
+        var action = component.get("c.emailOneTimeUseLink");
         action.setParams({"otherUsersName": contactName, "otherUsersEmail": email});
         action.setCallback(this, function(response) {
             var state = response.getState();
@@ -112,7 +112,7 @@
                 // open a new window with this url
                 window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900')
             } else {
-                console.log("HL::inviteToPersonalRoom response failed: " + state);
+                console.log("HL::emailOneTimeUseLink response failed: " + state);
             }
         });
 

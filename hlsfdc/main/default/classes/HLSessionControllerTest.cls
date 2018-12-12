@@ -316,9 +316,9 @@ private class HLSessionControllerTest {
         }
     }
     /**
-     * Mocker for the testInviteToPersonalRoom
+     * Mocker for the testEmailOneTimeUseLink
      */
-class InviteToPersonalRoomMocker implements HttpCalloutMock {
+class EmailOneTimeUseLinkMocker implements HttpCalloutMock {
         public HTTPResponse respond(HTTPRequest req) {
             URL endpoint = new URL(req.getEndpoint());
 
@@ -1075,10 +1075,10 @@ class InviteToPersonalRoomMocker implements HttpCalloutMock {
     }
 
     /**
-     * Test inviteToPersonalRoom
+     * Test emailOneTimeUseLink
      */
     @isTest
-    static void testInviteToPersonalRoom() {
+    static void testEmailOneTimeUseLink() {
         // run as a support@helplightning.com user, since this
         //  looks up the current user to find a match.
         Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
@@ -1106,13 +1106,13 @@ class InviteToPersonalRoomMocker implements HttpCalloutMock {
         Test.startTest();
 
         // set up the mock
-        Test.setMock(HttpCalloutMock.class, new InviteToPersonalRoomMocker());
+        Test.setMock(HttpCalloutMock.class, new EmailOneTimeUseLinkMocker());
 
         System.RunAs(u1) {
             Map<String,Object> result;
 
             // try a valid case
-            result = helplightning.HLSessionController.inviteToPersonalRoom('Other User', 'other@helplightning.com');
+            result = helplightning.HLSessionController.emailOneTimeUseLink('Other User', 'other@helplightning.com');
 
             Map<String,Object> gssInfo = (Map<String,Object>)result.get('gssInfo');
 
@@ -1124,7 +1124,7 @@ class InviteToPersonalRoomMocker implements HttpCalloutMock {
             System.assertEquals('wss://gss-001.helplightning.net', gssInfo.get('serverWSURL'));
 
             // try an invalid case
-            result = helplightning.HLSessionController.inviteToPersonalRoom('Invalid User', 'invalid-user@helplightning.com');
+            result = helplightning.HLSessionController.emailOneTimeUseLink('Invalid User', 'invalid-user@helplightning.com');
             System.assertEquals(null, result);
         }
 
@@ -1132,14 +1132,14 @@ class InviteToPersonalRoomMocker implements HttpCalloutMock {
             Map<String,Object> result;
 
             // try a other user, but we are not part of this enterprise
-            result = helplightning.HLSessionController.inviteToPersonalRoom('Other User', 'other@helplightning.com');
+            result = helplightning.HLSessionController.emailOneTimeUseLink('Other User', 'other@helplightning.com');
             System.assertEquals(null, result);
         }
         System.RunAs(u3) {
             Map<String,Object> result;
 
             // simulate us not correctly returning a token
-            result = helplightning.HLSessionController.inviteToPersonalRoom('Other User', 'other@helplightning.com');
+            result = helplightning.HLSessionController.emailOneTimeUseLink('Other User', 'other@helplightning.com');
             System.assertEquals(null, result);
         }
 
@@ -1147,10 +1147,10 @@ class InviteToPersonalRoomMocker implements HttpCalloutMock {
     }
 
     /**
-     * Test inviteToPersonalRoom with invalid configuration
+     * Test emailOneTimeUseLink with invalid configuration
      */
     @isTest
-    static void testInviteToPersonalRoomMissingConfig() {
+    static void testEmailOneTimeUseLinkMissingConfig() {
         helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getOrgDefaults();
         delete config;
 
@@ -1171,11 +1171,11 @@ class InviteToPersonalRoomMocker implements HttpCalloutMock {
         Test.startTest();
 
         // set up the mock
-        Test.setMock(HttpCalloutMock.class, new InviteToPersonalRoomMocker());
+        Test.setMock(HttpCalloutMock.class, new EmailOneTimeUseLinkMocker());
 
         System.RunAs(u1) {
             try {
-                helplightning.HLSessionController.inviteToPersonalRoom('Other User', 'other@helplightning.com');
+                helplightning.HLSessionController.emailOneTimeUseLink('Other User', 'other@helplightning.com');
                 System.assert(false, 'Exception wasn\'t raised');
             } catch (AuraHandledException e) {
                 // expected path

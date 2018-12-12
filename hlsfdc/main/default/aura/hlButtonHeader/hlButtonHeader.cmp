@@ -34,7 +34,7 @@
                     Call Contact
                 </ui:button>
                 <ui:button class="slds-button slds-button_neutral"
-                           press="{!c.clickInviteToPersonalRoom}">
+                           press="{!c.clickEmailOneTimeUseLink}">
                     Invite Contact
                 </ui:button>
             </div>

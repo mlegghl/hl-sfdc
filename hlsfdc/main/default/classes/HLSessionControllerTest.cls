@@ -367,7 +367,7 @@ class InviteToPersonalRoomMocker implements HttpCalloutMock {
                 response.setBody(JSON.serialize(result));
             } else if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1/sessions/link/invite')) {
                 Map<String,Object> body = (Map<String,Object>)JSON.deserializeUntyped(req.getBody());
-                if (body.get('email') == 'invalid-user@helplightning.com') {
+                if (body.get('recipientEmail') == 'invalid-user@helplightning.com') {
                     // simulate invalid
                     response.setStatusCode(500);
                 } else {

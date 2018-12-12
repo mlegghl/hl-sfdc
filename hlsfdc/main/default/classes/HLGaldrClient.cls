@@ -115,10 +115,11 @@ public class HLGaldrClient {
     public static Boolean sendPersonalRoomInvite(String userToken, String toName, String toEmail) {
         Map<String,String> params = new Map<String,String>();
         params.put('name', toName);
-        params.put('email', toEmail);
+        params.put('recipientEmail', toEmail);
+        params.put('linkType', '2');
 
         helplightning.HLRequest request = new helplightning.HLRequest(userToken,
-                                                                      '/personal_room/invite');
+                                                                      '/sessions/link/invite');
         Object results = request.post(params);
 
         if (results == null)

@@ -1,3 +1,6 @@
+2018-12-13  Nath Tumlin <nath.tumlin@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-37 - Send One Time Use Links instead of Meeting Room Links
+
 2018-12-05  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
 	* SFDC-35 - Set default access to global
 	* SFDC-36 - Fix travis certs

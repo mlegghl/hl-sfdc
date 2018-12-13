@@ -17,7 +17,7 @@
         <helplightning:hlButtonHeader showButtons="{!v.hasErrors == false}"
                                       disableCallButton="{!v.contactIsHLUser == false}"
                                       onCallClick="{!c.clickCall}"
-                                      onInviteClick="{!c.clickInviteToPersonalRoom}" />
+                                      onInviteClick="{!c.clickEmailOneTimeUseLink}" />
 
         <div class="slds-card__body slds-card__body_inner">
             <div class="slds-p-bottom_small">

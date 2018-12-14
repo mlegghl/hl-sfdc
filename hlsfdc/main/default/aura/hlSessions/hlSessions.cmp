@@ -15,6 +15,7 @@
     <article class="slds-card">
         <!-- render our button header -->
         <helplightning:hlButtonHeader showButtons="{!v.hasErrors == false}"
+                                      contactEmail="{!v.contact.Email}"
                                       disableCallButton="{!v.contactIsHLUser == false}"
                                       onCallClick="{!c.clickCall}"
                                       onInviteClick="{!c.clickEmailOneTimeUseLink}" />

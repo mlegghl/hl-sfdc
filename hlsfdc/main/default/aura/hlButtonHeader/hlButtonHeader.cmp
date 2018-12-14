@@ -3,7 +3,8 @@
         Information on how to pass functions as events came from:
         https://salesforce.stackexchange.com/questions/144087/how-do-i-pass-a-function-as-a-lightning-component-attribute
     -->
-	<aura:attribute name="showButtons" type="Boolean" default="true" />
+    <aura:attribute name="showButtons" type="Boolean" default="true" />
+    <aura:attribute name="contactEmail" type="String" default="" />
     <aura:attribute name="disableCallButton" type="Boolean" default="false" />
 
     <!-- regiser our callback event to use as callbacks for presses on buttons -->
@@ -33,6 +34,8 @@
                            disabled="{!v.disableCallButton}">
                     Call Contact
                 </ui:button>
+                <ui:inputText aura:id="contactEmail"
+                              value="{!v.contactEmail}" />
                 <ui:button class="slds-button slds-button_neutral"
                            press="{!c.clickEmailOneTimeUseLink}">
                     Invite Contact

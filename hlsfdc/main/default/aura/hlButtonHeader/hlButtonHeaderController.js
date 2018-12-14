@@ -8,6 +8,7 @@
     clickEmailOneTimeUseLink : function(component, event, helper) {
         // call the parent handler
         var event = component.getEvent('onInviteClick');
+        event.setParam("email", component.get('v.contactEmail'));
         event.fire();
     }
 })

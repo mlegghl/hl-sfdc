@@ -1,6 +1,6 @@
 ({
     doInit : function(component, event, helper) {
-        console.log("Initializing Help Lightning Component");
+        console.log("Initializing Help Lightning Component 2");
 
         var rId = component.get("v.recordId");
         var sObjectName = component.get("v.sObjectName");
@@ -86,13 +86,17 @@
         var rId = component.get("v.recordId");
 
         var contact = component.get("v.contact");
-        var email = contact.Email;
+        var email = event.getParam("email");
         var contactName = contact.Name;
 
         var action = component.get("c.emailOneTimeUseLink");
         action.setParams({"otherUsersName": contactName, "otherUsersEmail": email});
         action.setCallback(this, function(response) {
             var state = response.getState();
+            console.log('resp');
+            console.log(response);
+            console.log('comp');
+            console.log(component);
             if (component.isValid() && state == "SUCCESS") {
                 console.log("successfully invited to personal room");
                 var r = response.getReturnValue();

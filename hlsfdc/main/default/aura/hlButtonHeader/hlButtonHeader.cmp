@@ -4,12 +4,16 @@
         https://salesforce.stackexchange.com/questions/144087/how-do-i-pass-a-function-as-a-lightning-component-attribute
     -->
     <aura:attribute name="showButtons" type="Boolean" default="true" />
-    <aura:attribute name="contactEmail" type="String" default="" />
     <aura:attribute name="disableCallButton" type="Boolean" default="false" />
 
+    <aura:attribute name="showInviteForm" type="Boolean" default="false" />
+    <aura:attribute name="contactEmail" type="String" default="" />
+    <aura:attribute name="contactPhone" type="String" default="" />
+    <aura:attribute name="inviteMessage" type="String" default="" />
+
     <!-- regiser our callback event to use as callbacks for presses on buttons -->
-    <aura:registerEvent name="onCallClick" type="helplightning:hlOnClickEvent" />
-    <aura:registerEvent name="onInviteClick" type="helplightning:hlOnClickEvent" />
+    <aura:registerEvent name="onCallClick" type="helplightning:hlCallContactEvent" />
+    <aura:registerEvent name="onInviteClick" type="helplightning:hlInviteContactEvent" />
 
 
     <div class="slds-card__header slds-grid">
@@ -29,19 +33,55 @@
         </header>
         <aura:if isTrue="{!v.showButtons}">
             <div class="slds-no-flex">
-                <ui:button class="slds-button slds-button_brand"
-                           press="{!c.clickCall}"
-                           disabled="{!v.disableCallButton}">
+                <ui:button class="slds-button slds-button_brand" press="{!c.clickCall}" disabled="{!v.disableCallButton}">
                     Call Contact
                 </ui:button>
-                <ui:inputText aura:id="contactEmail"
-                              value="{!v.contactEmail}" />
-                <ui:button class="slds-button slds-button_neutral"
-                           press="{!c.clickEmailOneTimeUseLink}">
+                <ui:button class="slds-button slds-button_neutral" press="{!c.toggleInviteForm}">
                     Invite Contact
                 </ui:button>
             </div>
         </aura:if>
     </div>
+    <aura:if isTrue="{!v.showInviteForm}">
+        <div class="slds-card__body slds-card__body_inner">
+            <aura:if isTrue="{!v.showButtons}">
+                <fieldset class="slds-form-element slds-form_compound">
+                    <legend class="slds-form-element__legend slds-form-element__label">Invite Contact</legend>
+                    <div class="slds-form-element__control">
+                        <div class="slds-form-element__row">
+                            <div class="slds-form-element slds-size_1-of-1">
+                                <label class="slds-form-element__label" for="inviteMessage">Message</label>
+                                <div class="slds-form-element__control">
+                                    <ui:inputTextArea aura:id="inviteMessage" class="slds-textarea" value="{!v.inviteMessage}"
+                                        placeholder="Custom message (optional; added to email only)">
+                                    </ui:inputTextArea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slds-form-element__row">
+                            <div class="slds-form-element slds-size_1-of-2">
+                                <label class="slds-form-element__label" for="contactEmail">Email: </label>
+                                <div class="slds-form-element__control">
+                                    <ui:inputText class="slds-input" aura:id="contactEmail" value="{!v.contactEmail}" />
+                                </div>
+                                <ui:button class="slds-button slds-button_outline-brand" press="{!c.clickEmailOneTimeUseLink}">
+                                    Invite Via Email
+                                </ui:button>
+                            </div>
+                            <div class="slds-form-element slds-size_1-of-2">
+                                <label class="slds-form-element__label" for="contactEmail">Phone: </label>
+                                <div class="slds-form-element__control">
+                                    <ui:inputText class="slds-input" aura:id="contactPhone" value="{!v.contactPhone}" />
+                                </div>
+                                <ui:button class="slds-button slds-button_outline-brand" press="{!c.clickTextOneTimeUseLink}">
+                                    Invite Via SMS
+                                </ui:button>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </aura:if>
+        </div>
+    </aura:if>
 
 </aura:component>

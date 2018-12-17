@@ -339,8 +339,8 @@ public with sharing class HLSessionController {
      *  This will send out an email to them.
      */
     @AuraEnabled
-    public static Map<String,Object> emailOneTimeUseLink(String otherUsersName, String otherUsersEmail) {
-        System.debug('emailOneTimeUseLink: ' + otherUsersName + ' ' + otherUsersEmail);
+    public static Map<String,Object> sendOneTimeUseLink(String otherUsersName, String otherUsersEmail, String otherUsersPhone, String message) {
+        System.debug('sendOneTimeUseLink: ' + otherUsersName + ' email: ' + otherUsersEmail + ' phone: ' + otherUsersPhone);
 
         try {
             String myUserEmail = helplightning.HLUserHelper.getLogin();
@@ -364,9 +364,7 @@ public with sharing class HLSessionController {
             // Now send out the invite. We use the user
             //  token we retrieved so that this acts
             //  on behalf of that user.
-            Boolean result = helplightning.HLGaldrClient.sendOneTimeUseLinkViaEmail(userToken,
-                                                                                    otherUsersName,
-                                                                                    otherUsersEmail);
+            Boolean result = helplightning.HLGaldrClient.sendOneTimeUseLink(userToken, otherUsersName, otherUsersEmail, otherUsersPhone, message);
             if (result == false) {
                 System.debug('Failed to invite');
                 return null;

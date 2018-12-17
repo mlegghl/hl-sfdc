@@ -18,7 +18,7 @@
                                       contactEmail="{!v.contact.Email}"
                                       disableCallButton="{!v.contactIsHLUser == false}"
                                       onCallClick="{!c.clickCall}"
-                                      onInviteClick="{!c.clickEmailOneTimeUseLink}" />
+                                      onInviteClick="{!c.clickSendOneTimeUseLink}" />
 
         <div class="slds-card__body slds-card__body_inner">
             <div class="slds-p-bottom_small">

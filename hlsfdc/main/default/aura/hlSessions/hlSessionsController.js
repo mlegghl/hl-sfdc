@@ -81,16 +81,18 @@
         $A.enqueueAction(action);
     },
 
-    clickEmailOneTimeUseLink : function(component, event, helper) {
+    clickSendOneTimeUseLink : function(component, event, helper) {
         var sObjectName = component.get("v.sObjectName");
         var rId = component.get("v.recordId");
 
         var contact = component.get("v.contact");
         var email = event.getParam("email");
+        var phone = event.getParam("phone");
+        var message = event.getParam("message");
         var contactName = contact.Name;
 
-        var action = component.get("c.emailOneTimeUseLink");
-        action.setParams({"otherUsersName": contactName, "otherUsersEmail": email});
+        var action = component.get("c.sendOneTimeUseLink");
+        action.setParams({"otherUsersName": contactName, "otherUsersEmail": email, "otherUsersPhone": phone, message: message});
         action.setCallback(this, function(response) {
             var state = response.getState();
             console.log('resp');
@@ -116,7 +118,7 @@
                 // open a new window with this url
                 window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900')
             } else {
-                console.log("HL::emailOneTimeUseLink response failed: " + state);
+                console.log("HL::sendOneTimeUseLink response failed: " + state);
             }
         });
 

@@ -1,6 +1,6 @@
 ({
     doInit : function(component, event, helper) {
-        console.log("Initializing Help Lightning Component 2");
+        console.log("Initializing Help Lightning Component");
 
         var rId = component.get("v.recordId");
         var sObjectName = component.get("v.sObjectName");
@@ -95,10 +95,6 @@
         action.setParams({"otherUsersName": contactName, "otherUsersEmail": email, "otherUsersPhone": phone, message: message});
         action.setCallback(this, function(response) {
             var state = response.getState();
-            console.log('resp');
-            console.log(response);
-            console.log('comp');
-            console.log(component);
             if (component.isValid() && state == "SUCCESS") {
                 console.log("successfully invited to personal room");
                 var r = response.getReturnValue();

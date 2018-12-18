@@ -43,7 +43,7 @@
         </aura:if>
     </div>
     <aura:if isTrue="{!v.showInviteForm}">
-        <div class="slds-card__body slds-card__body_inner">
+        <div class="slds-card__body slds-card__body_inner slds-clearfix">
             <aura:if isTrue="{!v.showButtons}">
                 <fieldset class="slds-form-element slds-form_compound">
                     <legend class="slds-form-element__legend slds-form-element__label">Invite Contact</legend>
@@ -64,22 +64,24 @@
                                 <div class="slds-form-element__control">
                                     <ui:inputText class="slds-input" aura:id="contactEmail" value="{!v.contactEmail}" />
                                 </div>
-                                <ui:button class="slds-button slds-button_outline-brand" press="{!c.clickEmailOneTimeUseLink}">
-                                    Invite Via Email
-                                </ui:button>
                             </div>
                             <div class="slds-form-element slds-size_1-of-2">
                                 <label class="slds-form-element__label" for="contactEmail">Phone: </label>
                                 <div class="slds-form-element__control">
                                     <ui:inputText class="slds-input" aura:id="contactPhone" value="{!v.contactPhone}" />
                                 </div>
-                                <ui:button class="slds-button slds-button_outline-brand" press="{!c.clickTextOneTimeUseLink}">
-                                    Invite Via SMS
-                                </ui:button>
                             </div>
                         </div>
                     </div>
                 </fieldset>
+                <div class="slds-float_right">
+                    <ui:button class="slds-button slds-button_outline-brand" press="{!c.sendInvite}">
+                            Send
+                    </ui:button>
+                    <ui:button class="slds-button slds-button_text-destructive" press="{!c.cancelInvite}">
+                            Cancel
+                    </ui:button>
+                </div>
             </aura:if>
         </div>
     </aura:if>

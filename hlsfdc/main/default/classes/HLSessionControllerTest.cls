@@ -1109,19 +1109,15 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
         Test.setMock(HttpCalloutMock.class, new SendOneTimeUseLinkMocker());
 
         System.RunAs(u1) {
-            Map<String,Object> result;
+            Map<String,String> result;
 
             // try a valid case
             result = helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '');
 
-            Map<String,Object> gssInfo = (Map<String,Object>)result.get('gssInfo');
-
             System.assertEquals('my-token', result.get('token'));
+            System.assertEquals('Support', result.get('name'));
+            System.assertEquals('support', result.get('username'));
             System.assertEquals('xxx-yyyy-zzz', result.get('sessionId'));
-            System.assertEquals('Support', result.get('displayName'));
-            System.assertEquals('gss-token', gssInfo.get('token'));
-            System.assertEquals('gss+ssl://gss-001.helplightning.net', gssInfo.get('serverURL'));
-            System.assertEquals('wss://gss-001.helplightning.net', gssInfo.get('serverWSURL'));
 
             // try an invalid case
             result = helplightning.HLSessionController.sendOneTimeUseLink('Invalid User', 'invalid-user@helplightning.com', '', '');
@@ -1129,14 +1125,14 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
         }
 
         System.RunAs(u2) {
-            Map<String,Object> result;
+            Map<String,String> result;
 
             // try a other user, but we are not part of this enterprise
             result = helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '');
             System.assertEquals(null, result);
         }
         System.RunAs(u3) {
-            Map<String,Object> result;
+            Map<String,String> result;
 
             // simulate us not correctly returning a token
             result = helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '');
@@ -1167,7 +1163,7 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
         //  before doing a call-out. But, we need test data
         //  to be inserted first.
         // This start/stopTest hack works around this.
-        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-w ,ork-pending-please-commit-or-rollback-before-c
         Test.startTest();
 
         // set up the mock

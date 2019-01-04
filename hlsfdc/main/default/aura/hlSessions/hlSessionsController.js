@@ -1,6 +1,6 @@
 ({
     doInit : function(component, event, helper) {
-        console.log("Initializing Help Lightning Component");
+        console.log("Initializing Help Lightning Component 1");
 
         var rId = component.get("v.recordId");
         var sObjectName = component.get("v.sObjectName");
@@ -69,7 +69,7 @@
                 helper.createNewCall(component, helper, sObjectName, rId,
                                      email, sessionId, false);
 
-                var url = 'https://app.helplightning.net/webCall?displayName=' + name + '&nameOrEmail=&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
+                var url = 'https://app.dev.helplightning.net/webCall?displayName=' + name + '&nameOrEmail=&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
 
                 // open a new window with this url
                 window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900')
@@ -100,16 +100,14 @@
                 var r = response.getReturnValue();
 
                 var userToken = r.token;
+                var name = r.name;
+                var username = r.username;
                 var sessionId = r.sessionId;
-                var name = encodeURIComponent(r.displayName);
-                var gssToken = r.gssInfo.token;
-                var gssUrl = r.gssInfo.serverWSURL;
 
                 // create a new HLCall
-                helper.createNewCall(component, helper, sObjectName, rId,
-                                     email, sessionId, true);
+                helper.createNewCall(component, helper, sObjectName, rId, email, sessionId, true);
 
-                var url = 'https://app.helplightning.net/webCall?displayName=' + name + '&nameOrEmail=&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
+                var url = 'https://app.dev.helplightning.net/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&mode=autoAccept';
 
                 // open a new window with this url
                 window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900')

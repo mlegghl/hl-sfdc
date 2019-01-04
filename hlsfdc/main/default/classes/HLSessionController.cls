@@ -339,7 +339,7 @@ public with sharing class HLSessionController {
      *  This will send out an email to them.
      */
     @AuraEnabled
-    public static Map<String,Object> sendOneTimeUseLink(String otherUsersName, String otherUsersEmail, String otherUsersPhone, String message) {
+    public static Map<String,String> sendOneTimeUseLink(String otherUsersName, String otherUsersEmail, String otherUsersPhone, String message) {
         System.debug('sendOneTimeUseLink: ' + otherUsersName + ' email: ' + otherUsersEmail + ' phone: ' + otherUsersPhone);
 
         try {
@@ -355,6 +355,8 @@ public with sharing class HLSessionController {
             }
 
             // use the first user.
+            String name = users.get(0).name;
+            String username = users.get(0).username;
             String userToken = users.get(0).authToken;
             if (userToken == null) {
                 System.debug('Invalid user token');
@@ -373,18 +375,13 @@ public with sharing class HLSessionController {
             // get our user info, which will give us our personal room session
             helplightning.HLModelAccount account = helplightning.HLGaldrClient.getInfo(userToken);
 
-            // get the session info
-            helplightning.HLModelSession session = helplightning.HLGaldrClient.getSession(userToken, account.personalRoomSessionId);
+            Map<String,String> data = new Map<String, String>();
+            data.put('token', userToken);
+            data.put('name', name);
+            data.put('username', username);
+            data.put('sessionId', account.personalRoomSessionId);
 
-            // request video on this session
-            helplightning.HLModelVideoSession videoSession = helplightning.HLGaldrClient.sessionRequestVideo(userToken, session);
-
-            // build a model
-            helplightning.HLModelSessionAuth sessionAuth = new
-                helplightning.HLModelSessionAuth(userToken, session.id,
-                                                 UserInfo.getName(), videoSession);
-
-            return sessionAuth.serialize();
+            return data;
 
         } catch (helplightning.HLConfigurationException e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');

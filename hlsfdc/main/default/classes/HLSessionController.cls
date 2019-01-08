@@ -59,7 +59,7 @@ public with sharing class HLSessionController {
     public static Case getCase(Id recordId) {
         if (recordId != null) {
             if (HLSessionController.isCaseAccessible()) {
-                return [SELECT Case.Id, Case.ContactId, Case.ContactEmail, Case.Contact.Name
+                return [SELECT Case.Id, Case.ContactId, Case.ContactEmail, Case.Contact.Name, Case.OwnerId
                         FROM Case
                         WHERE Id = :recordId
                         ];
@@ -230,6 +230,18 @@ public with sharing class HLSessionController {
                         //  database with the changes.
                         if (schema.SObjectType.helplightning__HLCall__c.isUpdateable()) {
                             update matchedCall;
+
+                            Case c = getCase(matchedCall.helplightning__Case__c);
+
+                            Event e = new Event();
+                            e.StartDateTime = matchedCall.helplightning__Start_Time__c.getTime();
+                            e.EndDateTime = matchedCall.helplightning__End_Time__c.getTime();
+                            e.Subject = 'Videochat';
+                            e.OwnerId = c.OwnerId;
+                            e.WhoId = c.ContactId;
+                            // TODO: insert recording id
+
+                            upsert e;
                         } else {
                             System.debug('Insufficient Access for updatting helplightning__HLCall__c');
                         }

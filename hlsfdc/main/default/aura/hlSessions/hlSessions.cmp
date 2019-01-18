@@ -16,6 +16,7 @@
         <!-- render our button header -->
         <helplightning:hlButtonHeader showButtons="{!v.hasErrors == false}"
                                       contactEmail="{!v.contact.Email}"
+                                      contactPhone="{!not(empty(v.contact.MobilePhone)) ? v.contact.MobilePhone : v.contact.Phone}"
                                       disableCallButton="{!v.contactIsHLUser == false}"
                                       onCallClick="{!c.clickCall}"
                                       onInviteClick="{!c.clickSendOneTimeUseLink}" />

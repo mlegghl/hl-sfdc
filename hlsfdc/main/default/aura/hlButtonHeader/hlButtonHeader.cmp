@@ -43,10 +43,10 @@
         </aura:if>
     </div>
     <aura:if isTrue="{!v.showInviteForm}">
-        <div class="slds-card__body slds-card__body_inner slds-clearfix">
-            <aura:if isTrue="{!v.showButtons}">
-                <fieldset class="slds-form-element slds-form_compound">
-                    <legend class="slds-form-element__legend slds-form-element__label">Invite Contact</legend>
+        <div class="slds-card__body slds-card__body_inner">
+            <fieldset class="slds-form-element slds-form_compound">
+                <legend class="slds-form-element__legend slds-form-element__label" style="float:none;">Invite Contact</legend>
+                <div class="slds-box slds-clearfix" style="background: rgb(243, 242, 242);">
                     <div class="slds-form-element__control">
                         <div class="slds-form-element__row">
                             <div class="slds-form-element slds-size_1-of-1">
@@ -73,16 +73,16 @@
                             </div>
                         </div>
                     </div>
-                </fieldset>
-                <div class="slds-float_right">
-                    <ui:button class="slds-button slds-button_outline-brand" press="{!c.sendInvite}">
-                            Send
-                    </ui:button>
-                    <ui:button class="slds-button slds-button_text-destructive" press="{!c.cancelInvite}">
-                            Cancel
-                    </ui:button>
+                    <div class="slds-float_right" style="margin-top: 15px;">
+                        <ui:button class="slds-button slds-button_brand" press="{!c.sendInvite}">
+                                Send
+                        </ui:button>
+                        <ui:button class="slds-button slds-button_text-destructive" press="{!c.cancelInvite}">
+                                Cancel
+                        </ui:button>
+                    </div>
                 </div>
-            </aura:if>
+            </fieldset>
         </div>
     </aura:if>
 

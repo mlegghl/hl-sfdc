@@ -19,7 +19,7 @@ public with sharing class HLSessionController {
         if (recordId != null) {
             if (sObjectName == 'Case') {
                 if (HLSessionController.isContactFromCaseAccessible()) {
-                    Case[] o = [SELECT Contact.Id, Contact.Email, Contact.Name
+                    Case[] o = [SELECT Contact.Id, Contact.Email, Contact.Name, Contact.MobilePhone, Contact.Phone
                                 FROM Case
                                 WHERE Id = :recordId
                                 ];
@@ -32,7 +32,7 @@ public with sharing class HLSessionController {
                 }
             } else if (sObjectName == 'WorkOrder') {
                 if (HLSessionController.isContactFromWorkOrderAccessible()) {
-                    WorkOrder[] o = [SELECT Contact.Id, Contact.Email, Contact.Name
+                    WorkOrder[] o = [SELECT Contact.Id, Contact.Email, Contact.Name, Contact.MobilePhone, Contact.Phone
                                      FROM WorkOrder
                                      WHERE Id = :recordId
                                      ];

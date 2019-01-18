@@ -221,7 +221,6 @@ public with sharing class HLSessionController {
             // now iterate through our map
             for (helplightning__HLCall__c call : callMap.keySet()) {
                 List<helplightning.HLModelCall> results = callMap.get(call);
-
                 if (results != null) {
                     // results is a list of calls, try to make matches
                     helplightning__HLCall__c matchedCall = helplightning.HLCallUtil.findCallMatch(call, results);
@@ -234,12 +233,11 @@ public with sharing class HLSessionController {
                             Case c = getCase(matchedCall.helplightning__Case__c);
 
                             Event e = new Event();
-                            e.StartDateTime = matchedCall.helplightning__Start_Time__c.getTime();
-                            e.EndDateTime = matchedCall.helplightning__End_Time__c.getTime();
+                            e.StartDateTime = matchedCall.helplightning__Start_Time__c;
+                            e.EndDateTime = matchedCall.helplightning__End_Time__c;
                             e.Subject = 'Videochat';
-                            e.OwnerId = c.OwnerId;
-                            e.WhoId = c.ContactId;
-                            // TODO: insert recording id
+                            // e.OwnerId = c.OwnerId;
+                            // e.WhoId = c.ContactId;
 
                             upsert e;
                         } else {

@@ -33,8 +33,15 @@ public class HLModelCall {
     public static HLModelCall build(Object result) {
         Map<String,Object> s = (Map<String,Object>)result;
 
-        DateTime startTime = (DateTime)JSON.deserialize('"' + s.get('start_time') + '"', DateTime.class);
-        DateTime endTime = (DateTime)JSON.deserialize('"' + s.get('end_time') + '"', DateTime.class);
+        String startTimeString = (String)s.get('start_time');
+        String endTimeString = (String)s.get('end_time');
+
+        if (String.isEmpty(startTimeString) || String.isEmpty(endTimeString)) {
+            return null;
+        }
+
+        DateTime startTime = (DateTime)JSON.deserialize('"' + startTimeString + '"', DateTime.class);
+        DateTime endTime = (DateTime)JSON.deserialize('"' + endTimeString + '"', DateTime.class);
 
         return new HLModelCall((String)s.get('session_id'),
                                (String)s.get('call_id'),
@@ -53,7 +60,10 @@ public class HLModelCall {
 
         if (results != null) {
             for (Object call: (List<Object>)results) {
-                calls.add(HLModelCall.build(call));
+                HLModelCall newCall = HLModelCall.build(call);
+                if (newCall != null) {
+                    calls.add(newCall);
+                }
             }
         }
 

@@ -59,7 +59,7 @@ public with sharing class HLSessionController {
     public static Case getCase(Id recordId) {
         if (recordId != null) {
             if (HLSessionController.isCaseAccessible()) {
-                return [SELECT Case.Id, Case.ContactId, Case.ContactEmail, Case.Contact.Name, Case.OwnerId
+                return [SELECT Case.Id, Case.ContactId, Case.ContactEmail, Case.Contact.Name
                         FROM Case
                         WHERE Id = :recordId
                         ];
@@ -241,6 +241,7 @@ public with sharing class HLSessionController {
             // now iterate through our map
             for (helplightning__HLCall__c call : callMap.keySet()) {
                 List<helplightning.HLModelCall> results = callMap.get(call);
+
                 if (results != null) {
                     // results is a list of calls, try to make matches
                     helplightning__HLCall__c matchedCall = helplightning.HLCallUtil.findCallMatch(call, results);

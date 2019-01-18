@@ -69,7 +69,7 @@
                 helper.createNewCall(component, helper, sObjectName, rId,
                                      email, sessionId, false);
 
-                var url = 'https://app.dev.helplightning.net/webCall?displayName=' + name + '&nameOrEmail=&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
+                var url = 'https://app.helplightning.net/webCall?displayName=' + name + '&nameOrEmail=&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
 
                 // open a new window with this url
                 window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900')
@@ -107,7 +107,7 @@
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId, email, sessionId, true);
 
-                var url = 'https://app.dev.helplightning.net/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&mode=autoAccept';
+                var url = 'https://app.helplightning.net/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&mode=autoAccept';
 
                 // open a new window with this url
                 window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900')

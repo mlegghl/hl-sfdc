@@ -73,6 +73,26 @@ public with sharing class HLSessionController {
     }
 
     /**
+     * Look up a WorkOrder based on an Id
+     */
+    @AuraEnabled
+    public static WorkOrder getWorkOrder(Id recordId) {
+        if (recordId != null) {
+            if (HLSessionController.isWorkOrderAccessible()) {
+                return [SELECT WorkOrder.Id, WorkOrder.ContactId
+                        FROM WorkOrder
+                        WHERE Id = :recordId
+                        ];
+            } else {
+                System.debug('Insufficient Access to record');
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Look up all the calls associated with
      *  a record in Salesforce
      */
@@ -230,6 +250,27 @@ public with sharing class HLSessionController {
                         //  database with the changes.
                         if (schema.SObjectType.helplightning__HLCall__c.isUpdateable()) {
                             update matchedCall;
+
+                            Event e = new Event();
+                            e.StartDateTime = matchedCall.helplightning__Start_Time__c;
+                            e.EndDateTime = matchedCall.helplightning__End_Time__c;
+                            e.Subject = 'Videochat';
+                            if (sObjectName == 'Case') {
+                                Case c = getCase(recordId);
+                                if (c != null) {
+                                    e.WhatId = c.Id;
+                                    e.WhoId = c.ContactId;
+                                }
+                            } else if (sObjectName == 'WorkOrder') {
+                                WorkOrder wo = getWorkOrder(recordId);
+                                if (wo != null) {
+                                    e.WhatId = wo.Id;
+                                    e.WhoId = wo.ContactId;
+                                }
+                            }
+                            e.Description = 'https://app.helplightning.net/calls/' + matchedCall.helplightning__HLCall_Id__c;
+
+                            upsert e;
                         } else {
                             System.debug('Insufficient Access for updatting helplightning__HLCall__c');
                         }
@@ -406,6 +447,10 @@ public with sharing class HLSessionController {
                 Schema.sObjectType.Case.fields.ContactId.isAccessible() &&
                 Schema.sObjectType.Case.fields.ContactEmail.isAccessible() &&
                 Schema.sObjectType.Contact.fields.Name.isAccessible());
+    }
+    private static boolean isWorkOrderAccessible() {
+        return (Schema.sObjectType.WorkOrder.fields.Id.isAccessible() &&
+                Schema.sObjectType.WorkOrder.fields.ContactId.isAccessible());
     }
     private static boolean isHLCallAccessible() {
         return (Schema.sObjectType.helplightning__HLCall__c.fields.Id.isAccessible() &&

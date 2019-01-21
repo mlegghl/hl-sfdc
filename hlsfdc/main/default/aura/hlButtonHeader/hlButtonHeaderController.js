@@ -12,8 +12,8 @@
     sendInvite : function(component, event, helper) {
         // call the parent handler
         var event = component.getEvent('onInviteClick');
-        var email = component.get('v.contactEmail');
-        var phone = component.get('v.contactPhone') || '';
+        var email = component.find('contactEmail').get('v.value');
+        var phone = component.find('contactPhone').get('v.value');
         var message = component.get('v.inviteMessage');
 
         event.setParam("email", email);

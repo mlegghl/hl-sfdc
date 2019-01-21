@@ -62,13 +62,13 @@
                             <div class="slds-form-element slds-size_1-of-2">
                                 <label class="slds-form-element__label" for="contactEmail">Email: </label>
                                 <div class="slds-form-element__control">
-                                    <ui:inputText class="slds-input" aura:id="contactEmail" value="{!v.contactEmail}" />
+                                    <ui:inputText class="slds-input" aura:id="contactEmail" value="{#v.contactEmail}" />
                                 </div>
                             </div>
                             <div class="slds-form-element slds-size_1-of-2">
                                 <label class="slds-form-element__label" for="contactEmail">Phone: </label>
                                 <div class="slds-form-element__control">
-                                    <ui:inputText class="slds-input" aura:id="contactPhone" value="{!v.contactPhone}" />
+                                    <ui:inputText class="slds-input" aura:id="contactPhone" value="{#v.contactPhone}" />
                                 </div>
                             </div>
                         </div>

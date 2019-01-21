@@ -1,6 +1,6 @@
 ({
     doInit : function(component, event, helper) {
-        console.log("Initializing Help Lightning Component 1");
+        console.log("Initializing Help Lightning Component");
 
         var rId = component.get("v.recordId");
         var sObjectName = component.get("v.sObjectName");

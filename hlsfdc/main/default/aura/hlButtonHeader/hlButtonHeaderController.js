@@ -12,9 +12,13 @@
     sendInvite : function(component, event, helper) {
         // call the parent handler
         var event = component.getEvent('onInviteClick');
-        event.setParam("email", component.get('v.contactEmail'));
-        event.setParam("phone", component.get('v.contactPhone').replace(/\D+/g, ''))
-        event.setParam("message", component.get('v.inviteMessage'));
+        var email = component.get('v.contactEmail');
+        var phone = component.get('v.contactPhone') || '';
+        var message = component.get('v.inviteMessage');
+
+        event.setParam("email", email);
+        event.setParam("phone", phone.replace(/\D+/g, ''));
+        event.setParam("message", message);
         event.fire();
     },
 

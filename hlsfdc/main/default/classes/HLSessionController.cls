@@ -268,7 +268,13 @@ public with sharing class HLSessionController {
                                     e.WhoId = wo.ContactId;
                                 }
                             }
-                            e.Description = 'https://app.helplightning.net/calls/' + matchedCall.helplightning__HLCall_Id__c;
+
+                            String callId = matchedCall.helplightning__HLCall_Id__c;
+                            if (callId == null || callId.equals('')) {
+                                e.Description = 'Call was unanswered';
+                            } else {
+                                e.Description = 'https://app.helplightning.net/calls/' + callId;
+                            }
 
                             upsert e;
                         } else {

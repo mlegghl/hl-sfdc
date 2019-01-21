@@ -121,20 +121,8 @@ public class HLCallUtil {
             String dialer = c.dialer.email;
             String receiver = c.receiver.email;
 
-            // first make sure the receiver of this call
-            //  matches the reciever of our desired call
-            if (helplightning.HLUserHelper.getLogin().equals(dialer)) {
-                System.debug('we are the dialer');
-                if (!call.helplightning__Contact_Email__c.equals(receiver)) {
-                    System.debug('found a call with a mismatching receiver: ' + receiver);
-                    continue;
-                }
-            } else if (helplightning.HLUserHelper.getLogin().equals(receiver)) {
-                System.debug('we are the receiver');
-                if (!call.helplightning__Contact_Email__c.equals(dialer)) {
-                    System.debug('found a call with a mismatching dialer: ' + dialer);
-                    continue;
-                }
+            if (helplightning.HLUserHelper.getLogin().equals(receiver) || helplightning.HLUserHelper.getLogin().equals(dialer)) {
++                System.debug('we are in the call');
             } else {
                 System.debug('found a call where we aren\'t the dialer or receiver');
                 continue;

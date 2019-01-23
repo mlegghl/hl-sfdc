@@ -36,6 +36,14 @@
                 });
             });
         });
+
+        window.addEventListener('message', (event) => {
+            const data = event.data;
+            console.log('got a message!', event);
+            if (data.callId && data.hlCallId) {
+                helper.updateCallId(component, data.callId, data.hlCallId);
+            }
+        })
     },
 
     doDestroy : function(component, event, helper) {
@@ -65,15 +73,10 @@
                 var gssToken = r.gssInfo.token;
                 var gssUrl = r.gssInfo.serverWSURL;
 
-                // create a new HLCall
-                helper.createNewCall(component, helper, sObjectName, rId,
-                                     email, sessionId, false);
-
                 var url = 'https://app.helplightning.net/webCall?displayName=' + name + '&nameOrEmail=&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
 
-                // open a new window with this url
-                window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900')
-
+                // create a new HLCall
+                helper.createNewCall(component, helper, sObjectName, rId, email, sessionId, false, url);
             } else {
                 console.log("HL::makeSessionWith response failed: " + state);
             }
@@ -104,13 +107,10 @@
                 var username = r.username;
                 var sessionId = r.sessionId;
 
-                // create a new HLCall
-                helper.createNewCall(component, helper, sObjectName, rId, email, sessionId, true);
-
                 var url = 'https://app.helplightning.net/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&mode=autoAccept';
 
-                // open a new window with this url
-                window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900')
+                // create a new HLCall
+                helper.createNewCall(component, helper, sObjectName, rId, email, sessionId, true, url);
             } else {
                 console.log("HL::sendOneTimeUseLink response failed: " + state);
             }

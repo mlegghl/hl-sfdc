@@ -44,6 +44,14 @@ public with sharing class HLConfiguration {
     }
 
     /**
+     * Get whether or not we should create Calendar Events from HL Calls
+     */
+    public static Boolean getCreateEvents() {
+        helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getOrgDefaults();
+        return config.helplightning__Create_Events__c;
+    }
+
+    /**
      * Get the Help Lightning Login.
      * This can be overridden by each user.
      *

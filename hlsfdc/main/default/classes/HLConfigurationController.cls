@@ -10,6 +10,7 @@
 public with sharing class HLConfigurationController {
 
     public Map<String,String> config { get; set; }
+    public Boolean createEvents { get; set; }
 
     public HLConfigurationController() {
         config = new Map<String,String>();
@@ -33,6 +34,8 @@ public with sharing class HLConfigurationController {
 
         config.put('enterpriseId', enterpriseId);
         config.put('privateKey', privateKey);
+
+        createEvents = hlConfig.helplightning__Create_Events__c;
     }
 
     public PageReference save() {
@@ -59,6 +62,8 @@ public with sharing class HLConfigurationController {
                 hlConfig.helplightning__Private_Key_4__c = privateKey.mid(765, 255);
             }
         }
+
+        hlConfig.helplightning__Create_Events__c = createEvents;
 
         // save
         if (schema.SObjectType.helplightning__Help_Lightning_Config__c.isUpdateable() &&

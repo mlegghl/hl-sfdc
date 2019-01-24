@@ -110,6 +110,35 @@ private class HLSessionControllerTest {
         }
     }
     /**
+     * Mocker for the testGetSession
+     * This is more of a test of the mocker than it is the actual method
+     */
+    class GetSessionMocker implements HttpCalloutMock {
+        public HTTPResponse respond(HTTPRequest req) {
+            URL endpoint = new URL(req.getEndpoint());
+
+            HttpResponse response = new HttpResponse();
+            response.setHeader('Content-Type', 'application/json');
+
+            if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1/sessions/')) {
+                // return some help lightning calls.
+                List<String> parts = endpoint.getPath().split('/');
+                String sessionId = parts.get(parts.size()-1);
+
+                HLModelSession result = new HLModelSession(sessionId, 'token', false, new List<helplightning.HLModelSessionUser>());
+
+                // return this as a serialized list of maps.
+                response.setBody(JSON.serialize(result));
+                response.setStatusCode(200);
+            } else {
+                // error
+                response.setStatusCode(500);
+            }
+
+            return response;
+        }
+    }
+    /**
      * Mocker for the isHLUser
      */
     class IsHLUserMocker implements HttpCalloutMock {
@@ -1075,6 +1104,32 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
     }
 
     /**
+     * Test getSession
+     */
+    @isTest
+    static void testGetSession() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u = new User(Alias = 'support', Email='support@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u;
+
+        Test.startTest();
+        Test.setMock(HttpCalloutMock.class, new GetSessionMocker());
+
+        System.RunAs(u) {
+            helplightning.HLModelSession session = helplightning.HLGaldrClient.getSession('fake', '12345');
+
+            System.assertEquals('12345', session.id);
+            System.assertEquals('token', session.token);
+            System.assertEquals(0, session.users.size());
+        }
+
+        Test.stopTest();
+    }
+
+    /**
      * Test sendOneTimeUseLink
      */
     @isTest
@@ -1109,7 +1164,7 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
         Test.setMock(HttpCalloutMock.class, new SendOneTimeUseLinkMocker());
 
         System.RunAs(u1) {
-            Map<String,String> result;
+            Map<String,Object> result;
 
             // try a valid case
             result = helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '');
@@ -1125,14 +1180,14 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
         }
 
         System.RunAs(u2) {
-            Map<String,String> result;
+            Map<String,Object> result;
 
             // try a other user, but we are not part of this enterprise
             result = helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '');
             System.assertEquals(null, result);
         }
         System.RunAs(u3) {
-            Map<String,String> result;
+            Map<String,Object> result;
 
             // simulate us not correctly returning a token
             result = helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '');
@@ -1163,7 +1218,7 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
         //  before doing a call-out. But, we need test data
         //  to be inserted first.
         // This start/stopTest hack works around this.
-        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-w ,ork-pending-please-commit-or-rollback-before-c
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
         Test.startTest();
 
         // set up the mock

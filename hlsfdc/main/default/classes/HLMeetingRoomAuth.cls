@@ -20,8 +20,8 @@ public class HLMeetingRoomAuth {
     public Map<String,Object> serialize() {
         return new Map<String,Object> {
             'token' => userToken,
-            'name' => username,
-            'username' => userDisplayName,
+            'name' => userDisplayName,
+            'username' => username,
             'sessionId' => sessionId
         };
     }

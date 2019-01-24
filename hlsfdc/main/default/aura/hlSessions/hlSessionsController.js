@@ -38,10 +38,14 @@
         });
 
         window.addEventListener('message', (event) => {
-            const data = event.data;
-            console.log('got a message!', event);
-            if (data.callId && data.hlCallId) {
-                helper.updateCallId(component, data.callId, data.hlCallId);
+            const message = event.data;
+            if (message.type === 'CALL_CONNECTED') {
+                var callId = message.callId;
+                var hlCallId = message.state;
+
+                if (callId && hlCallId) {
+                    helper.updateCallId(component, callId, hlCallId);
+                }
             }
         })
     },

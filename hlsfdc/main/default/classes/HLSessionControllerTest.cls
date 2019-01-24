@@ -1163,7 +1163,7 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
         //  before doing a call-out. But, we need test data
         //  to be inserted first.
         // This start/stopTest hack works around this.
-        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-w ,ork-pending-please-commit-or-rollback-before-c
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
         Test.startTest();
 
         // set up the mock

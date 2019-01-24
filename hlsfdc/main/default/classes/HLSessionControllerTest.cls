@@ -1109,7 +1109,7 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
         Test.setMock(HttpCalloutMock.class, new SendOneTimeUseLinkMocker());
 
         System.RunAs(u1) {
-            Map<String,String> result;
+            Map<String,Object> result;
 
             // try a valid case
             result = helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '');
@@ -1125,14 +1125,14 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
         }
 
         System.RunAs(u2) {
-            Map<String,String> result;
+            Map<String,Object> result;
 
             // try a other user, but we are not part of this enterprise
             result = helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '');
             System.assertEquals(null, result);
         }
         System.RunAs(u3) {
-            Map<String,String> result;
+            Map<String,Object> result;
 
             // simulate us not correctly returning a token
             result = helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '');

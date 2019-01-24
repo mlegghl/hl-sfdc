@@ -339,7 +339,7 @@ public with sharing class HLSessionController {
      *  This will send out an email to them.
      */
     @AuraEnabled
-    public static Map<String,String> sendOneTimeUseLink(String otherUsersName, String otherUsersEmail, String otherUsersPhone, String message) {
+    public static Map<String,Object> sendOneTimeUseLink(String otherUsersName, String otherUsersEmail, String otherUsersPhone, String message) {
         System.debug('sendOneTimeUseLink: ' + otherUsersName + ' email: ' + otherUsersEmail + ' phone: ' + otherUsersPhone);
 
         try {
@@ -375,14 +375,7 @@ public with sharing class HLSessionController {
             // get our user info, which will give us our personal room session
             helplightning.HLModelAccount account = helplightning.HLGaldrClient.getInfo(userToken);
 
-            Map<String,String> data = new Map<String, String>();
-            data.put('token', userToken);
-            data.put('name', name);
-            data.put('username', username);
-            data.put('sessionId', account.personalRoomSessionId);
-
-            return data;
-
+            return (new helplightning.HLMeetingRoomAuth(userToken, username, name, account.personalRoomSessionId)).serialize();
         } catch (helplightning.HLConfigurationException e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');
         }

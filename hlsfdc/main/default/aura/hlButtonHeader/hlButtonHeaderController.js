@@ -17,7 +17,7 @@
         var message = component.get('v.inviteMessage');
 
         event.setParam("email", email);
-        event.setParam("phone", phone.replace(/\D+/g, ''));
+        event.setParam("phone", phone.replace(/[^+\d]/g, ''));
         event.setParam("message", message);
         event.fire();
     },

@@ -53,10 +53,6 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>HLModelUser</apexClass>
-        <enabled>true</enabled>
-    </classAccesses>
-    <classAccesses>
         <apexClass>HLModelVideoSession</apexClass>
         <enabled>true</enabled>
     </classAccesses>

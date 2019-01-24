@@ -81,16 +81,18 @@
         $A.enqueueAction(action);
     },
 
-    clickEmailOneTimeUseLink : function(component, event, helper) {
+    clickSendOneTimeUseLink : function(component, event, helper) {
         var sObjectName = component.get("v.sObjectName");
         var rId = component.get("v.recordId");
 
         var contact = component.get("v.contact");
-        var email = contact.Email;
+        var email = event.getParam("email");
+        var phone = event.getParam("phone");
+        var message = event.getParam("message");
         var contactName = contact.Name;
 
-        var action = component.get("c.emailOneTimeUseLink");
-        action.setParams({"otherUsersName": contactName, "otherUsersEmail": email});
+        var action = component.get("c.sendOneTimeUseLink");
+        action.setParams({"otherUsersName": contactName, "otherUsersEmail": email, "otherUsersPhone": phone, message: message});
         action.setCallback(this, function(response) {
             var state = response.getState();
             if (component.isValid() && state == "SUCCESS") {
@@ -98,21 +100,19 @@
                 var r = response.getReturnValue();
 
                 var userToken = r.token;
+                var name = r.name;
+                var username = r.username;
                 var sessionId = r.sessionId;
-                var name = encodeURIComponent(r.displayName);
-                var gssToken = r.gssInfo.token;
-                var gssUrl = r.gssInfo.serverWSURL;
 
                 // create a new HLCall
-                helper.createNewCall(component, helper, sObjectName, rId,
-                                     email, sessionId, true);
+                helper.createNewCall(component, helper, sObjectName, rId, email, sessionId, true);
 
-                var url = 'https://app.helplightning.net/webCall?displayName=' + name + '&nameOrEmail=&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
+                var url = 'https://app.helplightning.net/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&mode=autoAccept';
 
                 // open a new window with this url
                 window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900')
             } else {
-                console.log("HL::emailOneTimeUseLink response failed: " + state);
+                console.log("HL::sendOneTimeUseLink response failed: " + state);
             }
         });
 

@@ -133,6 +133,35 @@ private class HLSessionControllerTest {
         }
     }
     /**
+     * Mocker for the testGetSession
+     * This is more of a test of the mocker than it is the actual method
+     */
+    class GetSessionMocker implements HttpCalloutMock {
+        public HTTPResponse respond(HTTPRequest req) {
+            URL endpoint = new URL(req.getEndpoint());
+
+            HttpResponse response = new HttpResponse();
+            response.setHeader('Content-Type', 'application/json');
+
+            if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1/sessions/')) {
+                // return some help lightning calls.
+                List<String> parts = endpoint.getPath().split('/');
+                String sessionId = parts.get(parts.size()-1);
+
+                HLModelSession result = new HLModelSession(sessionId, 'token', false, new List<helplightning.HLModelSessionUser>());
+
+                // return this as a serialized list of maps.
+                response.setBody(JSON.serialize(result));
+                response.setStatusCode(200);
+            } else {
+                // error
+                response.setStatusCode(500);
+            }
+
+            return response;
+        }
+    }
+    /**
      * Mocker for the isHLUser
      */
     class IsHLUserMocker implements HttpCalloutMock {
@@ -339,9 +368,9 @@ private class HLSessionControllerTest {
         }
     }
     /**
-     * Mocker for the testEmailOneTimeUseLink
+     * Mocker for the testSendOneTimeUseLink
      */
-class EmailOneTimeUseLinkMocker implements HttpCalloutMock {
+class SendOneTimeUseLinkMocker implements HttpCalloutMock {
         public HTTPResponse respond(HTTPRequest req) {
             URL endpoint = new URL(req.getEndpoint());
 
@@ -1158,10 +1187,36 @@ class EmailOneTimeUseLinkMocker implements HttpCalloutMock {
     }
 
     /**
-     * Test emailOneTimeUseLink
+     * Test getSession
      */
     @isTest
-    static void testEmailOneTimeUseLink() {
+    static void testGetSession() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u = new User(Alias = 'support', Email='support@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u;
+
+        Test.startTest();
+        Test.setMock(HttpCalloutMock.class, new GetSessionMocker());
+
+        System.RunAs(u) {
+            helplightning.HLModelSession session = helplightning.HLGaldrClient.getSession('fake', '12345');
+
+            System.assertEquals('12345', session.id);
+            System.assertEquals('token', session.token);
+            System.assertEquals(0, session.users.size());
+        }
+
+        Test.stopTest();
+    }
+
+    /**
+     * Test sendOneTimeUseLink
+     */
+    @isTest
+    static void testSendOneTimeUseLink() {
         // run as a support@helplightning.com user, since this
         //  looks up the current user to find a match.
         Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
@@ -1189,25 +1244,21 @@ class EmailOneTimeUseLinkMocker implements HttpCalloutMock {
         Test.startTest();
 
         // set up the mock
-        Test.setMock(HttpCalloutMock.class, new EmailOneTimeUseLinkMocker());
+        Test.setMock(HttpCalloutMock.class, new SendOneTimeUseLinkMocker());
 
         System.RunAs(u1) {
             Map<String,Object> result;
 
             // try a valid case
-            result = helplightning.HLSessionController.emailOneTimeUseLink('Other User', 'other@helplightning.com');
-
-            Map<String,Object> gssInfo = (Map<String,Object>)result.get('gssInfo');
+            result = helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '');
 
             System.assertEquals('my-token', result.get('token'));
+            System.assertEquals('Support', result.get('name'));
+            System.assertEquals('support', result.get('username'));
             System.assertEquals('xxx-yyyy-zzz', result.get('sessionId'));
-            System.assertEquals('Support', result.get('displayName'));
-            System.assertEquals('gss-token', gssInfo.get('token'));
-            System.assertEquals('gss+ssl://gss-001.helplightning.net', gssInfo.get('serverURL'));
-            System.assertEquals('wss://gss-001.helplightning.net', gssInfo.get('serverWSURL'));
 
             // try an invalid case
-            result = helplightning.HLSessionController.emailOneTimeUseLink('Invalid User', 'invalid-user@helplightning.com');
+            result = helplightning.HLSessionController.sendOneTimeUseLink('Invalid User', 'invalid-user@helplightning.com', '', '');
             System.assertEquals(null, result);
         }
 
@@ -1215,14 +1266,14 @@ class EmailOneTimeUseLinkMocker implements HttpCalloutMock {
             Map<String,Object> result;
 
             // try a other user, but we are not part of this enterprise
-            result = helplightning.HLSessionController.emailOneTimeUseLink('Other User', 'other@helplightning.com');
+            result = helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '');
             System.assertEquals(null, result);
         }
         System.RunAs(u3) {
             Map<String,Object> result;
 
             // simulate us not correctly returning a token
-            result = helplightning.HLSessionController.emailOneTimeUseLink('Other User', 'other@helplightning.com');
+            result = helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '');
             System.assertEquals(null, result);
         }
 
@@ -1230,10 +1281,10 @@ class EmailOneTimeUseLinkMocker implements HttpCalloutMock {
     }
 
     /**
-     * Test emailOneTimeUseLink with invalid configuration
+     * Test sendOneTimeUseLink with invalid configuration
      */
     @isTest
-    static void testEmailOneTimeUseLinkMissingConfig() {
+    static void testSendOneTimeUseLinkMissingConfig() {
         helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getOrgDefaults();
         delete config;
 
@@ -1254,11 +1305,11 @@ class EmailOneTimeUseLinkMocker implements HttpCalloutMock {
         Test.startTest();
 
         // set up the mock
-        Test.setMock(HttpCalloutMock.class, new EmailOneTimeUseLinkMocker());
+        Test.setMock(HttpCalloutMock.class, new SendOneTimeUseLinkMocker());
 
         System.RunAs(u1) {
             try {
-                helplightning.HLSessionController.emailOneTimeUseLink('Other User', 'other@helplightning.com');
+                helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '');
                 System.assert(false, 'Exception wasn\'t raised');
             } catch (AuraHandledException e) {
                 // expected path

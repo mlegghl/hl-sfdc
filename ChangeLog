@@ -1,3 +1,6 @@
+2019-01-24  Nath Tumlin <nath.tumlin@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-38 - Add ability to send invites via SMS
+
 2018-12-13  Nath Tumlin <nath.tumlin@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
 	* SFDC-37 - Send One Time Use Links instead of Meeting Room Links
 

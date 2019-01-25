@@ -1,0 +1,5 @@
+<aura:event type="COMPONENT" description="For passing callbacks to components">
+    <aura:attribute name="email" type="String" />
+    <aura:attribute name="phone" type="String" />
+    <aura:attribute name="message" type="String" />
+</aura:event>

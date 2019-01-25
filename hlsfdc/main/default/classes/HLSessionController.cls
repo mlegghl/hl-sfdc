@@ -19,7 +19,7 @@ public with sharing class HLSessionController {
         if (recordId != null) {
             if (sObjectName == 'Case') {
                 if (HLSessionController.isContactFromCaseAccessible()) {
-                    Case[] o = [SELECT Contact.Id, Contact.Email, Contact.Name
+                    Case[] o = [SELECT Contact.Id, Contact.Email, Contact.Name, Contact.MobilePhone, Contact.Phone
                                 FROM Case
                                 WHERE Id = :recordId
                                 ];
@@ -32,7 +32,7 @@ public with sharing class HLSessionController {
                 }
             } else if (sObjectName == 'WorkOrder') {
                 if (HLSessionController.isContactFromWorkOrderAccessible()) {
-                    WorkOrder[] o = [SELECT Contact.Id, Contact.Email, Contact.Name
+                    WorkOrder[] o = [SELECT Contact.Id, Contact.Email, Contact.Name, Contact.MobilePhone, Contact.Phone
                                      FROM WorkOrder
                                      WHERE Id = :recordId
                                      ];
@@ -388,8 +388,8 @@ public with sharing class HLSessionController {
      *  This will send out an email to them.
      */
     @AuraEnabled
-    public static Map<String,Object> emailOneTimeUseLink(String otherUsersName, String otherUsersEmail) {
-        System.debug('emailOneTimeUseLink: ' + otherUsersName + ' ' + otherUsersEmail);
+    public static Map<String,Object> sendOneTimeUseLink(String otherUsersName, String otherUsersEmail, String otherUsersPhone, String message) {
+        System.debug('sendOneTimeUseLink: ' + otherUsersName + ' email: ' + otherUsersEmail + ' phone: ' + otherUsersPhone);
 
         try {
             String myUserEmail = helplightning.HLUserHelper.getLogin();
@@ -404,6 +404,8 @@ public with sharing class HLSessionController {
             }
 
             // use the first user.
+            String name = users.get(0).name;
+            String username = users.get(0).username;
             String userToken = users.get(0).authToken;
             if (userToken == null) {
                 System.debug('Invalid user token');
@@ -413,9 +415,7 @@ public with sharing class HLSessionController {
             // Now send out the invite. We use the user
             //  token we retrieved so that this acts
             //  on behalf of that user.
-            Boolean result = helplightning.HLGaldrClient.sendOneTimeUseLinkViaEmail(userToken,
-                                                                                    otherUsersName,
-                                                                                    otherUsersEmail);
+            Boolean result = helplightning.HLGaldrClient.sendOneTimeUseLink(userToken, otherUsersName, otherUsersEmail, otherUsersPhone, message);
             if (result == false) {
                 System.debug('Failed to invite');
                 return null;
@@ -424,19 +424,7 @@ public with sharing class HLSessionController {
             // get our user info, which will give us our personal room session
             helplightning.HLModelAccount account = helplightning.HLGaldrClient.getInfo(userToken);
 
-            // get the session info
-            helplightning.HLModelSession session = helplightning.HLGaldrClient.getSession(userToken, account.personalRoomSessionId);
-
-            // request video on this session
-            helplightning.HLModelVideoSession videoSession = helplightning.HLGaldrClient.sessionRequestVideo(userToken, session);
-
-            // build a model
-            helplightning.HLModelSessionAuth sessionAuth = new
-                helplightning.HLModelSessionAuth(userToken, session.id,
-                                                 UserInfo.getName(), videoSession);
-
-            return sessionAuth.serialize();
-
+            return (new helplightning.HLMeetingRoomAuth(userToken, username, name, account.personalRoomSessionId)).serialize();
         } catch (helplightning.HLConfigurationException e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');
         }

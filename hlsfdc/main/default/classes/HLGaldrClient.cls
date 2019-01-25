@@ -112,11 +112,13 @@ public class HLGaldrClient {
         return HLModelVideoSession.build(results);
     }
 
-    public static Boolean sendOneTimeUseLinkViaEmail(String userToken, String toName, String toEmail) {
+    public static Boolean sendOneTimeUseLink(String userToken, String toName, String toEmail, String toPhone, String message) {
         Map<String,String> params = new Map<String,String>();
         params.put('name', toName);
         params.put('recipientEmail', toEmail);
+        params.put('recipientPhoneNumber', toPhone);
         params.put('linkType', '2');
+        params.put('message', message);
 
         helplightning.HLRequest request = new helplightning.HLRequest(userToken,
                                                                       '/sessions/link/invite');

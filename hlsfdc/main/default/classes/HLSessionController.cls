@@ -298,14 +298,14 @@ public with sharing class HLSessionController {
      */
     @AuraEnabled
     public static Boolean updateCallId(String callId, Id hlCallId){
-        helplightning__HLCall__c call;
+        helplightning__HLCall__c[] call;
         call = [SELECT Id, helplightning__HLCall_Id__c
                 FROM helplightning__HLCall__c
                 WHERE Id = :hlCallId];
 
-        if (call != null) {
-            call.helplightning__HLCall_Id__c = callId;
-            update call;
+        if (call.size() > 0) {
+            call[0].helplightning__HLCall_Id__c = callId;
+            update call[0];
 
             return true;
         }

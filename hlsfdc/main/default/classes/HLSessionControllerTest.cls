@@ -1023,6 +1023,13 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
         System.assertEquals(calls.size(), 0);
     }
 
+    @isTest
+    static void testUpdateCallId() {
+        helplightning__HLCall__c call = [SELECT Id FROM helplightning__HLCall__c WHERE helplightning__Session_Id__c = 'jjkkllmm' LIMIT 1];
+        System.assertEquals(true, helplightning.HLSessionController.updateCallId('blah', call.Id));
+        System.assertEquals(false, helplightning.HLSessionController.updateCallId('blah', 'a00000000000000'));
+    }
+
     /**
      * Test if a user is a help lightning user.
      */

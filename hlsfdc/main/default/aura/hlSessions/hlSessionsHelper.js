@@ -191,7 +191,7 @@
                 sessions.splice(0, 0, newHLCall);
                 component.set("v.calls", sessions);
 
-                url = url + '&hlCallId=' + newHLCall.Id;
+                url = url + '&callbackState=' + newHLCall.Id;
                 window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900');
             }
         });

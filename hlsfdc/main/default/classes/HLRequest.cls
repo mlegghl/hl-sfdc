@@ -10,10 +10,10 @@
 public class HLRequest {
     // This is the API Key for the SalesForce Integration App developed
     //  by Help Lightning.
-    private static final String API_KEY = '01e0bbdecb85a1f83bf6ade3624af03b';
+    private static final String API_KEY = '9BoKBM2MQ27nPdHW0XckRw';
 
     // Help Lightning API Endpoing
-    private static final String API_URL = 'https://api.helplightning.net/api/v1';
+    private static final String API_URL = 'https://api.dev.helplightning.net/api/v1';
 
     private String token;
     private String route;

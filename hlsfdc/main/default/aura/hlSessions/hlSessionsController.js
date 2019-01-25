@@ -46,6 +46,14 @@
                 if (callId && hlCallId) {
                     helper.updateCallId(component, callId, hlCallId);
                 }
+            } else if (message.type === 'CALL_DISCONNECTED') {
+                var callWindow = component.get("v.callWindow");
+                if (callWindow) {
+                    setTimeout(function() {
+                        callWindow.close();
+                        component.set("v.callWindow", null);
+                    }, 2000);
+                }
             }
         })
     },
@@ -77,7 +85,7 @@
                 var gssToken = r.gssInfo.token;
                 var gssUrl = r.gssInfo.serverWSURL;
 
-                var url = 'https://app.helplightning.net/webCall?displayName=' + name + '&nameOrEmail=&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
+                var url = 'http://localhost' + ':' + '3000/webCall?displayName=' + name + '&nameOrEmail=&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
 
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId, email, sessionId, false, url);
@@ -111,7 +119,7 @@
                 var username = r.username;
                 var sessionId = r.sessionId;
 
-                var url = 'https://app.helplightning.net/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&mode=autoAccept';
+                var url = 'http://localhost' + ':' + '3000/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&mode=autoAccept';
 
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId, email, sessionId, true, url);

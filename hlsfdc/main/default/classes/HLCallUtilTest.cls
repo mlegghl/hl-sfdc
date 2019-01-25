@@ -522,4 +522,11 @@ private class HLCallUtilTest {
             System.assertEquals(result, null);
         }
     }
+
+    @isTest
+    static void testBuildEmptyCall() {
+        Map<String, Object> emptyCall = new Map<String, Object>();
+        helplightning.HLModelCall result = helplightning.HLModelCall.build(emptyCall);
+        System.assertEquals(result, null);
+    }
 }

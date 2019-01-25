@@ -251,7 +251,7 @@ public with sharing class HLSessionController {
                         if (schema.SObjectType.helplightning__HLCall__c.isUpdateable()) {
                             update matchedCall;
 
-                            if (HLConfiguration.getCreateEvents()) {
+                            if (HLConfiguration.getCreateEvents() && matchedCall.helplightning__Complete__c) {
                                 Event e = new Event();
                                 e.StartDateTime = matchedCall.helplightning__Start_Time__c;
                                 e.EndDateTime = matchedCall.helplightning__End_Time__c;

@@ -294,6 +294,26 @@ public with sharing class HLSessionController {
     }
 
     /**
+     * If we know the callId to associate with an HLCall, save it here
+     */
+    @AuraEnabled
+    public static Boolean updateCallId(String callId, Id hlCallId){
+        helplightning__HLCall__c[] call;
+        call = [SELECT Id, helplightning__HLCall_Id__c
+                FROM helplightning__HLCall__c
+                WHERE Id = :hlCallId];
+
+        if (call.size() > 0) {
+            call[0].helplightning__HLCall_Id__c = callId;
+            update call[0];
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Check if an email is part of the enterprise associated
      *  with our private key.
      */

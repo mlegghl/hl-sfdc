@@ -899,6 +899,11 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
      */
     @isTest
     static void testUpdateCallsCase() {
+        // Have config insert events
+        helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getOrgDefaults();
+        config.helplightning__Create_Events__c = true;
+        upsert config;
+
         Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
 
         User u = [SELECT Id from User WHERE UserName='test-user@helplightning.com' LIMIT 1];
@@ -984,6 +989,11 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
      */
     @isTest
     static void testUpdateCallsWorkOrder() {
+        // Have config insert events
+        helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getOrgDefaults();
+        config.helplightning__Create_Events__c = true;
+        upsert config;
+
         Id workOrderId = [SELECT Id from WorkOrder WHERE Subject = 'Work Order 1' LIMIT 1].Id;
 
         User u = [SELECT Id from User WHERE UserName='test-user@helplightning.com' LIMIT 1];

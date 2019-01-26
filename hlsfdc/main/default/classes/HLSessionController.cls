@@ -251,32 +251,34 @@ public with sharing class HLSessionController {
                         if (schema.SObjectType.helplightning__HLCall__c.isUpdateable()) {
                             update matchedCall;
 
-                            Event e = new Event();
-                            e.StartDateTime = matchedCall.helplightning__Start_Time__c;
-                            e.EndDateTime = matchedCall.helplightning__End_Time__c;
-                            e.Subject = 'Videochat';
-                            if (sObjectName == 'Case') {
-                                Case c = getCase(recordId);
-                                if (c != null) {
-                                    e.WhatId = c.Id;
-                                    e.WhoId = c.ContactId;
+                            if (HLConfiguration.getCreateEvents() && matchedCall.helplightning__Complete__c) {
+                                Event e = new Event();
+                                e.StartDateTime = matchedCall.helplightning__Start_Time__c;
+                                e.EndDateTime = matchedCall.helplightning__End_Time__c;
+                                e.Subject = 'Videochat';
+                                if (sObjectName == 'Case') {
+                                    Case c = getCase(recordId);
+                                    if (c != null) {
+                                        e.WhatId = c.Id;
+                                        e.WhoId = c.ContactId;
+                                    }
+                                } else if (sObjectName == 'WorkOrder') {
+                                    WorkOrder wo = getWorkOrder(recordId);
+                                    if (wo != null) {
+                                        e.WhatId = wo.Id;
+                                        e.WhoId = wo.ContactId;
+                                    }
                                 }
-                            } else if (sObjectName == 'WorkOrder') {
-                                WorkOrder wo = getWorkOrder(recordId);
-                                if (wo != null) {
-                                    e.WhatId = wo.Id;
-                                    e.WhoId = wo.ContactId;
+
+                                String callId = matchedCall.helplightning__HLCall_Id__c;
+                                if (callId == null || callId.equals('')) {
+                                    e.Description = 'Call was unanswered';
+                                } else {
+                                    e.Description = 'https://app.helplightning.net/calls/' + callId;
                                 }
-                            }
 
-                            String callId = matchedCall.helplightning__HLCall_Id__c;
-                            if (callId == null || callId.equals('')) {
-                                e.Description = 'Call was unanswered';
-                            } else {
-                                e.Description = 'https://app.helplightning.net/calls/' + callId;
+                                upsert e;
                             }
-
-                            upsert e;
                         } else {
                             System.debug('Insufficient Access for updatting helplightning__HLCall__c');
                         }
@@ -296,14 +298,14 @@ public with sharing class HLSessionController {
      */
     @AuraEnabled
     public static Boolean updateCallId(String callId, Id hlCallId){
-        helplightning__HLCall__c call;
+        helplightning__HLCall__c[] call;
         call = [SELECT Id, helplightning__HLCall_Id__c
                 FROM helplightning__HLCall__c
                 WHERE Id = :hlCallId];
 
-        if (call != null) {
-            call.helplightning__HLCall_Id__c = callId;
-            update call;
+        if (call.size() > 0) {
+            call[0].helplightning__HLCall_Id__c = callId;
+            update call[0];
 
             return true;
         }

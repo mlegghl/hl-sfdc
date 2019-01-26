@@ -1,3 +1,8 @@
+2019-01-25  Nath Tumlin <nath.tumlin@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-42 - Make saving calendar events configurable
+	* SFDC-41 - Listen for webjs to give us a call_id
+	* SFDC-40 - Create a calendar event for each call
+
 2019-01-24  Nath Tumlin <nath.tumlin@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
 	* SFDC-38 - Add ability to send invites via SMS
 

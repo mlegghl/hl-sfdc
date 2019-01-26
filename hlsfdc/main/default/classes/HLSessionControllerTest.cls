@@ -98,6 +98,29 @@ private class HLSessionControllerTest {
 
                 List<Object> calls = new List<Object>();
 
+                if (sessionId == 'jjkkllmmn') {
+                    Map<String,Object> call = new Map<String,Object>{
+                            'session_id' => 'jjkkllmmn',
+                            'call_id' => '',
+                            'dialer' => new Map<String,Object>{
+                                    'id' => '432',
+                                    'name' => 'support',
+                                    'email' => 'support@helplightning.com'
+                                    },
+                            'receiver' => new Map<String,Object>{
+                                    'id' => '22',
+                                    'name' => 'contact1',
+                                    'email' => 'contact1@helplightning.com'
+                                    },
+                            'start_time' => '2017-06-28T11:36:05-05',
+                            'end_time' => '2017-06-28T11:42:05-05',
+                            'complete' => true,
+                            'successful' => false,
+                            'duration' => 360
+                            };
+                    calls.add(call);
+                }
+
                 // return this as a serialized list of maps.
                 response.setBody(JSON.serialize(calls));
                 response.setStatusCode(200);
@@ -524,6 +547,10 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
                                                 ContactId = contact2.Id);
             insert workOrder;
 
+             // create a work order without a contact
+            WorkOrder workOrder2 = new WorkOrder(Subject = 'Work Order 2');
+            insert workOrder2;
+
             // create some fake calls for case 1
             List<helplightning__HLCall__c> calls = new List<helplightning__HLCall__c>();
             calls.add(new helplightning__HLCall__c(helplightning__Session_Id__c = 'aabbccdd',
@@ -544,12 +571,21 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
                                                    helplightning__Contact_Email__c = 'contact1@helplightning.com',
                                                    helplightning__Type__c = 'Direct',
                                                    helplightning__Case__c = case1.Id));
-            // add a call to the work order
+            // add some calls to the work order
             calls.add(new helplightning__HLCall__c(helplightning__Session_Id__c = 'jjkkllmm',
                                                    helplightning__HLCall_Id__c = 'jklm',
                                                    helplightning__Complete__c = true,
                                                    helplightning__Successful__c = false,
                                                    helplightning__Start_Time__c = DateTime.newInstanceGMT(2017, 6, 24, 14, 55, 0),
+                                                   helplightning__Duration__c = 0,
+                                                   helplightning__Contact_Email__c = 'contact2@helplightning.com',
+                                                   helplightning__Type__c = 'Direct',
+                                                   helplightning__Work_Order__c = workOrder.Id));
+            calls.add(new helplightning__HLCall__c(helplightning__Session_Id__c = 'jjkkllmmn',
+                                                   helplightning__HLCall_Id__c = '',
+                                                   helplightning__Complete__c = false,
+                                                   helplightning__Successful__c = false,
+                                                   helplightning__Start_Time__c = DateTime.newInstanceGMT(2016, 6, 24, 14, 55, 0),
                                                    helplightning__Duration__c = 0,
                                                    helplightning__Contact_Email__c = 'contact2@helplightning.com',
                                                    helplightning__Type__c = 'Direct',
@@ -679,6 +715,31 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
 
     /**
      * Test getting a specific case based on its Id
+     */
+    @isTest
+    static void testGetWorkOrder() {
+        Id workOrderId = [SELECT Id from WorkOrder WHERE Subject = 'Work Order 1' LIMIT 1].Id;
+        Id workOrder2Id = [SELECT Id from WorkOrder WHERE Subject = 'Work Order 2' LIMIT 1].Id;
+        Contact contact = [SELECT Contact.Id, Contact.Name, Contact.Email FROM Contact
+                           WHERE Email='contact2@helplightning.com' LIMIT 1];
+
+        WorkOrder w;
+
+        w = helplightning.HLSessionController.getWorkOrder(workOrderId);
+        System.assertEquals(w.Id, workOrderId);
+        System.assertEquals(w.ContactId, contact.Id);
+
+        // null id
+        System.assertEquals(helplightning.HLSessionController.getWorkOrder(null), null);
+
+        // work order with no contacts
+        w = helplightning.HLSessionController.getWorkOrder(workOrder2Id);
+        System.assertEquals(w.Id, workOrder2Id);
+        System.assertEquals(w.ContactId, null);
+    }
+
+    /**
+     * Test getting a specific case based on its Id
      *  with a user with insufficient privilieges
      */
     @isTest
@@ -696,6 +757,28 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
         System.RunAs(u) {
             Case c = helplightning.HLSessionController.getCase(caseId);
             System.assertEquals(null, c);
+        }
+    }
+
+    /**
+     * Test getting a specific workorder based on its Id
+     *  with a user with insufficient privilieges
+     */
+    @isTest
+    static void testGetWorkOrderInsufficientPermission() {
+        // create a very limited user
+        Profile p = [SELECT Id FROM Profile WHERE Name='Chatter Free User'];
+        User u = new User(Alias = 'chatter', Email='chatter-free-record@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='User', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='chatter-free-record@helplightning.com');
+        insert u;
+
+        Id workOrderId = [SELECT Id from WorkOrder WHERE Subject = 'Work Order 1' LIMIT 1].Id;
+
+        System.RunAs(u) {
+            WorkOrder w = helplightning.HLSessionController.getWorkOrder(workOrderId);
+            System.assertEquals(null, w);
         }
     }
 
@@ -730,7 +813,7 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
 
         List<helplightning__HLCall__c> calls = helplightning.HLSessionController.getCallsForRecord('WorkOrder', workOrderId);
 
-        System.assertEquals(calls.size(), 1);
+        System.assertEquals(calls.size(), 2);
 
         // test for an invalid Id
         calls = helplightning.HLSessionController.getCallsForRecord('WorkOrder', invalidId);
@@ -816,6 +899,11 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
      */
     @isTest
     static void testUpdateCallsCase() {
+        // Have config insert events
+        helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getOrgDefaults();
+        config.helplightning__Create_Events__c = true;
+        upsert config;
+
         Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
 
         User u = [SELECT Id from User WHERE UserName='test-user@helplightning.com' LIMIT 1];
@@ -901,6 +989,11 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
      */
     @isTest
     static void testUpdateCallsWorkOrder() {
+        // Have config insert events
+        helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getOrgDefaults();
+        config.helplightning__Create_Events__c = true;
+        upsert config;
+
         Id workOrderId = [SELECT Id from WorkOrder WHERE Subject = 'Work Order 1' LIMIT 1].Id;
 
         User u = [SELECT Id from User WHERE UserName='test-user@helplightning.com' LIMIT 1];
@@ -919,7 +1012,7 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
             List<helplightning__HLCall__c> calls = helplightning.HLSessionController.updateCalls('WorkOrder', workOrderId);
 
             // validate we have 1 calls
-            System.assertEquals(calls.size(), 1);
+            System.assertEquals(calls.size(), 2);
         }
 
         Test.stopTest();
@@ -938,6 +1031,13 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
 
         calls = helplightning.HLSessionController.updateCalls('Contacts', contactId);
         System.assertEquals(calls.size(), 0);
+    }
+
+    @isTest
+    static void testUpdateCallId() {
+        helplightning__HLCall__c call = [SELECT Id FROM helplightning__HLCall__c WHERE helplightning__Session_Id__c = 'jjkkllmm' LIMIT 1];
+        System.assertEquals(true, helplightning.HLSessionController.updateCallId('blah', call.Id));
+        System.assertEquals(false, helplightning.HLSessionController.updateCallId('blah', 'a00000000000000'));
     }
 
     /**

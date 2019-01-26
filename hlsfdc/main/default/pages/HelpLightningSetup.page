@@ -15,6 +15,9 @@
 
         <apex:outputText value="Private Key" />
         <apex:inputTextArea rows="10" cols="70" value="{!config['privateKey']}" />
+
+        <apex:outputText value="Create Calendar Events from Calls" />
+        <apex:inputCheckbox value="{!createEvents}" />
       </apex:pageBlockSection>
       <apex:pageBlockButtons>
         <apex:commandButton action="{!save}" value="Save" />

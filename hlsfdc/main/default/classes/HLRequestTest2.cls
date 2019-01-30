@@ -1,18 +1,18 @@
 /* -*- Mode: java; -*- */
 
 /**
- * HLRequestTest.cls
+ * HLRequestTest2.cls
  *
  * Copyright (c) 2017 HelpLightning Inc.
  * https://helplightning.com
  */
 
 @isTest
-private class HLRequestTest {
+private class HLRequestTest2 {
     /**
      * Mocker for the HLRequests
      */
-    class HLRequestTestMocker implements HttpCalloutMock {
+    class HLRequestTest2Mocker implements HttpCalloutMock {
         public HTTPResponse respond(HTTPRequest req) {
             URL endpoint = new URL(req.getEndpoint());
 
@@ -72,7 +72,7 @@ private class HLRequestTest {
         String route = '/get-test';
 
         // set up our mock
-        Test.setMock(HttpCalloutMock.class, new HLRequestTestMocker());
+        Test.setMock(HttpCalloutMock.class, new HLRequestTest2Mocker());
 
         helplightning.HLRequest request = new helplightning.HLRequest(token, route);
         Object result = request.get();
@@ -86,7 +86,7 @@ private class HLRequestTest {
         String route = '/get-test-failure';
 
         // set up our mock
-        Test.setMock(HttpCalloutMock.class, new HLRequestTestMocker());
+        Test.setMock(HttpCalloutMock.class, new HLRequestTest2Mocker());
 
         helplightning.HLRequest request = new helplightning.HLRequest(token, route);
         Object result = request.get();
@@ -101,7 +101,7 @@ private class HLRequestTest {
         String route = '/get-test-parameters';
 
         // set up our mock
-        Test.setMock(HttpCalloutMock.class, new HLRequestTestMocker());
+        Test.setMock(HttpCalloutMock.class, new HLRequestTest2Mocker());
 
         Map<String,String> params = new Map<String,String>();
         params.put('key1', 'asdf');
@@ -122,7 +122,7 @@ private class HLRequestTest {
         String route = '/post-test';
 
         // set up our mock
-        Test.setMock(HttpCalloutMock.class, new HLRequestTestMocker());
+        Test.setMock(HttpCalloutMock.class, new HLRequestTest2Mocker());
 
         Map<String,Object> params = new Map<String,Object>();
         params.put('key1', 'asdf');
@@ -143,7 +143,7 @@ private class HLRequestTest {
         String route = '/get-test-encoded-parameters';
 
         // set up our mock
-        Test.setMock(HttpCalloutMock.class, new HLRequestTestMocker());
+        Test.setMock(HttpCalloutMock.class, new HLRequestTest2Mocker());
 
         Map<String,String> params = new Map<String,String>();
         params.put('key1', 'email+something@example.com');

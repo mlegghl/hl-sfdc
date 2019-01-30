@@ -7,6 +7,8 @@
     <aura:attribute name="contactIsHLUser" type="Boolean" default="false"/>
     <!-- our timer object used for polling for call changes -->
     <aura:attribute name="pollTimer" type="Object" />
+    <!-- handle to the window we open for a call -->
+    <aura:attribute name="callWindow" type="Object" />
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
     <aura:handler name="destroy" action="{!c.doDestroy}" value="{!this}"/>

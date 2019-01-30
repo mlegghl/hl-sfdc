@@ -1,3 +1,6 @@
+2019-01-30  Nath Tumlin <nath.tumlin@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-43 - Auto close the helplightning window after the call ends
+
 2019-01-25  Nath Tumlin <nath.tumlin@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
 	* SFDC-42 - Make saving calendar events configurable
 	* SFDC-41 - Listen for webjs to give us a call_id

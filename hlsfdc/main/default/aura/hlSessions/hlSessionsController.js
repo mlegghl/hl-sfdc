@@ -46,6 +46,14 @@
                 if (callId && hlCallId) {
                     helper.updateCallId(component, callId, hlCallId);
                 }
+            } else if (message.type === 'CALL_DISCONNECTED') {
+                var callWindow = component.get("v.callWindow");
+                if (callWindow) {
+                    setTimeout(function() {
+                        callWindow.close();
+                        component.set("v.callWindow", null);
+                    }, 2000);
+                }
             }
         })
     },

@@ -192,7 +192,8 @@
                 component.set("v.calls", sessions);
 
                 url = url + '&callbackState=' + newHLCall.Id;
-                window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900');
+                var w = window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900');
+                component.set("v.callWindow", w);
             }
         });
 

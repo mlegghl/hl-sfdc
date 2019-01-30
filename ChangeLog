@@ -1,3 +1,6 @@
+2019-01-30  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-45 - Rename HLRequestTest
+
 2019-01-30  Nath Tumlin <nath.tumlin@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
 	* SFDC-44 - Allow sending an invite without a phone number and hide the invitation after sending
 	* SFDC-43 - Auto close the helplightning window after the call ends

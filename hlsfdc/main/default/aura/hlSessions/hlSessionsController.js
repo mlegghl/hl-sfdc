@@ -101,13 +101,14 @@
         var rId = component.get("v.recordId");
 
         var contact = component.get("v.contact");
-        var email = event.getParam("email");
+        var contactEmail = contact.Email;
+        var sendToEmail = event.getParam("email");
         var phone = event.getParam("phone");
         var message = event.getParam("message");
         var contactName = contact.Name;
 
         var action = component.get("c.sendOneTimeUseLink");
-        action.setParams({"otherUsersName": contactName, "otherUsersEmail": email, "otherUsersPhone": phone, message: message});
+        action.setParams({"otherUsersName": contactName, "otherUsersEmail": sendToEmail, "otherUsersPhone": phone, message: message});
         action.setCallback(this, function(response) {
             var state = response.getState();
             if (component.isValid() && state == "SUCCESS") {
@@ -116,6 +117,7 @@
 
                 var userToken = r.token;
                 var name = r.name;
+                var email = sendToEmail || contactEmail;
                 var username = r.username;
                 var sessionId = r.sessionId;
 

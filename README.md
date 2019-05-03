@@ -35,7 +35,7 @@ them after my JIRA ticket:
 `./scripts/setup SFDC-48`
 
 This script will create the new environment, upload all the code and
-resource, configure the permissions, then print out a Login
+resources, configure the permissions, then print out a Login
 URL. Clicking on the URL will open up the scratch environment and
 automatically log you in.
 
@@ -43,17 +43,17 @@ automatically log you in.
 
 Once you are in your scratch environment, you need to configure it. There are two things we need to configure:
 1. The Help Lightning enterprise and partner key
-1. Adding the component to Cases and WorkOrders
+1. Adding the Help Lightning component to Cases and WorkOrders
 
 First to configure the Help Lightning Enterprise and Partner Key:
 
 1. Go to `Setup` > `Custom Code` > `Visualforce Pages`
-1. Find `HelpLightingSetup` and click on the icon of two sqaures with an arrorw, just to the right of Security. This will open a preview of the page in a new tab.
+1. Find `HelpLightingSetup` and click on the icon of two squares with an arrow, just to the right of Security. This will open a preview of the page in a new tab.
 1. For `Enterprise Id`, you will need the Help Lightning Id of your enterprise in production. This can be found in crunch.
 1. For `Private Key`, you will need a private key for your enterprise. If you don't have one, you can manually create one using the Galdr admin api. *Be careful doing this, as creating a new key removes any existing keys!*
 1. Press `Save` and close the tab.
 
-Second, configure the Cases and WordOrders to show the Help Lightning Component.
+Second, configure the Cases and WorkOrders to show the Help Lightning Component.
 
 1. Click on the 9 dots icon in the upper left hand corner and choose `Contacts`
 1. Click `New`
@@ -85,21 +85,21 @@ Once everything is working, follow the exact same steps for the `Work Order`.
 
 ### Development on the new Scratch Environment
 
-To develop on the code, Using your favorite editor, make changes
+To develop on the code, using your favorite editor (emacs), make changes
 locally, save them, then push them to your scratch environment using
 the following command:
 
 `sfdx force:source:push -u SCRATCH_ENV_NAME`
 
-Then reload your web browser. *Sometime you have to reload multiple
+Then reload your web browser. *Sometimes you have to reload multiple
 times for your changes to take effect! During development, I often put
 a print statement at the beginning with a number in it, that I
-increase everytime I push, that way I can view the browser's console
+increase every time I push, that way I can view the browser's console
 log and verify the new version is running*
 
 While it is possible to edit code in Salesforce using its built in
 code editor, it is not recommended, as syncing changes back locally
-can be frustrating at time.
+can be frustrating at times.
 
 Salesforce also requires 90+% code coverage, or you cannot distribute
 your package. Please make sure all new apex code has valid unit
@@ -125,15 +125,15 @@ use the special `./scripts/push-to-standard` script.
 1. Go to Setup > Package Manager
 1. Select the `Help Lightning` package
 1. Under the `Components` tab, click `Add`. Make sure all of our components have been added. This includes: *Warning: Once you add these and release a managed package, you can never remove them!*
-  - Apex Classes
-  - Lightning Pages
-  - Custom Object
-  - Custom Field
-  - Custom Setting
-  - Permission Set
-  - Aura Component Bundle
-  - Visualforce Page
-  - Remote Site
+  1. Apex Classes
+  1. Lightning Pages
+  1. Custom Object
+  1. Custom Field
+  1. Custom Setting
+  1. Permission Set
+  1. Aura Component Bundle
+  1. Visualforce Page
+  1. Remote Site
 1. Click `Upload`
 1. Enter the `Version Name` and `Version Number`. We use our version number for both, i.e.: `2.0`
 1. Select `Managed - Released` as the `Release Type`
@@ -144,7 +144,7 @@ use the special `./scripts/push-to-standard` script.
 
 (I have had some issues with HLRequestTest2 failing and causing issues
 during the upload. Therefore, you may want to make sure it is removed
-from the `Components` tab.)
+from the `Components` tab before uploading.)
 
 Once the upload is complete, it is possible to push this to the app
 store. However, at this time, we are typically just getting the

@@ -125,15 +125,15 @@ use the special `./scripts/push-to-standard` script.
 1. Go to Setup > Package Manager
 1. Select the `Help Lightning` package
 1. Under the `Components` tab, click `Add`. Make sure all of our components have been added. This includes: *Warning: Once you add these and release a managed package, you can never remove them!*
-  1. Apex Classes
-  1. Lightning Pages
-  1. Custom Object
-  1. Custom Field
-  1. Custom Setting
-  1. Permission Set
-  1. Aura Component Bundle
-  1. Visualforce Page
-  1. Remote Site
+   1. Apex Classes
+   1. Lightning Pages
+   1. Custom Object
+   1. Custom Field
+   1. Custom Setting
+   1. Permission Set
+   1. Aura Component Bundle
+   1. Visualforce Page
+   1. Remote Site
 1. Click `Upload`
 1. Enter the `Version Name` and `Version Number`. We use our version number for both, i.e.: `2.0`
 1. Select `Managed - Released` as the `Release Type`

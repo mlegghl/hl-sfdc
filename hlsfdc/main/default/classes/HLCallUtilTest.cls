@@ -56,6 +56,53 @@ private class HLCallUtilTest {
     }
 
     /**
+     * Find a call match for an HLCall that:
+     *  - has never been matched on (doesn't have a callId yet)
+     *  - is already complete
+     *  - is successful
+     *  - the email doesn't match exactly (different case)
+     * This should mark the call as a successful,
+     *  completed call, and fill in the callId, duration,
+     *  endTime, and other important values.
+     */
+    @isTest
+    static void testFindCallMatchCompletedCaseInsensitive() {
+        helplightning__HLCall__c call = new helplightning__HLCall__c(helplightning__Contact_Email__c = 'contact@helplightning.com',
+                                                                     helplightning__Start_Time__c = DateTime.newInstanceGMT(2016, 10, 14, 11, 46, 0));
+
+        // mock up some help lightning calls that the api would have returned
+        List<helplightning.HLModelCall> hlCalls = new List<helplightning.HLModelCall>{
+                new helplightning.HLModelCall('aabbccdd', '1234',
+                                              DateTime.newInstanceGmt(2016, 10, 14, 11, 46, 1),
+                                              DateTime.newInstanceGmt(2016, 10, 14, 11, 52, 0),
+                                              true, 6 * 60, true,
+                                              new helplightning.HLModelCallUser('12', 'Support',
+                                                                                'SUPPORT@helplightning.com'),
+                                              new helplightning.HLModelCallUser('32', 'Contact',
+                                                                                'contact@helplightning.com'))
+            };
+
+        // run as a support@helplightning.com user, since this
+        //  looks up the current user to find a match.
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u = new User(Alias = 'support', Email='support@helplightning.com',
+                          EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                          LocaleSidKey='en_US', ProfileId = p.Id,
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
+
+        System.runAs(u) {
+            helplightning__HLCall__c result = helplightning.HLCallUtil.findCallMatch(call, hlCalls);
+
+            System.assertNotEquals(result, null);
+            System.assertEquals(result.helplightning__HLCall_Id__c, '1234');
+            System.assertEquals(result.helplightning__Complete__c, true);
+            System.assertEquals(result.helplightning__Successful__c, true);
+            System.assertEquals(result.helplightning__Duration__c, 360);
+        }
+    }
+
+
+    /**
      * Try to find a match for an HLCall that:
      *  - started more than 3 minutes ago
      *  - has never been matched on (doesn't have a callId yet)

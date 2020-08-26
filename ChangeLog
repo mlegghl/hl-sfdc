@@ -1,4 +1,5 @@
 2020-08-26  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-51 - Not doing case insensitive search when matching a call
 	* SFDC-52 - Move project-scratch-def.json to new format
 
 2019-05-03  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>

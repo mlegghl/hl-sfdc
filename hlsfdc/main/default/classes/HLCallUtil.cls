@@ -121,8 +121,8 @@ public class HLCallUtil {
             String dialer = c.dialer.email;
             String receiver = c.receiver.email;
 
-            if (helplightning.HLUserHelper.getLogin().equals(receiver) || helplightning.HLUserHelper.getLogin().equals(dialer)) {
-+                System.debug('we are in the call');
+            if (helplightning.HLUserHelper.getLogin().equalsIgnoreCase(receiver) || helplightning.HLUserHelper.getLogin().equalsIgnoreCase(dialer)) {
+                System.debug('we are in the call');
             } else {
                 System.debug('found a call where we aren\'t the dialer or receiver');
                 continue;

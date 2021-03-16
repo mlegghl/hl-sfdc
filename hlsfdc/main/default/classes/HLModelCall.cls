@@ -61,6 +61,10 @@ public class HLModelCall {
      */
     public static HLModelCall buildFromCall(Object result, String sessionId) {
         Map<String,Object> s = (Map<String,Object>)result;
+        if (s == null) {
+            return null;
+        }
+
         Map<String,Object> call = (Map<String,Object>)s.get('call');
         if (call == null) {
             return null;

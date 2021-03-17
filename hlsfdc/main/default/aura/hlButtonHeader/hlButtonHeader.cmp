@@ -37,7 +37,7 @@
                     Call Contact
                 </ui:button>
                 <ui:button class="slds-button slds-button_neutral" press="{!c.toggleInviteForm}">
-                    Invite Contact
+                    Send Invitation
                 </ui:button>
             </div>
         </aura:if>

@@ -1,3 +1,6 @@
+2021-03-18  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-56 - If we know the call id, fetch that call directly
+
 2.2
 ==========
 2020-08-26  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>

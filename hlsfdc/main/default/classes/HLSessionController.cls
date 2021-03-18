@@ -231,7 +231,19 @@ public with sharing class HLSessionController {
 
             for (helplightning__HLCall__c call : calls) {
                 System.debug('getting Info about call ' + call);
-                List<helplightning.HLModelCall> hlCalls = helplightning.HLGaldrClient.getEnterpriseCall(call.helplightning__Session_Id__c);
+                List<helplightning.HLModelCall> hlCalls = new List<helplightning.HLModelCall>();
+
+                // If we don't have an exact call id, then we'll get all the calls with-in a session
+                //  and try to guess a match...
+                if (call.helplightning__HLCall_id__c == null || call.helplightning__HLCall_Id__c.equals('')) {
+                    hlCalls = helplightning.HLGaldrClient.getEnterpriseCall(call.helplightning__Session_Id__c);
+                } else {
+                    // we have a call id, so just pull the call directly!
+                    helplightning.HLModelCall c = helplightning.HLGaldrClient.getEnterpriseCallById(call.helplightning__Session_Id__c, call.helplightning__HLCall_id__c);
+                    if (c != null) {
+                        hlCalls.add(c);
+                    }
+                }
 
                 if (hlCalls != null && hlCalls.size() > 0) {
                     callMap.put(call, hlCalls);

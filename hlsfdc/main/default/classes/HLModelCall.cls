@@ -55,6 +55,55 @@ public class HLModelCall {
                                );
     }
 
+    /**
+     * Build from a single call result. This parses the model returned by
+     *  (/v1/enterprise/calls/:id)
+     */
+    public static HLModelCall buildFromCall(Object result, String sessionId) {
+        Map<String,Object> s = (Map<String,Object>)result;
+        if (s == null) {
+            return null;
+        }
+
+        Map<String,Object> call = (Map<String,Object>)s.get('call');
+        if (call == null) {
+            return null;
+        }
+
+        String startTimeString = (String)call.get('timeCallStarted');
+        String endTimeString = (String)call.get('timeCallEnded');
+
+        if (String.isEmpty(startTimeString) || String.isEmpty(endTimeString)) {
+            return null;
+        }
+
+        // Wait until the call is over...
+        String reason = (String)call.get('reasonCallEnded');
+        if (String.isEmpty(reason)) {
+            return null;
+        }
+
+        // start / end times are unix timestamps in seconds. Convert to milliseconds
+        Long st = Decimal.valueOf(startTimeString).longValue() * 1000L;
+        Long et = Decimal.valueOf(endTimeString).longValue() * 1000L;
+        DateTime startTime = DateTime.newInstance(st);
+        DateTime endTime = DateTime.newInstance(et);
+
+        Boolean complete = !String.isEmpty(endTimeString);
+        Boolean successful = reason == 'Call Ended';
+
+        return new HLModelCall(sessionId,
+                               (String)call.get('session'), // session is actually the call id
+                               startTime,
+                               endTime,
+                               complete,
+                               (Decimal)call.get('callDuration'),
+                               successful,
+                               helplightning.HLModelCallUser.build(call.get('dialer')),
+                               helplightning.HLModelCallUser.build(call.get('receiver'))
+                               );
+    }
+
     public static List<HLModelCall> buildMany(Object results) {
         List<HLModelCall> calls = new List<HLModelCall>();
 

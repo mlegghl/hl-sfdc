@@ -73,6 +73,55 @@ private class HLSessionControllerTest {
                 // return this as a serialized list of maps.
                 response.setBody(JSON.serialize(calls));
                 response.setStatusCode(200);
+            } else if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1/enterprise/calls/')) {
+                // return some help lightning calls.
+                List<String> parts = endpoint.getPath().split('/');
+                String callId = parts.get(parts.size()-1);
+
+                Map<String,Object> call = null;
+                if (callId == 'abcd') {
+                    call = new Map<String,Object>{
+                            'call' => new Map<String,Object>{
+                                    'session' => 'abcd',
+                                    'timeCallStarted' => '1498667402.000',
+                                    'timeCallEnded' => '1498668002.000',
+                                    'reasonCallEnded' => 'Call Ended',
+                                    'callDuration' => 600,
+                                    'dialer' => new Map<String,Object>{
+                                            'id' => '432',
+                                            'name' => 'support',
+                                            'email' => 'support@helplightning.com'
+                                        },
+                                    'receiver' => new Map<String,Object>{
+                                            'id' => '22',
+                                             'name' => 'contact1',
+                                             'email' => 'contact1@helplightning.com'
+                                             }
+                                }
+                        };
+                } else if (callId == 'wxyz') {
+                    call = new Map<String,Object>{
+                            'call' => new Map<String,Object>{
+                                    'session' => 'wxyz',
+                                    'timeCallStarted' => '1498667765.000',
+                                    'timeCallEnded' => '1498668125.000',
+                                    'reasonCallEnded' => 'Timed out',
+                                    'callDuration' => 360,
+                                    'dialer' => new Map<String,Object>{
+                                            'id' => '432',
+                                            'name' => 'support',
+                                            'email' => 'support@helplightning.com'
+                                        },
+                                    'receiver' => new Map<String,Object>{
+                                            'id' => '22',
+                                             'name' => 'contact1',
+                                             'email' => 'contact1@helplightning.com'
+                                             }
+                                }
+                        };
+                }
+                response.setBody(JSON.serialize(call));
+                response.setStatusCode(200);
             } else {
                 // error
                 response.setStatusCode(500);
@@ -554,7 +603,6 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
             // create some fake calls for case 1
             List<helplightning__HLCall__c> calls = new List<helplightning__HLCall__c>();
             calls.add(new helplightning__HLCall__c(helplightning__Session_Id__c = 'aabbccdd',
-                                                   helplightning__HLCall_Id__c = 'abcd',
                                                    helplightning__Complete__c = true,
                                                    helplightning__Successful__c = true,
                                                    helplightning__Start_Time__c = DateTime.newInstanceGMT(2017, 6, 28, 11, 30, 0),

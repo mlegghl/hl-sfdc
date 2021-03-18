@@ -49,15 +49,27 @@ public class HLGaldrClient {
 
     /**
      * Get the details for a specific call in our
-     *  enterprise
+     *  enterprise. This uses the sessionId to search
+     *  for a potential match.
      */
-    public static List<helplightning.HLModelCall> getEnterpriseCall(String callId) {
+    public static List<helplightning.HLModelCall> getEnterpriseCall(String sessionId) {
         helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
-                                                                      '/enterprise/sessions/' + callId);
+                                                                      '/enterprise/sessions/' + sessionId);
 
         Object results = request.get();
 
         return HLModelCall.buildMany(results);
+    }
+
+    /**
+     * Get the details of a specific call, where we have the session and call id.
+     */
+    public static helplightning.HLModelCall getEnterpriseCallById(String sessionId, String callId) {
+        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
+                                                                      '/enterprise/calls/' + callId);
+        Object result = request.get();
+
+        return HLModelCall.buildFromCall(result, sessionId);
     }
 
     /** User Methods **/

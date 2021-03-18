@@ -25,7 +25,7 @@
 
         <div class="slds-card__body slds-card__body_inner">
             <div class="slds-p-bottom_small">
-                <b>Use Help Lightning to make mobile merged reality video calls.</b>
+                <b>Use Help Lightning to make remote visual assistance calls.</b>
             </div>
 
             <aura:if isTrue="{!v.hasErrors == false}">
@@ -38,7 +38,7 @@
                             </span>
                         </li>
                         <li class="slds-m-right_large">
-                            <p>Current contact does not have a Help Lightning account. Invite user to download the Help Lightning app.</p>
+                            <p>The associated Contact does not have a Help Lightning account. Click Send Invitation to send a link via email or SMS.</p>
                         </li>
                     </ul>
                 </aura:if>

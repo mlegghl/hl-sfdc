@@ -1,12 +1,12 @@
 ({
     clickCall : function(component, event, helper) {
+        // get contact email from contacts call handler
+        const contactEmail = event.getParam('email')
+        
         // call the parent handler
-        var event = component.getEvent('onCallClick');
-        event.fire();
-    },
-
-    toggleInviteForm : function(component, event, helper) {
-        component.set('v.showInviteForm', !component.get('v.showInviteForm'));
+        var e = component.getEvent('onCallClick');
+        e.setParam("email", contactEmail);
+        e.fire();
     },
 
     sendInvite : function(component, event, helper) {
@@ -20,13 +20,5 @@
         event.setParam("phone", phone.replace(/[^+\d]/g, ''));
         event.setParam("message", message);
         event.fire();
-
-        component.set('v.showInviteForm', false);
-    },
-
-    cancelInvite : function(component, event, helper) {
-        component.set('v.showInviteForm', false);
-        component.set('v.contactPhone', '');
-        component.set('v.inviteMessage', '');
     }
 })

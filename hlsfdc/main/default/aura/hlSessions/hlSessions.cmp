@@ -15,33 +15,16 @@
 
     <!-- Help Lightning Component -->
     <article class="slds-card">
-        <!-- render our button header -->
-        <helplightning:hlButtonHeader showButtons="{!v.hasErrors == false}"
-                                      contactEmail="{!v.contact.Email}"
-                                      contactPhone="{!not(empty(v.contact.MobilePhone)) ? v.contact.MobilePhone : v.contact.Phone}"
-                                      disableCallButton="{!v.contactIsHLUser == false}"
-                                      onCallClick="{!c.clickCall}"
-                                      onInviteClick="{!c.clickSendOneTimeUseLink}" />
+        <!-- render our tabs-->
+        <helplightning:hlTabs   showButtons="{!v.hasErrors == false}"
+                                contactEmail="{!v.contact.Email}"
+                                contactPhone="{!not(empty(v.contact.MobilePhone)) ? v.contact.MobilePhone : v.contact.Phone}"
+                                onCallClick="{!c.clickCall}"
+                                onInviteClick="{!c.clickSendOneTimeUseLink}" />
 
         <div class="slds-card__body slds-card__body_inner">
-            <div class="slds-p-bottom_small">
-                <b>Use Help Lightning to make remote visual assistance calls.</b>
-            </div>
 
             <aura:if isTrue="{!v.hasErrors == false}">
-                <!-- show a warning about not being a help lightning user -->
-                <aura:if isTrue="{!v.contactIsHLUser == false}">
-                    <ul class="slds-list_horizontal">
-                        <li class="slds-m-right_small">
-                            <span class="slds-icon_container slds-icon-utility-info-alt" title="Warning">
-                                <lightning:icon class="slds-icon" iconName="utility:info_alt" size="small" variant="warning" />
-                            </span>
-                        </li>
-                        <li class="slds-m-right_large">
-                            <p>The associated Contact does not have a Help Lightning account. Click Send Invitation to send a link via email or SMS.</p>
-                        </li>
-                    </ul>
-                </aura:if>
 
                 <aura:if isTrue="{!v.calls.length > 0}">
                     <!-- Activity Timeline -->

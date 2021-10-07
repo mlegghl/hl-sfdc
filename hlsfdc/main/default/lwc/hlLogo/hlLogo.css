@@ -1,0 +1,14 @@
+.logo-container {
+    width: 100%;
+}
+.title {
+    font-size: 20px;
+    text-align: right;
+    display: inline;
+    float: right;
+}
+.logo {
+    display: inline;
+    float: left;
+    height: 50px;
+}

@@ -1,0 +1,31 @@
+<template>
+    <div class="slds-m-around_medium">
+        <lightning-input type="search" onchange={handleTermChange} class="slds-m-bottom_small" label="Search Users" value={searchTerm}></lightning-input>
+        <template if:true={contacts.data}>
+            <div class="table-container">
+                <table>
+                    <tbody>
+                        <template for:each={contacts.data} for:item="contact">
+                            <tr key={contact.id}>
+                                <td width="50px">
+                                    <template if:true={contact.avatarURL}>
+                                        <img class="avatar" src={contact.avatarURL}>
+                                    </template>
+                                    <template if:false={contact.avatarURL}>
+                                        <img class="avatar" src="data:image/png;base64,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">
+                                    </template>
+                                </td>
+                                <td style="text-align: center">{contact.name}</td>
+                                <td><lightning-button data-value={contact.email} variant="brand" label="Call" title="Call" onclick={handleClickCall} class="slds-m-left_x-small" style="float: right;"></lightning-button></td>
+                            </tr>
+                        </template>
+
+                    </tbody>
+                </table>
+              </div>
+        </template>
+        <template if:true={contacts.error}>
+            {contacts.error}
+        </template>
+    </div>
+</template> 

@@ -86,6 +86,23 @@ public class HLGaldrClient {
     }
 
     /**
+     * Search for contacts
+     */
+    public static List<helplightning.HLModelEnterpriseUser> searchContacts(String searchTerm) {
+        Map<String,String> params = new Map<String,String>();
+        if (!String.isEmpty(searchTerm)) {
+            params.put('filter', 'name~=' + '%' + searchTerm + '%');
+        }
+
+        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
+                                                                      '/enterprise/users');
+        Object results = request.get(params);
+
+        // deserialize
+        return HLModelEnterpriseUser.buildMany(results);
+    }
+
+    /**
      * Create a new session with some other users.
      */
     public static HLModelSession createSession(String userToken, List<String> contactTokens) {

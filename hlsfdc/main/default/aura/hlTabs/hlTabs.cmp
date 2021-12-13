@@ -6,12 +6,16 @@
     <aura:attribute name="showButtons" type="Boolean" default="true" />
     <aura:attribute name="contactEmail" type="String" default="" />
     <aura:attribute name="contactPhone" type="String" default="" />
+    <aura:attribute name="defaultPhone" type="String" default="" />
     <aura:attribute name="inviteMessage" type="String" default="" />
+    <aura:attribute name="recordId" type="String" default="" />
+    <aura:attribute name="sObjectName" type="String" default="" />
 
     <!-- register our callback event to use as callbacks for presses on buttons -->
     <aura:registerEvent name="onCallClick" type="helplightning:hlCallContactEvent" />
     <aura:registerEvent name="onInviteClick" type="helplightning:hlInviteContactEvent" />
 
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
 
     <div class="slds-card__header slds-grid">
         <header class="slds-media slds-media_center slds-has-flexi-truncate">
@@ -36,15 +40,15 @@
                             </div>
                             <div class="slds-form-element__row">
                                 <div class="slds-form-element slds-size_1-of-2">
-                                    <label class="slds-form-element__label" for="contactEmail">Email: </label>
+                                    <label class="slds-form-element__label" for="contactEmail">Email </label>
                                     <div class="slds-form-element__control">
                                         <ui:inputText class="slds-input" aura:id="contactEmail" value="{!v.contactEmail}" />
                                     </div>
                                 </div>
                                 <div class="slds-form-element slds-size_1-of-2">
-                                    <label class="slds-form-element__label" for="contactPhone">Phone: </label>
+                                    <label class="slds-form-element__label" for="contactPhone">Phone </label>
                                     <div class="slds-form-element__control">
-                                        <ui:inputText class="slds-input" aura:id="contactPhone" value="{!v.contactPhone}" />
+                                        <ui:inputText class="slds-input" aura:id="contactPhone" value="{!v.contactPhone}"/>
                                     </div>
                                 </div>
                             </div>
@@ -59,7 +63,7 @@
             </div>
         </lightning:tab>
         <lightning:tab label="Contacts">
-            Contacts
+            <c:hlContacts recordId="{!v.recordId}" sObjectName="{!v.sObjectName}" style="width:20px" oncallcontact="{!c.clickCall}"></c:hlContacts>
         </lightning:tab>
         <lightning:tab label="Help">
             Help

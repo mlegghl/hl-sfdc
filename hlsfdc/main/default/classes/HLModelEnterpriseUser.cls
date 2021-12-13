@@ -77,12 +77,19 @@ public class HLModelEnterpriseUser {
         return m;
     }
 
+    @auraEnabled
     public Integer id = 0;
+    @auraEnabled
     public String username = '';
+    @auraEnabled
     public String name = '';
+    @auraEnabled
     public String email = '';
+    @auraEnabled
     public Boolean available = true;
+    @auraEnabled
     public Integer status = 0;
+    @auraEnabled
     public String avatarURL = '';
     public String authToken = '';
 }

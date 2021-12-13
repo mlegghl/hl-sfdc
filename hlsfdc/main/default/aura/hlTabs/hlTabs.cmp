@@ -62,7 +62,7 @@
             Contacts
         </lightning:tab>
         <lightning:tab label="Help">
-            Help
+            <c:hlHelp></c:hlHelp>
         </lightning:tab>
     </lightning:tabset>
 

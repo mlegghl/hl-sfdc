@@ -66,7 +66,7 @@
             <c:hlContacts recordId="{!v.recordId}" sObjectName="{!v.sObjectName}" style="width:20px" oncallcontact="{!c.clickCall}"></c:hlContacts>
         </lightning:tab>
         <lightning:tab label="Help">
-            Help
+            <c:hlHelp></c:hlHelp>
         </lightning:tab>
     </lightning:tabset>
 

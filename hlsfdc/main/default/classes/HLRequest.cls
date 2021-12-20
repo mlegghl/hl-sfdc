@@ -13,7 +13,7 @@ public class HLRequest {
     private static final String API_KEY = '01e0bbdecb85a1f83bf6ade3624af03b';
 
     // Help Lightning API Endpoing
-    private static final String API_URL = 'https://api.helplightning.net/api/v1';
+    private static final String API_URL = 'https://api.helplightning.net/api';
 
     private String token;
     private String route;

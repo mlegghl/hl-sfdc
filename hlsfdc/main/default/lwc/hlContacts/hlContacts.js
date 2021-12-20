@@ -10,14 +10,8 @@ export default class HlContacts extends LightningElement {
 
     @wire(getContacts, { searchTerm: '$searchTerm' }) contacts;
 
-    connectedCallback() {
-        console.log('recordId ' + this.recordId);
-        console.log('sObjectName ' + this.sObjectName); 
-    }
-
     handleTermChange(event) {
         window.clearTimeout(this.delayTimeout);
-        console.log(this.contacts)
         const searchTerm = event.target.value;
         this.delayTimeout = setTimeout(() => {
             this.searchTerm = searchTerm;

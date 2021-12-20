@@ -1,0 +1,16 @@
+.avatar {
+    height: 30px;
+    border-radius: 50%;
+}
+.table-container {
+    display:block;
+    overflow-y:auto;
+    max-height: 200px;
+    width:100%;
+}
+th, td {
+    padding: 5px 0px 5px 3px;
+}
+tr:nth-child(even) {
+    background-color: #f7f7f8;
+} 

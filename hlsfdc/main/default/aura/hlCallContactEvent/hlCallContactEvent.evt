@@ -1,1 +1,3 @@
-<aura:event type="COMPONENT" description="For passing callbacks to components" />
+<aura:event type="COMPONENT" description="For passing callbacks to components">
+    <aura:attribute name="email" type="String" />
+</aura:event>

@@ -1,8 +1,13 @@
 ({
+    doInit : function(component, event, helper) {
+        // to prevent 2 way binding issues, set another attribute with the default phone number if it exists
+        var phone = component.get("v.defaultPhone");
+        component.set("v.contactPhone", phone);
+    },
     clickCall : function(component, event, helper) {
         // get contact email from contacts call handler
         const contactEmail = event.getParam('email')
-        
+
         // call the parent handler
         var e = component.getEvent('onCallClick');
         e.setParam("email", contactEmail);

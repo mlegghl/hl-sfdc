@@ -537,9 +537,12 @@ public with sharing class HLSessionController {
     }
 
     @future(callout = true)
-    private static void saveAttachment(String callId, String recordId) {
+    public static void saveAttachment(String callId, String recordId) {
         List<HLModelAttachment> attachments = helplightning.HLGaldrClient.getAttachments(callId);
 
+        List<Attachment> toSave = new List<Attachment>();
+
+        // We can't save attachments while making call-outs
         for (HLModelAttachment a: attachments) {
             // Only save screencaps for now
             if (a.mimeType == 'image/jpeg') {
@@ -551,8 +554,12 @@ public with sharing class HLSessionController {
                 HttpResponse res = h.send(req);
                 Blob bd = res.getBodyAsBlob();
                 Attachment att = new Attachment(Name = a.fileName, Body = bd, ContentType = 'image/jpeg;charset=UTF-8', ParentId=recordId);
-                insert att;
+                toSave.add(att);
             }
+        }
+
+        for (Attachment a: toSave) {
+            insert a;
         }
     }
 }

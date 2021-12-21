@@ -419,7 +419,7 @@ private class HLSessionControllerTest {
     /**
      * Mocker for the testSendOneTimeUseLink
      */
-class SendOneTimeUseLinkMocker implements HttpCalloutMock {
+    class SendOneTimeUseLinkMocker implements HttpCalloutMock {
         public HTTPResponse respond(HTTPRequest req) {
             URL endpoint = new URL(req.getEndpoint());
 
@@ -533,6 +533,82 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
         }
     }
 
+    /**
+     * Mocker for the saveAttachments case
+     */
+    class AttachmentMocker implements HttpCalloutMock {
+        public HTTPResponse respond(HTTPRequest req) {
+            URL endpoint = new URL(req.getEndpoint());
+
+            HttpResponse response = new HttpResponse();
+
+            if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1r1/enterprise/calls/call-1234/attachments')) {
+                // return some attachments.
+                List<Object> attachments = new List<Object>();
+                Map<String,Object> a1 = new Map<String,Object>{
+                    'id' => 1,
+                    'creator' => new Map<String,Object>{
+                        'name' => 'Joe',
+                        'id' => 1234,
+                        'avatar' => new Map<String,Object>{
+                            'thumb' => null,
+                            'original' => null
+                        }
+                    },
+                    'name' => 'screen_cap1.jpg',
+                    'signed_url' => 'https://helplightning.com/attachments/1/attachment.jpg',
+                    'thumbnail' => 'https://helplightning.com/attachments/1/thumbnail.jpg',
+                    'mime_type' => 'image/jpeg',
+                    'timestamp' => 1639168218,
+                    'type' => 'incall',
+                    'deleted' => false,
+                    'status' => '',
+                    'progress' => 0,
+                    'path' => 's3://helplightning-bucket/attachment/1.jpg'
+                };
+                Map<String,Object> a2 = new Map<String,Object>{
+                    'id' => 2,
+                    'creator' => new Map<String,Object>{
+                        'name' => 'Joe',
+                        'id' => 1234,
+                        'avatar' => new Map<String,Object>{
+                            'thumb' => null,
+                            'original' => null
+                        }
+                    },
+                    'name' => 'recording.mp4',
+                    'signed_url' => 'https://helplightning.com/attachments/2/recording.mp4',
+                    'thumbnail' => '',
+                    'mime_type' => 'video/mp4',
+                    'timestamp' => 1639168222,
+                    'type' => 'recording',
+                    'deleted' => false,
+                    'status' => 'finished',
+                    'progress' => 100,
+                    'path' => 's3://helplightning-bucket/attachment/2.mp4'
+                };
+
+                attachments.add(a1);
+                attachments.add(a2);
+
+                response.setHeader('Content-Type', 'application/json');
+                response.setBody(JSON.serialize(attachments));
+                response.setStatusCode(200);
+            } else if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/attachments/1/attachment.jpg')) {
+                // return a fake binary image
+                String base64Img = '/9j/4AAQSkZJRgABAQEBLAEsAAD//gATQ3JlYXRlZCB3aXRoIEdJTVD/4gKwSUNDX1BST0ZJTEUAAQEAAAKgbGNtcwQwAABtbnRyUkdCIFhZWiAH5QAMABUAFAA2AC1hY3NwQVBQTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA9tYAAQAAAADTLWxjbXMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA1kZXNjAAABIAAAAEBjcHJ0AAABYAAAADZ3dHB0AAABmAAAABRjaGFkAAABrAAAACxyWFlaAAAB2AAAABRiWFlaAAAB7AAAABRnWFlaAAACAAAAABRyVFJDAAACFAAAACBnVFJDAAACFAAAACBiVFJDAAACFAAAACBjaHJtAAACNAAAACRkbW5kAAACWAAAACRkbWRkAAACfAAAACRtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACQAAAAcAEcASQBNAFAAIABiAHUAaQBsAHQALQBpAG4AIABzAFIARwBCbWx1YwAAAAAAAAABAAAADGVuVVMAAAAaAAAAHABQAHUAYgBsAGkAYwAgAEQAbwBtAGEAaQBuAABYWVogAAAAAAAA9tYAAQAAAADTLXNmMzIAAAAAAAEMQgAABd7///MlAAAHkwAA/ZD///uh///9ogAAA9wAAMBuWFlaIAAAAAAAAG+gAAA49QAAA5BYWVogAAAAAAAAJJ8AAA+EAAC2xFhZWiAAAAAAAABilwAAt4cAABjZcGFyYQAAAAAAAwAAAAJmZgAA8qcAAA1ZAAAT0AAACltjaHJtAAAAAAADAAAAAKPXAABUfAAATM0AAJmaAAAmZwAAD1xtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAEcASQBNAFBtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEL/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wgARCAAEAAQDAREAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAABP/EABQBAQAAAAAAAAAAAAAAAAAAAAf/2gAMAwEAAhADEAAAAWHhz//EABcQAAMBAAAAAAAAAAAAAAAAAAIEBQb/2gAIAQEAAQUCy1ZoIX//xAAcEQAABgMAAAAAAAAAAAAAAAAAAQIDBVEGQmH/2gAIAQMBAT8BncqmFSLhm9WqaLg//8QAHhEAAQMEAwAAAAAAAAAAAAAAAQIDBAAFBkERElL/2gAIAQIBAT8BzmzwYWQyWGG+Ejrs+EnZr//EABsQAQAABwAAAAAAAAAAAAAAAAEAAwQhIkJS/9oACAEBAAY/AqYJtstTpj//xAAYEAACAwAAAAAAAAAAAAAAAAAAARExwf/aAAgBAQABPyGC8lcI/9oADAMBAAIAAwAAABA//8QAFREBAQAAAAAAAAAAAAAAAAAAACH/2gAIAQMBAT8QrJW//8QAGBEBAAMBAAAAAAAAAAAAAAAAAREhMQD/2gAIAQIBAT8QyDeSxLrR1W3v/8QAFxAAAwEAAAAAAAAAAAAAAAAAABFBMf/aAAgBAQABPxDATDNaf//Z';
+
+                // decode the base64 into binary and return as an octet-stream
+                Blob decoded = Encodingutil.base64Decode(base64Img);
+
+                response.setHeader('Content-Type', 'application/octet-stream');
+                response.setBodyAsBlob(decoded);
+                response.setStatusCode(200);
+            }
+
+            return response;
+        }
+    }
 
     @testSetup static void setup() {
         // create some data.
@@ -1485,6 +1561,38 @@ class SendOneTimeUseLinkMocker implements HttpCalloutMock {
             } catch (Exception e) {
                 System.assert(false, 'Caught incorrect exception');
             }
+        }
+
+        Test.stopTest();
+    }
+
+    /**
+     * Test saveAttachment
+     */
+    @isTest
+    static void testSaveAttachment() {
+        Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
+        User u = [SELECT Id from User WHERE UserName='test-user@helplightning.com' LIMIT 1];
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up a mock
+        Test.setMock(HttpCalloutMock.class, new AttachmentMocker());
+
+        System.runAs(u) {
+            helplightning.HLSessionController.saveAttachment('call-1234', caseId);
+
+            // verify an attachment was created
+            List<Attachment> attachments = [SELECT Name, ParentId, ContentType from Attachment];
+            System.assertEquals(1, attachments.size());
+
+            Attachment a1 = attachments.get(0);
+            System.assertEquals('screen_cap1.jpg', a1.Name);
         }
 
         Test.stopTest();

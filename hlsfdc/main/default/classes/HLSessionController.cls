@@ -264,37 +264,15 @@ public with sharing class HLSessionController {
                             update matchedCall;
 
                             if (HLConfiguration.getCreateEvents() && matchedCall.helplightning__Complete__c) {
-                                Event e = new Event();
-                                e.StartDateTime = matchedCall.helplightning__Start_Time__c;
-                                e.EndDateTime = matchedCall.helplightning__End_Time__c;
-                                e.Subject = 'Videochat';
-                                if (sObjectName == 'Case') {
-                                    Case c = getCase(recordId);
-                                    if (c != null) {
-                                        e.WhatId = c.Id;
-                                        e.WhoId = c.ContactId;
-                                    }
-                                } else if (sObjectName == 'WorkOrder') {
-                                    WorkOrder wo = getWorkOrder(recordId);
-                                    if (wo != null) {
-                                        e.WhatId = wo.Id;
-                                        e.WhoId = wo.ContactId;
-                                    }
-                                }
-
-                                String callId = matchedCall.helplightning__HLCall_Id__c;
-                                if (callId == null || callId.equals('')) {
-                                    e.Description = 'Call was unanswered';
-                                } else {
-                                    e.Description = 'https://app.helplightning.net/calls/' + callId;
-                                }
-
-                                upsert e;
+                                saveEvent(sObjectName, recordId,
+                                          matchedCall.helplightning__Start_Time__c,
+                                          matchedCall.helplightning__End_Time__c,
+                                          matchedCall.helplightning__HLCall_Id__c);
                             }
 
                             if (HLConfiguration.getSaveAttachments() && matchedCall.helplightning__Complete__c) {
-
                                 String callId = matchedCall.helplightning__HLCall_Id__c;
+
                                 if (callId == null || callId.equals('')) {
                                     // No matching call ID
                                 } else {
@@ -536,8 +514,37 @@ public with sharing class HLSessionController {
         return users.get(0);
     }
 
+    @future
+    private static void saveEvent(String sObjectName, String recordId, DateTime startTime, DateTime endTime, string callId) {
+        Event e = new Event();
+        e.StartDateTime = startTime;
+        e.EndDateTime = endTime;
+        e.Subject = 'Videochat';
+        if (sObjectName == 'Case') {
+            Case c = getCase(recordId);
+            if (c != null) {
+                e.WhatId = c.Id;
+                e.WhoId = c.ContactId;
+            }
+        } else if (sObjectName == 'WorkOrder') {
+            WorkOrder wo = getWorkOrder(recordId);
+            if (wo != null) {
+                e.WhatId = wo.Id;
+                e.WhoId = wo.ContactId;
+            }
+        }
+
+        if (callId == null || callId.equals('')) {
+            e.Description = 'Call was unanswered';
+        } else {
+            e.Description = 'https://app.helplightning.net/calls/' + callId;
+        }
+
+        upsert e;
+    }
+
     @future(callout = true)
-    public static void saveAttachment(String callId, String recordId) {
+    private static void saveAttachment(String callId, String recordId) {
         List<HLModelAttachment> attachments = helplightning.HLGaldrClient.getAttachments(callId);
 
         List<Attachment> toSave = new List<Attachment>();

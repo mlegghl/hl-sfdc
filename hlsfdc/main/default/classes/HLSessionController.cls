@@ -264,32 +264,22 @@ public with sharing class HLSessionController {
                             update matchedCall;
 
                             if (HLConfiguration.getCreateEvents() && matchedCall.helplightning__Complete__c) {
-                                Event e = new Event();
-                                e.StartDateTime = matchedCall.helplightning__Start_Time__c;
-                                e.EndDateTime = matchedCall.helplightning__End_Time__c;
-                                e.Subject = 'Videochat';
-                                if (sObjectName == 'Case') {
-                                    Case c = getCase(recordId);
-                                    if (c != null) {
-                                        e.WhatId = c.Id;
-                                        e.WhoId = c.ContactId;
-                                    }
-                                } else if (sObjectName == 'WorkOrder') {
-                                    WorkOrder wo = getWorkOrder(recordId);
-                                    if (wo != null) {
-                                        e.WhatId = wo.Id;
-                                        e.WhoId = wo.ContactId;
-                                    }
-                                }
+                                saveEvent(sObjectName, recordId,
+                                          matchedCall.helplightning__Start_Time__c,
+                                          matchedCall.helplightning__End_Time__c,
+                                          matchedCall.helplightning__HLCall_Id__c);
+                            }
 
+                            if (HLConfiguration.getSaveAttachments() && matchedCall.helplightning__Complete__c) {
                                 String callId = matchedCall.helplightning__HLCall_Id__c;
-                                if (callId == null || callId.equals('')) {
-                                    e.Description = 'Call was unanswered';
-                                } else {
-                                    e.Description = 'https://app.helplightning.net/calls/' + callId;
-                                }
 
-                                upsert e;
+                                if (callId == null || callId.equals('')) {
+                                    // No matching call ID
+                                } else {
+                                    // Save call attachments.
+                                    // Need to wrap this in a future call method to prevent race conditions and DML errors
+                                    saveAttachment(callId, recordId);
+                                }
                             }
                         } else {
                             System.debug('Insufficient Access for updatting helplightning__HLCall__c');
@@ -522,5 +512,61 @@ public with sharing class HLSessionController {
 
         // return the first item
         return users.get(0);
+    }
+
+    @future
+    private static void saveEvent(String sObjectName, String recordId, DateTime startTime, DateTime endTime, string callId) {
+        Event e = new Event();
+        e.StartDateTime = startTime;
+        e.EndDateTime = endTime;
+        e.Subject = 'Videochat';
+        if (sObjectName == 'Case') {
+            Case c = getCase(recordId);
+            if (c != null) {
+                e.WhatId = c.Id;
+                e.WhoId = c.ContactId;
+            }
+        } else if (sObjectName == 'WorkOrder') {
+            WorkOrder wo = getWorkOrder(recordId);
+            if (wo != null) {
+                e.WhatId = wo.Id;
+                e.WhoId = wo.ContactId;
+            }
+        }
+
+        if (callId == null || callId.equals('')) {
+            e.Description = 'Call was unanswered';
+        } else {
+            e.Description = 'https://app.helplightning.net/calls/' + callId;
+        }
+
+        upsert e;
+    }
+
+    @future(callout = true)
+    private static void saveAttachment(String callId, String recordId) {
+        List<HLModelAttachment> attachments = helplightning.HLGaldrClient.getAttachments(callId);
+
+        List<Attachment> toSave = new List<Attachment>();
+
+        // We can't save attachments while making call-outs
+        for (HLModelAttachment a: attachments) {
+            // Only save screencaps for now
+            if (a.mimeType == 'image/jpeg') {
+                // Get the attachment blob from the presigned url
+                Http h = new Http();
+                HttpRequest req = new HttpRequest();
+                req.setEndpoint(a.signedUrl);
+                req.setMethod('GET');
+                HttpResponse res = h.send(req);
+                Blob bd = res.getBodyAsBlob();
+                Attachment att = new Attachment(Name = a.fileName, Body = bd, ContentType = 'image/jpeg;charset=UTF-8', ParentId=recordId);
+                toSave.add(att);
+            }
+        }
+
+        for (Attachment a: toSave) {
+            insert a;
+        }
     }
 }

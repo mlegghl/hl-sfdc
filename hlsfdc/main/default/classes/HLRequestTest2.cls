@@ -69,7 +69,7 @@ private class HLRequestTest2 {
     @isTest
     static void testGetSuccess() {
         String token = 'fake-token';
-        String route = '/get-test';
+        String route = '/v1/get-test';
 
         // set up our mock
         Test.setMock(HttpCalloutMock.class, new HLRequestTest2Mocker());
@@ -83,7 +83,7 @@ private class HLRequestTest2 {
     @isTest
     static void testGetFailure() {
         String token = 'fake-token';
-        String route = '/get-test-failure';
+        String route = '/v1/get-test-failure';
 
         // set up our mock
         Test.setMock(HttpCalloutMock.class, new HLRequestTest2Mocker());
@@ -98,7 +98,7 @@ private class HLRequestTest2 {
     @isTest
     static void testGetWithParameters() {
         String token = 'fake-token';
-        String route = '/get-test-parameters';
+        String route = '/v1/get-test-parameters';
 
         // set up our mock
         Test.setMock(HttpCalloutMock.class, new HLRequestTest2Mocker());
@@ -119,7 +119,7 @@ private class HLRequestTest2 {
     @isTest
     static void testPostSuccess() {
         String token = 'fake-token';
-        String route = '/post-test';
+        String route = '/v1/post-test';
 
         // set up our mock
         Test.setMock(HttpCalloutMock.class, new HLRequestTest2Mocker());
@@ -140,7 +140,7 @@ private class HLRequestTest2 {
     @isTest
     static void testParmetersAreEncoded() {
         String token = 'fake-token';
-        String route = '/get-test-encoded-parameters';
+        String route = '/v1/get-test-encoded-parameters';
 
         // set up our mock
         Test.setMock(HttpCalloutMock.class, new HLRequestTest2Mocker());

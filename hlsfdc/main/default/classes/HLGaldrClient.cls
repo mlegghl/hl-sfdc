@@ -23,7 +23,7 @@ public class HLGaldrClient {
         params.put('include_token', true);
 
         helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
-                                                                      '/search');
+                                                                      '/v1/search');
         Object results = request.post(params);
 
         // deserialize
@@ -40,7 +40,7 @@ public class HLGaldrClient {
         params.put('filter', 'email=' + email);
 
         helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
-                                                                      '/enterprise/users');
+                                                                      '/v1/enterprise/users');
         Object results = request.get(params);
 
         // deserialize
@@ -54,7 +54,7 @@ public class HLGaldrClient {
      */
     public static List<helplightning.HLModelCall> getEnterpriseCall(String sessionId) {
         helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
-                                                                      '/enterprise/sessions/' + sessionId);
+                                                                      '/v1/enterprise/sessions/' + sessionId);
 
         Object results = request.get();
 
@@ -66,7 +66,7 @@ public class HLGaldrClient {
      */
     public static helplightning.HLModelCall getEnterpriseCallById(String sessionId, String callId) {
         helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
-                                                                      '/enterprise/calls/' + callId);
+                                                                      '/v1/enterprise/calls/' + callId);
         Object result = request.get();
 
         return HLModelCall.buildFromCall(result, sessionId);
@@ -79,7 +79,7 @@ public class HLGaldrClient {
      */
     public static HLModelAccount getInfo(String userToken) {
         helplightning.HLRequest request = new helplightning.HLRequest(userToken,
-                                                                      '/info');
+                                                                      '/v1/info');
         Object result = request.get();
 
         return HLModelAccount.build(userToken, result);
@@ -110,7 +110,7 @@ public class HLGaldrClient {
         sessionParams.put('contact_tokens', contactTokens);
 
         helplightning.HLRequest request = new helplightning.HLRequest(userToken,
-                                                                      '/sessions');
+                                                                      '/v1/sessions');
         Object result = request.post(sessionParams);
 
         return HLModelSession.build(result);
@@ -121,7 +121,7 @@ public class HLGaldrClient {
      */
     public static HLModelSession getSession(String userToken, String sessionId) {
         helplightning.HLRequest request = new helplightning.HLRequest(userToken,
-                                                                      '/sessions/' + sessionId);
+                                                                      '/v1/sessions/' + sessionId);
         Object result = request.get();
 
         return HLModelSession.build(result);
@@ -135,7 +135,7 @@ public class HLGaldrClient {
         videoParams.put('user_token', userToken);
 
         helplightning.HLRequest request = new helplightning.HLRequest(session.token,
-                                                                      '/session/video');
+                                                                      '/v1/session/video');
         Object results = request.post(videoParams);
 
         return HLModelVideoSession.build(results);
@@ -150,12 +150,24 @@ public class HLGaldrClient {
         params.put('message', message);
 
         helplightning.HLRequest request = new helplightning.HLRequest(userToken,
-                                                                      '/sessions/link/invite');
+                                                                      '/v1/sessions/link/invite');
         Object results = request.post(params);
 
         if (results == null)
             return false;
         else
             return true;
+    }
+
+    /**
+     * Get attachments for a call
+     */
+    public static List<helplightning.HLModelAttachment> getAttachments(String callId) {
+        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
+                                                                      '/v1r1/enterprise/calls/' + callId + '/attachments');
+        Object results = request.get();
+
+        // deserialize
+        return HLModelAttachment.buildMany(results);
     }
 }

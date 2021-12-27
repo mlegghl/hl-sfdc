@@ -2,9 +2,13 @@
 
     <aura:attribute name="hasErrors" type="Boolean" default="false" />
     <aura:attribute name="errorMessage" type="String" default="" />
+    <!-- due to the way salesforce renders child components, we need to hide tabs on parent load -->
+    <aura:attribute name="showTabs" type="Boolean" default="false"/>
     <aura:attribute name="contact" type="Contact"/>
     <aura:attribute name="calls" type="helplightning__HLCall__c[]"/>
     <aura:attribute name="contactIsHLUser" type="Boolean" default="false"/>
+    <aura:attribute name="recordId" type="String" default=""/>
+    <aura:attribute name="sObjectName" type="String" default=""/>
     <!-- our timer object used for polling for call changes -->
     <aura:attribute name="pollTimer" type="Object" />
     <!-- handle to the window we open for a call -->
@@ -15,33 +19,20 @@
 
     <!-- Help Lightning Component -->
     <article class="slds-card">
-        <!-- render our button header -->
-        <helplightning:hlButtonHeader showButtons="{!v.hasErrors == false}"
-                                      contactEmail="{!v.contact.Email}"
-                                      contactPhone="{!not(empty(v.contact.MobilePhone)) ? v.contact.MobilePhone : v.contact.Phone}"
-                                      disableCallButton="{!v.contactIsHLUser == false}"
-                                      onCallClick="{!c.clickCall}"
-                                      onInviteClick="{!c.clickSendOneTimeUseLink}" />
+        <!-- render our tabs-->
+        <aura:if isTrue="{!v.showTabs == true}">
+            <helplightning:hlTabs recordId="{!v.recordId}"
+                                sObjectName="{!v.sObjectName}"
+                                showButtons="{!v.hasErrors == false}"
+                                contactEmail="{!v.contact.Email}"
+                                defaultPhone="{!not(empty(v.contact.MobilePhone)) ? v.contact.MobilePhone : v.contact.Phone}"
+                                onCallClick="{!c.clickCall}"
+                                onInviteClick="{!c.clickSendOneTimeUseLink}" />
+        </aura:if>
 
         <div class="slds-card__body slds-card__body_inner">
-            <div class="slds-p-bottom_small">
-                <b>Use Help Lightning to make remote visual assistance calls.</b>
-            </div>
 
             <aura:if isTrue="{!v.hasErrors == false}">
-                <!-- show a warning about not being a help lightning user -->
-                <aura:if isTrue="{!v.contactIsHLUser == false}">
-                    <ul class="slds-list_horizontal">
-                        <li class="slds-m-right_small">
-                            <span class="slds-icon_container slds-icon-utility-info-alt" title="Warning">
-                                <lightning:icon class="slds-icon" iconName="utility:info_alt" size="small" variant="warning" />
-                            </span>
-                        </li>
-                        <li class="slds-m-right_large">
-                            <p>The associated Contact does not have a Help Lightning account. Click Send Invitation to send a link via email or SMS.</p>
-                        </li>
-                    </ul>
-                </aura:if>
 
                 <aura:if isTrue="{!v.calls.length > 0}">
                     <!-- Activity Timeline -->

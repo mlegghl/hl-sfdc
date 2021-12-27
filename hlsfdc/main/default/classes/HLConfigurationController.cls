@@ -11,6 +11,7 @@ public with sharing class HLConfigurationController {
 
     public Map<String,String> config { get; set; }
     public Boolean createEvents { get; set; }
+    public Boolean saveAttachments { get; set; }
 
     public HLConfigurationController() {
         config = new Map<String,String>();
@@ -36,6 +37,7 @@ public with sharing class HLConfigurationController {
         config.put('privateKey', privateKey);
 
         createEvents = hlConfig.helplightning__Create_Events__c;
+        saveAttachments = hlConfig.helplightning__Save_Attachments__c;
     }
 
     public PageReference save() {
@@ -64,6 +66,7 @@ public with sharing class HLConfigurationController {
         }
 
         hlConfig.helplightning__Create_Events__c = createEvents;
+        hlConfig.helplightning__Save_Attachments__c = saveAttachments;
 
         // save
         if (schema.SObjectType.helplightning__Help_Lightning_Config__c.isUpdateable() &&

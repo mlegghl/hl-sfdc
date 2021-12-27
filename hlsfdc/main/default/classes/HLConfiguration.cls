@@ -52,6 +52,14 @@ public with sharing class HLConfiguration {
     }
 
     /**
+     * Get whether or not we should save attachments from HL Calls
+     */
+    public static Boolean getSaveAttachments() {
+        helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getOrgDefaults();
+        return config.helplightning__Save_Attachments__c;
+    }
+
+    /**
      * Get the Help Lightning Login.
      * This can be overridden by each user.
      *

@@ -18,6 +18,10 @@
 
         <apex:outputText value="Create Calendar Events from Calls" />
         <apex:inputCheckbox value="{!createEvents}" />
+
+        <apex:outputText value="Save Screenhots from Calls" />
+        <apex:inputCheckbox value="{!saveAttachments}" />
+        
       </apex:pageBlockSection>
       <apex:pageBlockButtons>
         <apex:commandButton action="{!save}" value="Save" />

@@ -1,3 +1,10 @@
+2021-12-27  Micah Legg <micah.legg@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-62 - Web v3.0 Integration
+		+ SFDC-69 - Screenshot Integration
+		+ SFDC-66 - Help Tab
+		+ SFDC-65 - Contact List Tab
+		+ SFDC-63 - Tabs Interface
+
 2.3
 ==========
 2021-03-18  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>

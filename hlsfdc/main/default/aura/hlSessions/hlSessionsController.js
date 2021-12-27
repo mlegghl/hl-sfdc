@@ -37,6 +37,9 @@
             });
         });
 
+        // show tabs after parent has data
+        component.set("v.showTabs", true);
+
         window.addEventListener('message', (event) => {
             const message = event.data;
             if (message.type === 'CALL_CONNECTED') {
@@ -69,8 +72,7 @@
     clickCall : function(component, event, helper) {
         var sObjectName = component.get("v.sObjectName");
         var rId = component.get("v.recordId");
-        var contact = component.get("v.contact");
-        var email = contact.Email;
+        var email = event.getParam('email');
 
         var action = component.get("c.makeSessionWith");
         action.setParams({"otherUsersEmail": email});

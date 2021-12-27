@@ -1,4 +1,4 @@
-<aura:component implements="flexipage:availableForAllPageTypes">
+<aura:component>
     <!--
         Information on how to pass functions as events came from:
         https://salesforce.stackexchange.com/questions/144087/how-do-i-pass-a-function-as-a-lightning-component-attribute

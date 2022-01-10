@@ -95,7 +95,7 @@ public class HLGaldrClient {
         }
 
         helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
-                                                                      '/enterprise/users');
+                                                                      '/v1r1/enterprise/users');
         Object results = request.get(params);
 
         // deserialize

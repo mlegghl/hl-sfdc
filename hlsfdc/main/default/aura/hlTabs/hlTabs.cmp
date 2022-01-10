@@ -5,6 +5,7 @@
     -->
     <aura:attribute name="showButtons" type="Boolean" default="true" />
     <aura:attribute name="contactEmail" type="String" default="" />
+    <aura:attribute name="defaultEmail" type="String" default="" />
     <aura:attribute name="contactPhone" type="String" default="" />
     <aura:attribute name="defaultPhone" type="String" default="" />
     <aura:attribute name="inviteMessage" type="String" default="" />

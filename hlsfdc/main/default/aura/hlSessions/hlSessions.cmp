@@ -24,7 +24,7 @@
             <helplightning:hlTabs recordId="{!v.recordId}"
                                 sObjectName="{!v.sObjectName}"
                                 showButtons="{!v.hasErrors == false}"
-                                contactEmail="{!v.contact.Email}"
+                                defaultEmail="{!v.contact.Email || ''}"
                                 defaultPhone="{!not(empty(v.contact.MobilePhone)) ? v.contact.MobilePhone : v.contact.Phone}"
                                 onCallClick="{!c.clickCall}"
                                 onInviteClick="{!c.clickSendOneTimeUseLink}" />

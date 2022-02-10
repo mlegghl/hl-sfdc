@@ -19,6 +19,9 @@
 
             // get our record
             helper.getContactForRecord(component, helper, function(response) {
+                // show tabs after parent has checked for contact data
+                component.set("v.showTabs", true);
+
                 if (response === false) {
                     // no contact, stop here.
                     return;
@@ -34,11 +37,9 @@
                 //  begin polling if necessary.
                 helper.updateCalls(component, helper, function(response) {
                 });
+                
             });
         });
-
-        // show tabs after parent has data
-        component.set("v.showTabs", true);
 
         window.addEventListener('message', (event) => {
             const message = event.data;
@@ -103,11 +104,10 @@
         var rId = component.get("v.recordId");
 
         var contact = component.get("v.contact");
-        var contactEmail = contact.Email;
         var sendToEmail = event.getParam("email");
         var phone = event.getParam("phone");
         var message = event.getParam("message");
-        var contactName = contact.Name;
+        var contactName = contact && contact.Name || '';
 
         var action = component.get("c.sendOneTimeUseLink");
         action.setParams({"otherUsersName": contactName, "otherUsersEmail": sendToEmail, "otherUsersPhone": phone, message: message});
@@ -119,7 +119,7 @@
 
                 var userToken = r.token;
                 var name = r.name;
-                var email = sendToEmail || contactEmail;
+                var email = sendToEmail;
                 var username = r.username;
                 var sessionId = r.sessionId;
 

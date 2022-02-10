@@ -1,4 +1,5 @@
 2022-02-10  Micah Legg <micah.legg@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-72 - Contact list doesn't show contacts
 	* SFDC-71 - Remove valid email requirement for contact
 
 3.0

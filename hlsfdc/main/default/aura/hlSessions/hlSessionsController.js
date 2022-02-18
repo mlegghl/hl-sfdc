@@ -115,8 +115,16 @@
             var state = response.getState();
             if (component.isValid() && state == "SUCCESS") {
                 console.log("successfully invited to personal room");
-                var r = response.getReturnValue();
 
+                // show notification to user when helpspace link is sent
+                var toastEvent = $A.get("e.force:showToast");
+                toastEvent.setParams({
+                    "type": "success",
+                    "message": "Invite sent successfully."
+                });
+                toastEvent.fire();
+
+                var r = response.getReturnValue();
                 var userToken = r.token;
                 var name = r.name;
                 var email = sendToEmail;

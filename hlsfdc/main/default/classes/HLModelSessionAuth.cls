@@ -15,10 +15,12 @@ public class HLModelSessionAuth {
      */
     public HLModelSessionAuth(String userToken, String sessionId,
                               String userDisplayName,
+                              String userEmail,
                               helplightning.HLModelVideoSession sessionAuth) {
         this.userToken = userToken;
         this.sessionId = sessionId;
         this.userDisplayName = userDisplayName;
+        this.userEmail = userEmail;
         this.sessionAuth = sessionAuth;
     }
 
@@ -27,6 +29,7 @@ public class HLModelSessionAuth {
             'token' => userToken,
             'sessionId' => sessionId,
             'displayName' => userDisplayName,
+            'userEmail' => userEmail,
             'gssInfo' => sessionAuth.serialize()
         };
     }
@@ -34,5 +37,6 @@ public class HLModelSessionAuth {
     private String userToken;
     private string sessionId;
     private String userDisplayName;
+    private String userEmail;
     private helplightning.HLModelVideoSession sessionAuth;
 }

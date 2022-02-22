@@ -85,10 +85,11 @@
                 var userToken = r.token;
                 var sessionId = r.sessionId;
                 var name = encodeURIComponent(r.displayName);
+                var myUserEmail = encodeURIComponent(r.userEmail);
                 var gssToken = r.gssInfo.token;
                 var gssUrl = r.gssInfo.serverWSURL;
 
-                var url = 'https://helplightning.net/webCall?displayName=' + name + '&nameOrEmail=' + encodeURIComponent(email) + '&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
+                var url = 'https://helplightning.net/webCall?displayName=' + name + '&nameOrEmail=' + myUserEmail + '&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
 
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId, email, sessionId, false, url);

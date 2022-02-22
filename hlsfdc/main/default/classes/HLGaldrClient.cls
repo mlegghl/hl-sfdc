@@ -90,6 +90,7 @@ public class HLGaldrClient {
      */
     public static List<helplightning.HLModelEnterpriseUser> searchContacts(String searchTerm) {
         Map<String,String> params = new Map<String,String>();
+        params.put('order', 'name');
         if (!String.isEmpty(searchTerm)) {
             params.put('filter', 'name~=' + '%' + searchTerm + '%');
         }

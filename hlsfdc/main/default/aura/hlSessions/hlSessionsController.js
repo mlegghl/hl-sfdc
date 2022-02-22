@@ -89,7 +89,7 @@
                 var gssToken = r.gssInfo.token;
                 var gssUrl = r.gssInfo.serverWSURL;
 
-                var url = 'https://beta.helplightning.net/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
+                var url = 'https://helplightning.net/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
 
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId, email, sessionId, false, url);

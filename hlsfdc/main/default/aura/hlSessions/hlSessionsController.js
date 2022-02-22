@@ -90,8 +90,6 @@
 
                 var url = 'https://helplightning.net/webCall?displayName=' + name + '&nameOrEmail=' + encodeURIComponent(email) + '&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
 
-                console.log(url);
-
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId, email, sessionId, false, url);
             } else {

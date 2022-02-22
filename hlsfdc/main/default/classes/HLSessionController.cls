@@ -397,7 +397,7 @@ public with sharing class HLSessionController {
             // build a model
             helplightning.HLModelSessionAuth sessionAuth = new
                 helplightning.HLModelSessionAuth(us.authToken, sessionId,
-                                                 UserInfo.getName(), videoSession);
+                                                 UserInfo.getName(), us.username, videoSession);
 
             return sessionAuth.serialize();
         } catch (helplightning.HLConfigurationException e) {

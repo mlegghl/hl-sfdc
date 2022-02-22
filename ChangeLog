@@ -1,4 +1,5 @@
 2022-02-22  Micah Legg <micah.legg@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-76 - Pass in nameOrEmail when opening a help lightning call
 	* SFDC-75 - Add success message on invite
 	* SFDC-74 - Sort contact list alphanumeric
 

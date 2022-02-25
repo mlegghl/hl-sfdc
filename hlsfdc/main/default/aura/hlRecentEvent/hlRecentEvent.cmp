@@ -37,7 +37,12 @@
                         <ul class="slds-list_horizontal">
                             <li class="slds-truncate_container_50 slds-m-right_large slds-grid">
                                 <span class="slds-text-title">With:</span>
-                                <span class="slds-text-body_small slds-m-left_xx-small slds-truncate" title="{!v.item.helplightning__Contact_Email__c}">{!v.item.helplightning__Contact_Email__c}</span>
+                                <aura:if isTrue="{!not(empty(v.item.helplightning__Contact_Email__c))}">
+                                    <span class="slds-text-body_small slds-m-left_xx-small slds-truncate" title="{!v.item.helplightning__Contact_Email__c}">{!v.item.helplightning__Contact_Email__c}</span>
+                                    <aura:set attribute="else">
+                                        <span class="slds-text-body_small slds-m-left_xx-small slds-truncate" title="{!v.item.helplightning__Contact_Phone__c}">{!v.item.helplightning__Contact_Phone__c}</span>
+                                    </aura:set>
+                                </aura:if> 
                             </li>
                             <li class="slds-m-right_large">
                                 <span class="slds-text-title">Status:</span>

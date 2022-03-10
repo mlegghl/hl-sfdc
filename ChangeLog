@@ -1,3 +1,5 @@
+3.3
+==========
 2022-03-10  Micah Legg <micah.legg@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
 	* SFDC-79 - Support phone only in invite
 	* SFDC-78 - Fix 'screenshot' typo in configuration

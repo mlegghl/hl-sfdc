@@ -5,6 +5,7 @@
     <columns>Case__c</columns>
     <columns>Work_Order__c</columns>
     <columns>Contact_Email__c</columns>
+    <columns>Contact_Phone__c</columns>
     <columns>Duration__c</columns>
     <columns>Successful__c</columns>
     <filterScope>Everything</filterScope>

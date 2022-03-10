@@ -92,7 +92,7 @@
                 var url = 'https://helplightning.net/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
 
                 // create a new HLCall
-                helper.createNewCall(component, helper, sObjectName, rId, email, sessionId, false, url);
+                helper.createNewCall(component, helper, sObjectName, rId, email, null, sessionId, false, url);
             } else {
                 console.log("HL::makeSessionWith response failed: " + state);
             }
@@ -135,7 +135,7 @@
                 var url = 'https://helplightning.net/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&mode=autoAccept';
 
                 // create a new HLCall
-                helper.createNewCall(component, helper, sObjectName, rId, email, sessionId, true, url);
+                helper.createNewCall(component, helper, sObjectName, rId, email, phone, sessionId, true, url);
             } else {
                 console.log("HL::sendOneTimeUseLink response failed: " + state);
             }

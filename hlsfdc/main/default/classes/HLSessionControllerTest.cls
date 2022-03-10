@@ -867,6 +867,7 @@ private class HLSessionControllerTest {
                                                    helplightning__Start_Time__c = DateTime.newInstanceGMT(2017, 6, 28, 11, 30, 0),
                                                    helplightning__Duration__c = 60,
                                                    helplightning__Contact_Email__c = 'contact1@helplightning.com',
+                                                   helplightning__Contact_Phone__c = '555-555-5555',
                                                    helplightning__Type__c = 'Direct',
                                                    helplightning__Case__c = case1.Id));
             calls.add(new helplightning__HLCall__c(helplightning__Session_Id__c = 'wwxxyyzz',
@@ -876,6 +877,7 @@ private class HLSessionControllerTest {
                                                    helplightning__Start_Time__c = DateTime.newInstanceGMT(2017, 6, 28, 11, 36, 0),
                                                    helplightning__Duration__c = 0,
                                                    helplightning__Contact_Email__c = 'contact1@helplightning.com',
+                                                   helplightning__Contact_Phone__c = '555-555-5555',
                                                    helplightning__Type__c = 'Direct',
                                                    helplightning__Case__c = case1.Id));
             // add some calls to the work order
@@ -886,6 +888,7 @@ private class HLSessionControllerTest {
                                                    helplightning__Start_Time__c = DateTime.newInstanceGMT(2017, 6, 24, 14, 55, 0),
                                                    helplightning__Duration__c = 0,
                                                    helplightning__Contact_Email__c = 'contact2@helplightning.com',
+                                                   helplightning__Contact_Phone__c = '555-555-5555',
                                                    helplightning__Type__c = 'Direct',
                                                    helplightning__Work_Order__c = workOrder.Id));
             calls.add(new helplightning__HLCall__c(helplightning__Session_Id__c = 'jjkkllmmn',
@@ -895,6 +898,7 @@ private class HLSessionControllerTest {
                                                    helplightning__Start_Time__c = DateTime.newInstanceGMT(2016, 6, 24, 14, 55, 0),
                                                    helplightning__Duration__c = 0,
                                                    helplightning__Contact_Email__c = 'contact2@helplightning.com',
+                                                   helplightning__Contact_Phone__c = '555-555-5555',
                                                    helplightning__Type__c = 'Direct',
                                                    helplightning__Work_Order__c = workOrder.Id));
             insert calls;

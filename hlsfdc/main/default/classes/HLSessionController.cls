@@ -105,6 +105,7 @@ public with sharing class HLSessionController {
                             helplightning__Session_Id__c,
                             helplightning__HLCall_Id__c,
                             helplightning__Contact_Email__c,
+                            helplightning__Contact_Phone__c,
                             helplightning__Complete__c,
                             helplightning__Successful__c,
                             helplightning__Start_Time__c,
@@ -124,6 +125,7 @@ public with sharing class HLSessionController {
                             helplightning__Session_Id__c,
                             helplightning__HLCall_Id__c,
                             helplightning__Contact_Email__c,
+                            helplightning__Contact_Phone__c,
                             helplightning__Complete__c,
                             helplightning__Successful__c,
                             helplightning__Start_Time__c,
@@ -194,6 +196,7 @@ public with sharing class HLSessionController {
                              helplightning__Session_Id__c,
                              helplightning__HLCall_Id__c,
                              helplightning__Contact_Email__c,
+                             helplightning__Contact_Phone__c,
                              helplightning__Start_Time__c
                              FROM helplightning__HLCall__c
                              WHERE helplightning__Case__c = :recordId
@@ -208,6 +211,7 @@ public with sharing class HLSessionController {
                              helplightning__Session_Id__c,
                              helplightning__HLCall_Id__c,
                              helplightning__Contact_Email__c,
+                             helplightning__Contact_Phone__c,
                              helplightning__Start_Time__c
                              FROM helplightning__HLCall__c
                              WHERE helplightning__Work_Order__c = :recordId
@@ -480,6 +484,7 @@ public with sharing class HLSessionController {
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Session_Id__c.isAccessible() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__HLCall_Id__c.isAccessible() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Contact_Email__c.isAccessible() &&
+                Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Contact_Phone__c.isAccessible() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Complete__c.isAccessible() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Successful__c.isAccessible() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Start_Time__c.isAccessible() &&

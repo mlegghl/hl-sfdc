@@ -63,7 +63,7 @@
                 </fieldset>
             </div>
         </lightning:tab>
-        <lightning:tab label="Contacts">
+        <lightning:tab label="Directory">
             <c:hlContacts recordId="{!v.recordId}" sObjectName="{!v.sObjectName}" style="width:20px" oncallcontact="{!c.clickCall}"></c:hlContacts>
         </lightning:tab>
         <lightning:tab label="Help">

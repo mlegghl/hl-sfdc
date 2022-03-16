@@ -1,11 +1,21 @@
 {
-  "packageDirectories": [
-    {
-      "path": "hlsfdc",
-      "default": true
+    "packageDirectories": [
+        {
+            "path": "hlsfdc",
+            "default": true,
+            "package": "Help Lightning",
+            "versionName": "3.4",
+            "versionNumber": "3.4.0.1"
+        }
+    ],
+    "name": "helplightning",
+    "namespace": "helplightning",
+    "sfdcLoginUrl": "https://login.salesforce.com",
+    "sourceApiVersion": "45.0",
+    "packageAliases": {
+        "Help Lightning": "0Ho8X000000k9bSSAQ",
+        "Help Lightning@3.3.0-0": "04t8X000000sxwmQAA",
+        "Help Lightning@3.3.0-1": "04t8X000000sxwrQAA",
+        "Help Lightning@3.3.0-3": "04t8X000000sxwwQAA"
     }
-  ],
-  "namespace": "helplightning",
-  "sfdcLoginUrl": "https://login.salesforce.com",
-  "sourceApiVersion": "45.0"
 }

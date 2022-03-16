@@ -1,3 +1,5 @@
+3.4
+==========
 2022-03-16  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
 	* SFDC-80 - Fix unit tests that require permset to be assigned
 

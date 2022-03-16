@@ -1098,20 +1098,33 @@ private class HLSessionControllerTest {
      */
     @isTest
     static void testGetCallsForRecordCase() {
-        Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
-        Id invalidId = [SELECT Id from WorkOrder WHERE Subject = 'Work Order 1' LIMIT 1].Id;
+        User u = [SELECT Id from User WHERE UserName='test-user@helplightning.com' LIMIT 1];
 
-        List<helplightning__HLCall__c> calls = helplightning.HLSessionController.getCallsForRecord('case', caseId);
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
 
-        System.assertEquals(2, calls.size());
+        System.RunAs(u) {
+            Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
+            Id invalidId = [SELECT Id from WorkOrder WHERE Subject = 'Work Order 1' LIMIT 1].Id;
 
-        // test for an invalid Id
-        calls = helplightning.HLSessionController.getCallsForRecord('case', invalidId);
-        System.assertEquals(0, calls.size());
+            List<helplightning__HLCall__c> calls = helplightning.HLSessionController.getCallsForRecord('case', caseId);
 
-        // null Id
-        calls = helplightning.HLSessionController.getCallsForRecord('case', null);
-        System.assertEquals(0, calls.size());
+            System.assertEquals(2, calls.size());
+
+            // test for an invalid Id
+            calls = helplightning.HLSessionController.getCallsForRecord('case', invalidId);
+            System.assertEquals(0, calls.size());
+
+            // null Id
+            calls = helplightning.HLSessionController.getCallsForRecord('case', null);
+            System.assertEquals(0, calls.size());
+        }
+
+        Test.stopTest();
     }
 
     /**
@@ -1119,20 +1132,33 @@ private class HLSessionControllerTest {
      */
     @isTest
     static void testGetCallsForRecordWorkOrder() {
-        Id workOrderId = [SELECT Id from WorkOrder WHERE Subject = 'Work Order 1' LIMIT 1].Id;
-        Id invalidId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
+        User u = [SELECT Id from User WHERE UserName='test-user@helplightning.com' LIMIT 1];
 
-        List<helplightning__HLCall__c> calls = helplightning.HLSessionController.getCallsForRecord('WorkOrder', workOrderId);
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
 
-        System.assertEquals(calls.size(), 2);
+        System.RunAs(u) {
+            Id workOrderId = [SELECT Id from WorkOrder WHERE Subject = 'Work Order 1' LIMIT 1].Id;
+            Id invalidId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
 
-        // test for an invalid Id
-        calls = helplightning.HLSessionController.getCallsForRecord('WorkOrder', invalidId);
-        System.assertEquals(calls.size(), 0);
+            List<helplightning__HLCall__c> calls = helplightning.HLSessionController.getCallsForRecord('WorkOrder', workOrderId);
 
-        // null Id
-        calls = helplightning.HLSessionController.getCallsForRecord('WorkOrder', null);
-        System.assertEquals(calls.size(), 0);
+            System.assertEquals(calls.size(), 2);
+
+            // test for an invalid Id
+            calls = helplightning.HLSessionController.getCallsForRecord('WorkOrder', invalidId);
+            System.assertEquals(calls.size(), 0);
+
+            // null Id
+            calls = helplightning.HLSessionController.getCallsForRecord('WorkOrder', null);
+            System.assertEquals(calls.size(), 0);
+        }
+
+        Test.stopTest();
     }
 
     /**

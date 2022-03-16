@@ -109,45 +109,29 @@ tests. You can run all the tests using the following command:
 
 ## Making a Release
 
-*Warning: All of this is tied to Marcus Dillavou's Salesforce Development environment*
+We are now using the Second-Generation Package Management. You need to
+make sure your account in our DevHUB (ISV) account has the `Package
+Manager` role!
 
-In sfdx, make sure you have added an org named `Standard`. This org
-must be a developer org, part of our ISV, AND have the `helplightning`
-namespace registered. Currently, this is only Marcus Dillavou's
-development org, as I am not sure how to make others!
+### Background
 
-The first step is to push all the resources to the `Standard`
-development org. Since the development org isn't a DX org, we have to
-use the special `./scripts/push-to-standard` script.
+- [Basic Workflow for Second Generation
+  Packages](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_dev2gp_workflow.htm)
+- [Details on Generating a
+  Package](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_dev2gp_create_pkg_base.htm)
+- [Promoting a Package to the App Store](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_dev2gp_create_pkg_ver_promote.htm)
 
-1. ./scripts/push-to-standard
-1. Log into the `Standard` org
-1. Go to Setup > Package Manager
-1. Select the `Help Lightning` package
-1. Under the `Components` tab, click `Add`. Make sure all of our components have been added. This includes: *Warning: Once you add these and release a managed package, you can never remove them!*
-   1. Apex Classes
-   1. Lightning Pages
-   1. Custom Object
-   1. Custom Field
-   1. Custom Setting
-   1. Permission Set
-   1. Aura Component Bundle
-   1. Visualforce Page
-   1. Remote Site
-1. Click `Upload`
-1. Enter the `Version Name` and `Version Number`. We use our version number for both, i.e.: `2.0`
-1. Select `Managed - Released` as the `Release Type`
-1. For `Release Notes` leave it as `None`
-1. For `Post Install Instruction` change it to `Visualforce Page` and select `HelpLightningSetup [helplightning__HelpLightningSetup]`
-1. For `Description` leave it empty
-1. Leave everything else alone, and choose `Upload`
+1. Update the ChangeLog
+2. Update the sfdx-project.json. Make sure the `versionName` matches
+   the ChangeLog. The `versionNumber` should be `$versionName.0.1`
+   (They last number can be incremented only if you need to make a new
+   build _without_ making any code changes!
+   
+Make sure this is committed and tagged!
 
-(I have had some issues with HLRequestTest2 failing and causing issues
-during the upload. Therefore, you may want to make sure it is removed
-from the `Components` tab before uploading.)
-
-Once the upload is complete, it is possible to push this to the app
-store. However, at this time, we are typically just getting the
-`Installation URL` from the package and directly giving that to
-customers.
+1. Create a new version: `sfdx force:package:version:create -c --package "Help Lightning" --installationkeybypass --definitionfile config/project-scratch-def.json -v ISV --wait 10`
+1. A URL will be generated. You can test this in another Salesforce environment (not the ISV environment!). This can also be given to customers for testing!
+1. Run a report to verify things (Note the `-` between the version and patch) `sfdx force:package:version:report --package "Help Lightning@3.4.0-1" -v ISV`
+1. Promote the package. This makes it available to be submitted to the App Store `sfdx force:package:version:promote --package "Help Lightning@3.4.0-1" -v ISV`
+1. If you forget the URL, you can use the `Subscriber Package Version Id` from the report, and append it to `https://login.salesforce.com/packaging/installPackage.apexp?p0=04t8X000000sxx1QAA`
 

@@ -4,3 +4,4 @@
 .sfdx
 .forceignore
 **jsconfig.json
+.sf

@@ -552,26 +552,41 @@ public with sharing class HLSessionController {
     private static void saveAttachment(String callId, String recordId) {
         List<HLModelAttachment> attachments = helplightning.HLGaldrClient.getAttachments(callId);
 
-        List<Attachment> toSave = new List<Attachment>();
+        List<ContentVersion> toSave = new List<ContentVersion>();
 
         // We can't save attachments while making call-outs
         for (HLModelAttachment a: attachments) {
             // Only save screencaps for now
             if (a.mimeType == 'image/jpeg') {
-                // Get the attachment blob from the presigned url
-                Http h = new Http();
-                HttpRequest req = new HttpRequest();
-                req.setEndpoint(a.signedUrl);
-                req.setMethod('GET');
-                HttpResponse res = h.send(req);
-                Blob bd = res.getBodyAsBlob();
-                Attachment att = new Attachment(Name = a.fileName, Body = bd, ContentType = 'image/jpeg;charset=UTF-8', ParentId=recordId);
-                toSave.add(att);
+              // Get the file from signed URL
+              Http h = new Http();
+              HttpRequest req = new HttpRequest();
+              req.setEndpoint(a.signedUrl);
+              req.setMethod('GET');
+              HttpResponse res = h.send(req);
+              Blob bd = res.getBodyAsBlob();
+              // Create a new ContentVersion object
+              ContentVersion conVer = new ContentVersion();
+              conVer.ContentLocation = 'S'; // to use S specify this document is in Salesforce, to use E for external files
+              conVer.PathOnClient = a.fileName + '.jpg';
+              conVer.Title = a.fileName; // Display name of the files
+              conVer.VersionData = bd;
+              toSave.add(conVer);
             }
         }
 
-        for (Attachment a: toSave) {
+        for (ContentVersion a: toSave) {
             insert a;
+            Id conDoc = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:a.Id].ContentDocumentId;
+            ContentDocumentLink conDocLink = New ContentDocumentLink();
+            conDocLink.LinkedEntityId = recordId;
+            conDocLink.ContentDocumentId = conDoc;
+            // Specify the share type
+            // V = Viewer permission. The user can explicitly view but not edit the shared file.
+            // C = Collaborator permission. The user can explicitly view and edit the shared file.
+            // I = Inferred permission. The user’s permission is determined by the related record. 
+            conDocLink.shareType = 'I';
+            insert conDocLink;
         }
     }
 }

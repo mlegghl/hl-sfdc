@@ -370,6 +370,38 @@ public with sharing class HLSessionController {
         }
     }
 
+    @AuraEnabled
+    public static Integer getWorkboxId(string callId, Id hlCallId) {
+        try {
+            // getting the session id might be unnessesary. 
+            // likely we could just use the callId in this case, remove later if it works
+            String sessionId;
+            Integer workboxId = 0;
+            helplightning__HLCall__c[] call;
+
+            call = [SELECT Id, helplightning__Session_Id__c
+                    FROM helplightning__HLCall__c
+                    WHERE Id = :hlCallId];
+
+            if (call.size() > 0) {
+                sessionId = call[0].helplightning__Session_Id__c;
+            }
+
+            System.debug('sessionId: ' + sessionId);
+            System.Debug('callId: ' + callId);
+
+            helplightning.HLModelCall callDetails = helplightning.HLGaldrClient.getEnterpriseCallById(sessionId, callId);
+            System.debug('Call details' + callDetails);
+            workboxId = callDetails.workboxId;
+            System.debug('workboxId: ' + workboxId);
+
+            return workboxId;
+
+        } catch (helplightning.HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
+        }
+    }
+
     /**
      * Create an HL session between us and another
      *  user actually using sessions.

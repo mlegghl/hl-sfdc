@@ -72,6 +72,30 @@ public class HLGaldrClient {
         return HLModelCall.buildFromCall(result, sessionId);
     }
 
+    /**
+     * Get the details of a workbox
+     */
+    public static helplightning.HLModelWorkboxDetails getWorkboxDetails(String userToken, Integer ticketId) {
+        Map<String,Integer> params = new Map<String,Integer>();
+        params.put('ticketId', ticketId);
+        helplightning.HLRequest request = new helplightning.HLRequest(userToken,
+                                                                      '/fieldbit/ticket/getTicket');
+        Object result = request.post(params);
+
+        return HLModelWorkboxDetails.build(result);
+    }
+
+    /**
+     * Get the ticket id from galdr workbox id
+     */
+    public static helplightning.HLModelWorkboxInfo getTicketId(Integer workboxId) {
+        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
+                                                                      '/v1/enterprise/workboxes/' + workboxId);
+        Object result = request.get();
+
+        return HLModelWorkboxInfo.build(result);
+    }
+
     /** User Methods **/
 
     /**

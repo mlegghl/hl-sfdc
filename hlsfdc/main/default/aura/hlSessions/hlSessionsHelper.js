@@ -92,6 +92,32 @@
     },
 
     /**
+     * Check if a call has an associated workbox
+     */
+    checkForWorkbox : function(component, callId, hlCallId) {
+        var action = component.get("c.getWorkboxId");
+        action.setParams({"callId": callId, "hlCallId": hlCallId});
+        action.setCallback(this, function(response) {
+            var result = false;
+            var state = response.getState();
+            if (component.isValid() && state == "SUCCESS") {
+                result = response.getReturnValue();
+                if (result !== null && result !== undefined && result !== '') {
+                    component.set("v.workboxId", result);
+                    component.set("v.isModalOpen", true);
+                }
+            } else if (component.isValid && state == "ERROR") {
+                helper.setErrors(component, "isHLUser", response);
+            }
+
+            // execute our callback
+            callback(result);
+        });
+
+        $A.enqueueAction(action);
+    },
+
+    /**
      * Check if an email of a contact is a registered
      *  help lightning user.
      */

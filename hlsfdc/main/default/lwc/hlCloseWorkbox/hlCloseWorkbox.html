@@ -1,0 +1,13 @@
+<template>
+  <lightning-modal-header label="Workbox Details"></lightning-modal-header>
+  <lightning-modal-body> 
+    Workbox ID: {workboxId} 
+    <template lwc:if={data}>
+      hey! we have data
+      {data}
+    </template>
+  </lightning-modal-body>
+  <lightning-modal-footer>
+      <lightning-button label="OK" onclick={handleOkay}></lightning-button>
+  </lightning-modal-footer>
+</template>

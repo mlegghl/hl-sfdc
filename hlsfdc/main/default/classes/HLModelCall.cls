@@ -15,7 +15,7 @@ public class HLModelCall {
                        DateTime startTime, DateTime endTime,
                        Boolean complete, Decimal duration, Boolean successful,
                        helplightning.HLModelCallUser dialer,
-                       helplightning.HLModelCallUser receiver) {
+                       helplightning.HLModelCallUser receiver, Integer workboxId) {
         this.sessionId = sessionId;
         this.callId = callId;
         this.startTime = startTime;
@@ -25,6 +25,7 @@ public class HLModelCall {
         this.successful = successful;
         this.dialer = dialer;
         this.receiver = receiver;
+        this.workboxId = workboxId;
     }
 
     /**
@@ -51,7 +52,8 @@ public class HLModelCall {
                                (Decimal)s.get('duration'),
                                (Boolean)s.get('successful'),
                                helplightning.HLModelCallUser.build(s.get('dialer')),
-                               helplightning.HLModelCallUser.build(s.get('receiver'))
+                               helplightning.HLModelCallUser.build(s.get('receiver')),
+                               (Integer)s.get('workbox_id')
                                );
     }
 
@@ -69,9 +71,10 @@ public class HLModelCall {
         if (call == null) {
             return null;
         }
-
+        
         String startTimeString = (String)call.get('timeCallStarted');
         String endTimeString = (String)call.get('timeCallEnded');
+        Integer workboxId = (Integer)call.get('workbox_id');
 
         if (String.isEmpty(startTimeString) || String.isEmpty(endTimeString)) {
             return null;
@@ -100,7 +103,8 @@ public class HLModelCall {
                                (Decimal)call.get('callDuration'),
                                successful,
                                helplightning.HLModelCallUser.build(call.get('dialer')),
-                               helplightning.HLModelCallUser.build(call.get('receiver'))
+                               helplightning.HLModelCallUser.build(call.get('receiver')),
+                               workboxId
                                );
     }
 
@@ -128,4 +132,6 @@ public class HLModelCall {
     public Boolean successful;
     public helplightning.HLModelCallUser dialer;
     public helplightning.HLModelCallUser receiver;
+    @auraEnabled
+    public Integer workboxId = 0;
 }

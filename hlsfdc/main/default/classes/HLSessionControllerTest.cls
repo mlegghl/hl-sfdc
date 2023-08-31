@@ -1831,10 +1831,9 @@ private class HLSessionControllerTest {
         //  is a future, which means it runs asynchronously, and won't be guaranteed
         //  to complete until the stopTest is called.
         // https://developer.salesforce.com/docs/atlas.en-us.234.0.apexcode.meta/apexcode/apex_invoking_future_methods.htm
-        List<Attachment> attachments = [SELECT Name, ParentId, ContentType from Attachment];
-        System.assertEquals(1, attachments.size());
-
-        Attachment a1 = attachments.get(0);
-        System.assertEquals('screen_cap1.jpg', a1.Name);
+        
+        // Verify that the ContentVersion was created
+        List<ContentVersion> contentVersions = [SELECT Id FROM ContentVersion];
+        System.assertEquals(1, contentVersions.size());
     }
 }

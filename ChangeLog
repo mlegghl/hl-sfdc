@@ -1,3 +1,6 @@
+2023-08-31  Micah Legg <micah.legg@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-85 - Store screenshots as "Files" instead of "Attachments" in the Case/Work Order record
+
 3.4
 ==========
 2022-03-16  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>

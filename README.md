@@ -8,8 +8,8 @@ with the corresponding Case or WorkOrder.
 
 ## Setting up a Scratch Environment
 
-To do anything, you must first install the sfdx tools:
-https://developer.salesforce.com/tools/sfdxcli
+To do anything, you must first install the sf clitools:
+https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_release_notes.htm
 
 For development, we use a Salesforce DX environment to create
 temporary scratch environments. First, have an administrator create an
@@ -17,7 +17,7 @@ account in our `ISV` org: `helplightning@isvedition.org`. Once you
 have an account, connect it using the sfdx command. You need to alias
 it as `ISV`.
 
-`sfdx force:auth:web:login -a ISV -d`
+`sf org login web -a ISV -d`
 
 This will open your web browser and you can log into the ISV
 salesforce org. Once authenticated, you can begin creating development
@@ -89,7 +89,7 @@ To develop on the code, using your favorite editor (emacs), make changes
 locally, save them, then push them to your scratch environment using
 the following command:
 
-`sfdx force:source:push -u SCRATCH_ENV_NAME`
+`sf project deploy start --target-org SCRATCH_ENV_NAME`
 
 Then reload your web browser. *Sometimes you have to reload multiple
 times for your changes to take effect! During development, I often put
@@ -105,7 +105,7 @@ Salesforce also requires 90+% code coverage, or you cannot distribute
 your package. Please make sure all new apex code has valid unit
 tests. You can run all the tests using the following command:
 
-`sfdx force:apex:test:run -u SCRATCH_ENV_NAME -c -r human --wait 10`
+`sf apex run test --target-org SCRATCH_ENV_NAME -c -r human --wait 10`
 
 ## Making a Release
 
@@ -129,9 +129,9 @@ Manager` role!
    
 Make sure this is committed and tagged!
 
-1. Create a new version: `sfdx package:version:create -c --package "Help Lightning" --installation-key-bypass --definition-file config/project-scratch-def.json -v ISV --wait 10`
+1. Create a new version: `sf package version create -c --package "Help Lightning" --installation-key-bypass --definition-file config/project-scratch-def.json -v ISV --wait 10`
 1. A URL will be generated. You can test this in another Salesforce environment (not the ISV environment!). This can also be given to customers for testing!
-1. Run a report to verify things (Note the `-` between the version and patch) `sfdx force:package:version:report --package "Help Lightning@3.4.0-1" -v ISV`
-1. Promote the package. This makes it available to be submitted to the App Store `sfdx force:package:version:promote --package "Help Lightning@3.4.0-1" -v ISV`
+1. Run a report to verify things (Note the `-` between the version and patch) `sf force package version report --package "Help Lightning@3.4.0-1" -v ISV`
+1. Promote the package. This makes it available to be submitted to the App Store `sf force package version promote --package "Help Lightning@3.4.0-1" -v ISV`
 1. If you forget the URL, you can use the `Subscriber Package Version Id` from the report, and append it to `https://login.salesforce.com/packaging/installPackage.apexp?p0=04t8X000000sxx1QAA`
 

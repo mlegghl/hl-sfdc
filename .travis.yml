@@ -2,7 +2,9 @@ sudo: true
 cache: false
 dist: jammy
 language: node_js
-
+node_js:
+  - 18.17
+  
 # More information on how this was set up, can be found
 #  by following the Sales force Trailhead module:
 #  Continuous Integration Using Salesforce DX

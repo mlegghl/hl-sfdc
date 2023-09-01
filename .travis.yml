@@ -1,6 +1,6 @@
 sudo: true
 cache: false
-dist: trusy
+dist: jammy
 
 # More information on how this was set up, can be found
 #  by following the Sales force Trailhead module:
@@ -19,9 +19,7 @@ before_install:
   - export SFDX_USE_GENERIC_UNIX_KEYCHAIN=true
   - export SFDX_DOMAIN_RETRY=300
   - export SF_DISABLE_TELEMETRY=true
-  - mkdir sf
-  - wget -qO- $URL | tar xJf - --strip-components=1 -C ./sf/
-  - export PATH=$(pwd)/sf/bin:$PATH
+  - npm install @salesforce/cli --global
   - sf update
   - sf --version
   - sf plugins --core

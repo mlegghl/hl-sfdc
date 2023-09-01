@@ -1,6 +1,7 @@
 sudo: true
 cache: false
 dist: jammy
+language: node_js
 
 # More information on how this was set up, can be found
 #  by following the Sales force Trailhead module:
@@ -23,7 +24,6 @@ before_install:
   - sf update
   - sf --version
   - sf plugins --core
-  - cat assets/server.key
   - sf auth jwt grant --client-id "$HLSFDC_CONSUMERKEY" --jwt-key-file assets/server.key --username "$HLSFDC_USERNAME" --set-default-dev-hub -a HubOrg
 
 script:

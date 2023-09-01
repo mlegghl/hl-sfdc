@@ -1,6 +1,19 @@
 #!/usr/bin/env bash
 #
 
+cat <<EOF
+##################################################
+## This is DEPRECREATED AND SHOLUDN'T BE USED   ##
+##################################################
+EOF
+
+echo -n "Continue (y/N) "
+read resp
+if [[ x"$resp" != "xy" ]]
+then
+    exit 1
+fi
+
 ## We can't use the normal force:source:pull commands with our
 ## Standard DE since it isn't a DX organization. Therefore, if we want
 ## to pull down any changes that were made, we have to use the mdapi

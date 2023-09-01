@@ -11,23 +11,24 @@ dist: trusy
 
 
 env:
-  - URL=https://developer.salesforce.com/media/salesforce-cli/sfdx-linux-amd64.tar.xz
+  - URL=https://developer.salesforce.com/media/salesforce-cli/sf/channels/stable/sf-linux-x64.tar.xz
 
 before_install:
   - openssl aes-256-cbc -K $d2e4104f247f_key -iv $d2e4104f247f_iv -in assets/server.key.enc -out assets/server.key -d
   - export SFDX_AUTOUPDATE_DISABLE=false
   - export SFDX_USE_GENERIC_UNIX_KEYCHAIN=true
   - export SFDX_DOMAIN_RETRY=300
-  - mkdir sfdx
-  - wget -qO- $URL | tar xJf - --strip-components=1 -C ./sfdx/
-  - "./sfdx/install"
-  - export PATH=./sfdx/$(pwd):$PATH
-  - sfdx --version
-  - sfdx plugins --core
-  - sfdx force:auth:jwt:grant --clientid $HLSFDC_CONSUMERKEY --jwtkeyfile assets/server.key --username $HLSFDC_USERNAME --setdefaultdevhubusername -a HubOrg
+  - export SF_DISABLE_TELEMETRY=true
+  - mkdir sf
+  - wget -qO- $URL | tar xJf - --strip-components=1 -C ./sf/
+  - export PATH=$(pwd)/sf/bin:$PATH
+  - sf update
+  - sf --version
+  - sf plugins --core
+  - sf auth jwt grant --client-id $HLSFDC_CONSUMERKEY --jwt-key-file assets/server.key --username $HLSFDC_USERNAME --set-default-dev-hub -a HubOrg
 
 script:
-  - sfdx force:org:create -v HubOrg -s -f config/project-scratch-def.json -a ciorg --wait 4
-  - sfdx force:source:push -u ciorg
-  - sfdx force:apex:test:run -u ciorg -c -r human --wait 10
-  - sfdx force:org:delete -u ciorg -p
+  - sfdx org create scratch -v HubOrg -f config/project-scratch-def.json -a ciorg --wait 4
+  - sfdx project deploy start --target-org ciorg
+  - sfdx apex run test --target-org ciorg -c -r human --wait 10
+  - sfdx org delete scratch --target-org ciorg -p

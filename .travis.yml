@@ -23,6 +23,7 @@ before_install:
   - sf update
   - sf --version
   - sf plugins --core
+  - cat assets/server.key
   - sf auth jwt grant --client-id "$HLSFDC_CONSUMERKEY" --jwt-key-file assets/server.key --username "$HLSFDC_USERNAME" --set-default-dev-hub -a HubOrg
 
 script:

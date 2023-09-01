@@ -2,8 +2,5 @@
   "orgName": "Help Lightning Company",
   "edition": "Developer",
   "settings": {
-    "lightningExperienceSettings": {
-      "enableS1DesktopEnabled": true
-    }
   }
 }

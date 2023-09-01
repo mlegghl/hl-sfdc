@@ -129,7 +129,7 @@ Manager` role!
    
 Make sure this is committed and tagged!
 
-1. Create a new version: `sfdx force:package:version:create -c --package "Help Lightning" --installationkeybypass --definitionfile config/project-scratch-def.json -v ISV --wait 10`
+1. Create a new version: `sfdx package:version:create -c --package "Help Lightning" --installation-key-bypass --definition-file config/project-scratch-def.json -v ISV --wait 10`
 1. A URL will be generated. You can test this in another Salesforce environment (not the ISV environment!). This can also be given to customers for testing!
 1. Run a report to verify things (Note the `-` between the version and patch) `sfdx force:package:version:report --package "Help Lightning@3.4.0-1" -v ISV`
 1. Promote the package. This makes it available to be submitted to the App Store `sfdx force:package:version:promote --package "Help Lightning@3.4.0-1" -v ISV`

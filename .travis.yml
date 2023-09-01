@@ -15,15 +15,15 @@ env:
 
 before_install:
   - openssl aes-256-cbc -K $d2e4104f247f_key -iv $d2e4104f247f_iv -in assets/server.key.enc -out assets/server.key -d
-  - export SFDX_AUTOUPDATE_DISABLE=false
-  - export SFDX_USE_GENERIC_UNIX_KEYCHAIN=true
-  - export SFDX_DOMAIN_RETRY=300
+  - export SF_AUTOUPDATE_DISABLE=false
+  - export SF_USE_GENERIC_UNIX_KEYCHAIN=true
+  - export SF_DOMAIN_RETRY=300
   - export SF_DISABLE_TELEMETRY=true
   - npm install @salesforce/cli --global
   - sf update
   - sf --version
   - sf plugins --core
-  - sf auth jwt grant --client-id $HLSFDC_CONSUMERKEY --jwt-key-file assets/server.key --username $HLSFDC_USERNAME --set-default-dev-hub -a HubOrg
+  - sf auth jwt grant --client-id "$HLSFDC_CONSUMERKEY" --jwt-key-file assets/server.key --username "$HLSFDC_USERNAME" --set-default-dev-hub -a HubOrg
 
 script:
   - sfdx org create scratch -v HubOrg -f config/project-scratch-def.json -a ciorg --wait 4

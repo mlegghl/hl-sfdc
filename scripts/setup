@@ -3,7 +3,7 @@
 # Set up a new scratch environment
 #
 
-## You must do an sfdx force:auth first and give
+## You must do an sf org login web -a ISV -d first and give
 ##  your DevHub enabled org an alias. Fill in
 ##  your alias for the HUBORG variable below.
 HUBORG="ISV"

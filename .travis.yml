@@ -29,7 +29,7 @@ before_install:
   - sf auth jwt grant --client-id "$HLSFDC_CONSUMERKEY" --jwt-key-file assets/server.key --username "$HLSFDC_USERNAME" --set-default-dev-hub -a HubOrg
 
 script:
-  - sfdx org create scratch -v HubOrg -f config/project-scratch-def.json -a ciorg --wait 4
-  - sfdx project deploy start --target-org ciorg
-  - sfdx apex run test --target-org ciorg -c -r human --wait 10
-  - sfdx org delete scratch --target-org ciorg -p
+  - sf org create scratch -v HubOrg -f config/project-scratch-def.json -a ciorg --wait 4
+  - sf project deploy start --target-org ciorg
+  - sf apex run test --target-org ciorg -c -r human --wait 10
+  - sf org delete scratch --target-org ciorg -p

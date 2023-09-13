@@ -90,6 +90,19 @@ public with sharing class HLConfiguration {
     }
 
     /**
+     * Set a login override for
+     *  this specific user.
+     */
+    public static void setLoginOverride(String login) {
+      helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getInstance();
+      config.helplightning__Login__c = login;
+
+      // any user can override their instance of the custom settings
+      //  and set their Help Lightning login value.
+      upsert config;
+  }
+
+    /**
      * Set a flag to indicate that the user has a site level key.
      */
     public static void setHasSiteKey(Boolean hasSiteKey) {

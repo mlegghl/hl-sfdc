@@ -12,6 +12,7 @@ public with sharing class HLConfigurationController {
     public Map<String,String> config { get; set; }
     public Boolean createEvents { get; set; }
     public Boolean saveAttachments { get; set; }
+    public Boolean hasSiteKey { get; set; }
 
     public HLConfigurationController() {
         config = new Map<String,String>();
@@ -22,6 +23,10 @@ public with sharing class HLConfigurationController {
         String enterpriseId = '';
         if (hlConfig.helplightning__Enterprise_Id__c != null)
             enterpriseId = hlConfig.helplightning__Enterprise_Id__c;
+
+        String workspaceId = '';
+        if (hlConfig.helplightning__Workspace_Id__c != null)
+            workspaceId = hlConfig.helplightning__Workspace_Id__c;
 
         String privateKey = '';
         if (hlConfig.helplightning__Private_Key_1__c != null &&
@@ -34,10 +39,12 @@ public with sharing class HLConfigurationController {
         }
 
         config.put('enterpriseId', enterpriseId);
+        config.put('workspaceId', workspaceId);
         config.put('privateKey', privateKey);
 
         createEvents = hlConfig.helplightning__Create_Events__c;
         saveAttachments = hlConfig.helplightning__Save_Attachments__c;
+        hasSiteKey = hlConfig.helplightning__Has_Site_Key__c;
     }
 
     public PageReference save() {
@@ -47,6 +54,8 @@ public with sharing class HLConfigurationController {
         if (config.get('enterpriseId') != '') {
             hlConfig.helplightning__Enterprise_Id__c = config.get('enterpriseId');
         }
+
+        hlConfig.helplightning__Workspace_Id__c = config.get('workspaceId');
 
         if (config.get('privateKey') != '') {
             String privateKey = config.get('privateKey');

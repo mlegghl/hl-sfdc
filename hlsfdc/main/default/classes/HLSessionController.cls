@@ -490,7 +490,6 @@ public with sharing class HLSessionController {
             // first get a list of users to find us, since
             //  we have to make this request as a specific user
             String token = HLTokenHelper.getToken();
-            System.debug('sendOneTimeUseLink token' + myUserEmail + token);
             List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(token, myUserEmail);
             if (users == null || users.size() == 0) {
                 System.debug('Error finding our user.');
@@ -578,7 +577,6 @@ public with sharing class HLSessionController {
 
     private static helplightning.HLModelEnterpriseUser getHLUser(String email) {
       String token = HLTokenHelper.getToken();
-      System.debug('getHLUser token' + token);
 
       List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(token, email);
 

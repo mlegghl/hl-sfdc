@@ -94,12 +94,12 @@ public with sharing class HLConfiguration {
      *  this specific user.
      */
     public static void setLoginOverride(String login) {
-      helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getInstance();
-      config.helplightning__Login__c = login;
+        helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getInstance();
+        config.helplightning__Login__c = login;
 
-      // any user can override their instance of the custom settings
-      //  and set their Help Lightning login value.
-      upsert config;
+        // any user can override their instance of the custom settings
+        //  and set their Help Lightning login value.
+        upsert config;
   }
 
     /**

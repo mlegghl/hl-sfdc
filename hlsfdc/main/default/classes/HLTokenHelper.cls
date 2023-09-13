@@ -9,8 +9,7 @@
 
  public class HLTokenHelper {
   public static String getToken() {
-    String myUserEmail = helplightning.HLUserHelper.getLogin();
-
+    
     if (helplightning.HLConfiguration.getHasSiteKey()) {
       helplightning.HLModelWorkspace workspace = helplightning.HLGaldrClient.getWorkspaceById(HLConfiguration.getWorkspaceId());
 

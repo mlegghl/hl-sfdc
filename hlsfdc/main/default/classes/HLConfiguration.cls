@@ -100,7 +100,7 @@ public with sharing class HLConfiguration {
         // any user can override their instance of the custom settings
         //  and set their Help Lightning login value.
         upsert config;
-  }
+    }
 
     /**
      * Set a flag to indicate that the user has a site level key.

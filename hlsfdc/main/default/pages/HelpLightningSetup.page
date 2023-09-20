@@ -13,9 +13,6 @@
         <apex:outputText value="Enterprise Id" />
         <apex:inputText value="{!config['enterpriseId']}" />
 
-        <apex:outputText value="Default Workspace ID" />
-        <apex:inputText value="{!config['workspaceId']}" />
-
         <apex:outputText value="Private Key" />
         <apex:inputTextArea rows="10" cols="70" value="{!config['privateKey']}" />
 

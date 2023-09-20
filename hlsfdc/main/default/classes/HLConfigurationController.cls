@@ -24,10 +24,6 @@ public with sharing class HLConfigurationController {
         if (hlConfig.helplightning__Enterprise_Id__c != null)
             enterpriseId = hlConfig.helplightning__Enterprise_Id__c;
 
-        String workspaceId = '';
-        if (hlConfig.helplightning__Workspace_Id__c != null)
-            workspaceId = hlConfig.helplightning__Workspace_Id__c;
-
         String privateKey = '';
         if (hlConfig.helplightning__Private_Key_1__c != null &&
             hlConfig.helplightning__Private_Key_2__c != null &&
@@ -39,7 +35,6 @@ public with sharing class HLConfigurationController {
         }
 
         config.put('enterpriseId', enterpriseId);
-        config.put('workspaceId', workspaceId);
         config.put('privateKey', privateKey);
 
         createEvents = hlConfig.helplightning__Create_Events__c;
@@ -54,8 +49,6 @@ public with sharing class HLConfigurationController {
         if (config.get('enterpriseId') != '') {
             hlConfig.helplightning__Enterprise_Id__c = config.get('enterpriseId');
         }
-
-        hlConfig.helplightning__Workspace_Id__c = config.get('workspaceId');
 
         if (config.get('privateKey') != '') {
             String privateKey = config.get('privateKey');

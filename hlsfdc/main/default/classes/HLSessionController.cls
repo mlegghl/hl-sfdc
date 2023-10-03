@@ -557,7 +557,19 @@ public with sharing class HLSessionController {
         // We can't save attachments while making call-outs
         for (HLModelAttachment a: attachments) {
             // Only save screencaps for now
-            if (a.mimeType == 'image/jpeg') {
+            // In order to avoid duplicates, we need to check if the file already exists in the toSave list
+            // This code might need to be removed when we change how thumbnails are saved
+            Boolean fileExists = false;
+
+            // Since apex doesn't have a contains method for lists, we have to do this ugly mess.
+            for (ContentVersion c: toSave) {
+                if (c.Title == a.fileName) {
+                    fileExists = true;
+                    break;
+                }
+            }
+
+            if (a.mimeType == 'image/jpeg' && !fileExists) {
               // Get the file from signed URL
               Http h = new Http();
               HttpRequest req = new HttpRequest();

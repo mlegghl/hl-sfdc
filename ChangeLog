@@ -1,3 +1,6 @@
+2023-10-05  Micah Legg <micah.legg@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-91 - Call details occasionally don't show in the list
+
 3.6
 ==========
 2023-10-03  Micah Legg <micah.legg@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>

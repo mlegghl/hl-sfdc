@@ -22,6 +22,11 @@
                 // show tabs after parent has checked for contact data
                 component.set("v.showTabs", true);
 
+                // get any calls associated with this record, and
+                //  begin polling if necessary.
+                helper.updateCalls(component, helper, function(response) {
+                });
+
                 if (response === false) {
                     // no contact, stop here.
                     return;
@@ -33,10 +38,6 @@
                 helper.contactIsHLUser(component, helper, response, function(response) {
                 });
 
-                // get any calls associated with this record, and
-                //  begin polling if necessary.
-                helper.updateCalls(component, helper, function(response) {
-                });
                 
             });
         });

@@ -377,7 +377,7 @@ public with sharing class HLSessionController {
     /**
      * Check for a default workspace
      */
-    private static Integer checkForDefaultWorkspace(List<helplightning.HLModelWorkspace> workspaces) {
+    public static Integer checkForDefaultWorkspace(List<helplightning.HLModelWorkspace> workspaces) {
         try {
           String myUserEmail = helplightning.HLUserHelper.getLogin();
           Integer workspaceId = null;
@@ -401,7 +401,7 @@ public with sharing class HLSessionController {
             }
           }
           return workspaceId;
-        } catch (helplightning.HLConfigurationException e) {
+        } catch (Exception e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');
         }
     }

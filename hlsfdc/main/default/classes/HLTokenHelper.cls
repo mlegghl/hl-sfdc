@@ -12,15 +12,10 @@
     
     if (helplightning.HLConfiguration.getHasSiteKey()) {
       helplightning.HLModelWorkspace workspace = helplightning.HLGaldrClient.getWorkspaceById(HLConfiguration.getWorkspaceId());
-
-      if (workspace != null) {
-        return workspace.token;
-      } else {
-        throw new AuraHandledException('Configured workspace was not found in get_workspace_by_id.');
-      }
-
+      return workspace.token;
     } else {
       return helplightning.HLToken.build();
     }
+    
   }
 }

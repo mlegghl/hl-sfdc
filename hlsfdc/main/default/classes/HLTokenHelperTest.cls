@@ -1,11 +1,5 @@
 @isTest
 private class HLTokenHelperTest {
-
-  // Mocking a workspace object for testing purposes
-  private class MockWorkspace {
-    public String token;
-  }
-
    /**
    * Mocker for the getWorkspaceById
    */

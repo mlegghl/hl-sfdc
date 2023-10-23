@@ -236,14 +236,15 @@ public with sharing class HLSessionController {
             for (helplightning__HLCall__c call : calls) {
                 System.debug('getting Info about call ' + call);
                 List<helplightning.HLModelCall> hlCalls = new List<helplightning.HLModelCall>();
+                String token = HLTokenHelper.getToken();
 
                 // If we don't have an exact call id, then we'll get all the calls with-in a session
                 //  and try to guess a match...
                 if (call.helplightning__HLCall_id__c == null || call.helplightning__HLCall_Id__c.equals('')) {
-                    hlCalls = helplightning.HLGaldrClient.getEnterpriseCall(call.helplightning__Session_Id__c);
+                    hlCalls = helplightning.HLGaldrClient.getEnterpriseCall(token, call.helplightning__Session_Id__c);
                 } else {
                     // we have a call id, so just pull the call directly!
-                    helplightning.HLModelCall c = helplightning.HLGaldrClient.getEnterpriseCallById(call.helplightning__Session_Id__c, call.helplightning__HLCall_id__c);
+                    helplightning.HLModelCall c = helplightning.HLGaldrClient.getEnterpriseCallById(token, call.helplightning__Session_Id__c, call.helplightning__HLCall_id__c);
                     if (c != null) {
                         hlCalls.add(c);
                     }
@@ -327,10 +328,41 @@ public with sharing class HLSessionController {
     public static Boolean checkRegistration() {
         try {
             String myUserEmail = helplightning.HLUserHelper.getLogin();
+            Integer defaultWorkspace = null;
+            String token = null;
+
+            // First, we need to check if we are using a site level key
+            // If no results are returned, we are using a workspace level key
+            List<helplightning.HLModelWorkspace> workspaces = helplightning.HLGaldrClient.getWorkspaces();
+            if (workspaces.size() != 0) {
+              // If we have workspaces, we need to check for the default.
+              defaultWorkspace = checkForDefaultWorkspace(workspaces);
+              // Grab the default workspace token
+              for (helplightning.HLModelWorkspace w: workspaces) {
+                if (w.id == defaultWorkspace) {
+                  token = w.token;
+                  break;
+                }
+              }
+            } else {
+              token = helplightning.HLToken.build();
+            }
 
             // Query the users in our enteprise, and filter
             //  for our email.
-            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(myUserEmail);
+            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(token, myUserEmail);
+
+            // After all web callouts are complete, we can set our flags.
+            if (workspaces.size() != 0) {
+              helplightning.HLConfiguration.setHasSiteKey(true);
+
+              // Set the default workspace if it's not in the config.
+              // This will avoid having to loop through each workspace.
+              if (String.isBlank(HLConfiguration.getWorkspaceId())) {
+                helplightning.HLConfiguration.setWorkspaceId(String.valueOf(defaultWorkspace));
+              }
+            }
+
             if (users.size() == 0) {
                 return false;
             } else {
@@ -338,6 +370,38 @@ public with sharing class HLSessionController {
                 return true;
             }
         } catch (helplightning.HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
+        }
+    }
+
+    /**
+     * Check for a default workspace
+     */
+    public static Integer checkForDefaultWorkspace(List<helplightning.HLModelWorkspace> workspaces) {
+        try {
+          String myUserEmail = helplightning.HLUserHelper.getLogin();
+          Integer workspaceId = null;
+
+          if (!String.isBlank(HLConfiguration.getWorkspaceId())) {
+            // If we already have a set workspace id, use that
+            return Integer.valueOf(HLConfiguration.getWorkspaceId());
+          }
+          // If we don't have a set default workspace, check for one
+          for (helplightning.HLModelWorkspace w: workspaces) {
+            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(w.token, myUserEmail);
+            // Find the first user matching our email
+            for (helplightning.HLModelEnterpriseUser u: users) {
+              if (u.email == myUserEmail) {
+                workspaceId = w.id;
+                break;
+              }
+            }
+            if (workspaceId != null) {
+              break;
+            }
+          }
+          return workspaceId;
+        } catch (Exception e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');
         }
     }
@@ -351,7 +415,8 @@ public with sharing class HLSessionController {
         System.debug('isHLUser: ' + email);
 
         try {
-            List<helplightning.HLModelSearchUser> users = helplightning.HLGaldrClient.searchUsers(email);
+            String token = HLTokenHelper.getToken();
+            List<helplightning.HLModelSearchUser> users = helplightning.HLGaldrClient.searchUsers(token, email);
 
 
             // Unfortunately, the results don't include the email field
@@ -385,7 +450,8 @@ public with sharing class HLSessionController {
             helplightning.HLModelEnterpriseUser us = HLSessionController.getHLUser(myUserEmail);
 
             // get a token for the other user
-            List<helplightning.HLModelSearchUser> os = helplightning.HLGaldrClient.searchUsers(otherUsersEmail);
+            String token = HLTokenHelper.getToken();
+            List<helplightning.HLModelSearchUser> os = helplightning.HLGaldrClient.searchUsers(token, otherUsersEmail);
             if (os == null || os.size() == 0) {
                 return null;
             }
@@ -423,7 +489,8 @@ public with sharing class HLSessionController {
 
             // first get a list of users to find us, since
             //  we have to make this request as a specific user
-            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(myUserEmail);
+            String token = HLTokenHelper.getToken();
+            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(token, myUserEmail);
             if (users == null || users.size() == 0) {
                 System.debug('Error finding our user.');
                 return null;
@@ -509,7 +576,9 @@ public with sharing class HLSessionController {
     }
 
     private static helplightning.HLModelEnterpriseUser getHLUser(String email) {
-        List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(email);
+      String token = HLTokenHelper.getToken();
+
+      List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(token, email);
 
         if (users.size() == 0) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');
@@ -550,7 +619,8 @@ public with sharing class HLSessionController {
 
     @future(callout = true)
     private static void saveAttachment(String callId, String recordId) {
-        List<HLModelAttachment> attachments = helplightning.HLGaldrClient.getAttachments(callId);
+        String token = HLTokenHelper.getToken();
+        List<HLModelAttachment> attachments = helplightning.HLGaldrClient.getAttachments(token, callId);
 
         List<ContentVersion> toSave = new List<ContentVersion>();
 

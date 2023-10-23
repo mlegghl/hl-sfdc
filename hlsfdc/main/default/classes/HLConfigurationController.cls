@@ -12,6 +12,7 @@ public with sharing class HLConfigurationController {
     public Map<String,String> config { get; set; }
     public Boolean createEvents { get; set; }
     public Boolean saveAttachments { get; set; }
+    public Boolean hasSiteKey { get; set; }
 
     public HLConfigurationController() {
         config = new Map<String,String>();
@@ -38,6 +39,7 @@ public with sharing class HLConfigurationController {
 
         createEvents = hlConfig.helplightning__Create_Events__c;
         saveAttachments = hlConfig.helplightning__Save_Attachments__c;
+        hasSiteKey = hlConfig.helplightning__Has_Site_Key__c;
     }
 
     public PageReference save() {

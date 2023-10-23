@@ -9,6 +9,10 @@
 
         <apex:outputText value="Help Lightning Login" />
         <apex:inputText value="{!config['login']}" size="64" />
+
+        <apex:outputText value="Default Workspace ID" />
+        <apex:inputText value="{!config['workspaceId']}" />
+        
       </apex:pageBlockSection>
       <apex:pageBlockButtons>
         <apex:commandButton action="{!save}" value="Save" />

@@ -14,7 +14,8 @@ public with sharing class HLContactListController {
     public static List<helplightning.HLModelEnterpriseUser> getContacts(string searchTerm) {
         try {
             // Gets all users/contacts for the enterprise. Might need to change to /contacts endpoint if this doesn't fit user case.
-            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchContacts(searchTerm);
+            String token = HLTokenHelper.getToken();
+            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchContacts(token, searchTerm);
 
             return users;
 

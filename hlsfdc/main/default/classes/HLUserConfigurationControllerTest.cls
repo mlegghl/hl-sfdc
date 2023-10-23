@@ -29,8 +29,10 @@ private class HLUserConfigurationControllerTest {
             Map<String,String> config = c.config;
 
             System.assert(config.containsKey('login'), 'Missing key login');
+            System.assert(config.containsKey('workspaceId'), 'Missing workspaceId');
 
             config.put('login', 'controllertest@helplightning.com');
+            config.put('workspaceId', '123');
 
             c.save();
 
@@ -38,6 +40,7 @@ private class HLUserConfigurationControllerTest {
             config = c.config;
 
             System.assertEquals('controllertest@helplightning.com', config.get('login'));
+            System.assertEquals('123', config.get('workspaceId'));
         }
     }
 }

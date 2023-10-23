@@ -4,8 +4,8 @@
       "path": "hlsfdc",
       "default": true,
       "package": "Help Lightning",
-      "versionName": "3.7",
-      "versionNumber": "3.7.0.1",
+      "versionName": "3.8",
+      "versionNumber": "3.8.0.1",
       "ancestorVersion": "HIGHEST"
     }
   ],
@@ -19,6 +19,8 @@
     "Help Lightning@3.3.0-1": "04t8X000000sxwrQAA",
     "Help Lightning@3.3.0-3": "04t8X000000sxwwQAA",
     "Help Lightning@3.4.0-1": "04t8X000000sxx1QAA",
-    "Help Lightning@3.5.0-1": "04t8X000000XdyIQAS"
+    "Help Lightning@3.5.0-1": "04t8X000000XdyIQAS",
+    "Help Lightning@3.7.0-1": "04t8X000001A47tQAC",
+    "Help Lightning@3.8.0-1": "04t8X000000MnIJQA0"
   }
 }

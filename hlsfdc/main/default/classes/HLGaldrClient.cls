@@ -14,15 +14,39 @@ public class HLGaldrClient {
      */
 
     /**
+    * Get a list of available workspaces using a site level token
+    */
+    public static List<helplightning.HLModelWorkspace> getWorkspaces() {
+      helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
+                                                                    '/v1r1/enterprise/workspaces');
+      Object results = request.get();
+
+      // deserialize
+      return HLModelWorkspace.buildMany(results);
+    }
+
+    /**
+    * Get workspace by id
+    */
+    public static helplightning.HLModelWorkspace getWorkspaceById(String workspaceId) {
+      helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
+                                                                    '/v1r1/enterprise/workspaces/' + workspaceId);
+      Object result = request.get();
+
+      // deserialize
+      return HLModelWorkspace.build(result);
+    }
+
+    /**
      * Search amongst all the Help Lightning users for
      *  a registered user with a specific email address.
      */
-    public static List<helplightning.HLModelSearchUser> searchUsers(String searchTerm) {
+    public static List<helplightning.HLModelSearchUser> searchUsers(String token, String searchTerm) {
         Map<String, Object> params = new Map<String, Object>();
         params.put('search_term', searchTerm);
         params.put('include_token', true);
 
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
+        helplightning.HLRequest request = new helplightning.HLRequest(token,
                                                                       '/v1/search');
         Object results = request.post(params);
 
@@ -35,11 +59,11 @@ public class HLGaldrClient {
     /**
      * Search amongst all the users in our enterprise.
      */
-    public static List<helplightning.HLModelEnterpriseUser> searchEnterpriseUsers(String email) {
+    public static List<helplightning.HLModelEnterpriseUser> searchEnterpriseUsers(String token, String email) {
         Map<String,String> params = new Map<String,String>();
         params.put('filter', 'email=' + email);
 
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
+        helplightning.HLRequest request = new helplightning.HLRequest(token,
                                                                       '/v1/enterprise/users');
         Object results = request.get(params);
 
@@ -52,8 +76,8 @@ public class HLGaldrClient {
      *  enterprise. This uses the sessionId to search
      *  for a potential match.
      */
-    public static List<helplightning.HLModelCall> getEnterpriseCall(String sessionId) {
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
+    public static List<helplightning.HLModelCall> getEnterpriseCall(String token, String sessionId) {
+        helplightning.HLRequest request = new helplightning.HLRequest(token,
                                                                       '/v1/enterprise/sessions/' + sessionId);
 
         Object results = request.get();
@@ -64,8 +88,8 @@ public class HLGaldrClient {
     /**
      * Get the details of a specific call, where we have the session and call id.
      */
-    public static helplightning.HLModelCall getEnterpriseCallById(String sessionId, String callId) {
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
+    public static helplightning.HLModelCall getEnterpriseCallById(String token, String sessionId, String callId) {
+        helplightning.HLRequest request = new helplightning.HLRequest(token,
                                                                       '/v1/enterprise/calls/' + callId);
         Object result = request.get();
 
@@ -112,14 +136,14 @@ public class HLGaldrClient {
     /**
      * Search for contacts
      */
-    public static List<helplightning.HLModelEnterpriseUser> searchContacts(String searchTerm) {
+    public static List<helplightning.HLModelEnterpriseUser> searchContacts(String token, String searchTerm) {
         Map<String,String> params = new Map<String,String>();
         params.put('order', 'name');
         if (!String.isEmpty(searchTerm)) {
             params.put('filter', 'name~=' + '%' + searchTerm + '%');
         }
 
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
+        helplightning.HLRequest request = new helplightning.HLRequest(token,
                                                                       '/v1r1/enterprise/users');
         Object results = request.get(params);
 
@@ -187,8 +211,8 @@ public class HLGaldrClient {
     /**
      * Get attachments for a call
      */
-    public static List<helplightning.HLModelAttachment> getAttachments(String callId) {
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
+    public static List<helplightning.HLModelAttachment> getAttachments(String token, String callId) {
+        helplightning.HLRequest request = new helplightning.HLRequest(token,
                                                                       '/v1r1/enterprise/calls/' + callId + '/attachments');
         Object results = request.get();
 

@@ -433,6 +433,11 @@ private class HLSessionControllerTest {
      * Mocker for the checkRegistration
      */
     class CheckRegistrationMocker implements HttpCalloutMock {
+        // this flag is used to simulate 2 different responses for the same endpoint
+        Boolean empty;
+        CheckRegistrationMocker(Boolean e) {
+          this.empty = e;
+        }
         public HTTPResponse respond(HTTPRequest req) {
             URL endpoint = new URL(req.getEndpoint());
 
@@ -484,7 +489,25 @@ private class HLSessionControllerTest {
                 }
                 response.setStatusCode(200);
                 response.setBody(JSON.serialize(result));
-            } else {
+            } else if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1r1/enterprise/workspaces')) {
+              Map<String, Object> result = new Map<String, Object>();
+              if (empty) {
+                result.put('total_entries', 0);
+                result.put('entries', new List<Object>{});
+              } else {
+                result.put('total_entries', 1);
+                result.put('entries', new List<Object> {
+                  new Map<String,Object>{
+                      'id' => 123,
+                      'name' => 'name',
+                      'token' => 'valid-token',
+                      'active' => true
+                      }
+                });
+              }
+              response.setStatusCode(200);
+              response.setBody(JSON.serialize(result));
+            }  else {
                 response.setStatusCode(500);
             }
             return response;
@@ -1690,6 +1713,32 @@ private class HLSessionControllerTest {
                            LocaleSidKey='en_US', ProfileId = p.Id,
                            TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
         insert u1;
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up a mock
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(false));
+
+        System.RunAs(u1) {
+            Boolean result = helplightning.HLSessionController.checkRegistration();
+            System.assertEquals(true, result);
+        }
+
+        Test.stopTest();
+    }
+
+    /**
+     * Test checkRegistration with a login override
+     * DML exception when including in the first test
+     */
+    @isTest
+    static void testCheckRegistrationLoginOverride() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
         User u2 = new User(Alias = 'support2', Email='support2@helplightning.com',
                            EmailEncodingKey='UTF-8', LastName='Support2', LanguageLocaleKey='en_US',
                            LocaleSidKey='en_US', ProfileId = p.Id,
@@ -1700,7 +1749,6 @@ private class HLSessionControllerTest {
                            LocaleSidKey='en_US', ProfileId = p.Id,
                            TimeZoneSidKey='America/Chicago', UserName='support3@helplightning.com');
         insert u3;
-
         // set an override for u2
         System.RunAs(u2) {
             HLConfiguration.setLoginOverride('override1534@helplightning.com');
@@ -1714,24 +1762,18 @@ private class HLSessionControllerTest {
         Test.startTest();
 
         // set up a mock
-        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker());
-
-
-        System.RunAs(u1) {
-            Boolean result = helplightning.HLSessionController.checkRegistration();
-            System.assertEquals(true, result);
-        }
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(true));
 
         // make sure it works for u2 with an override.
         System.RunAs(u2) {
-            Boolean result = helplightning.HLSessionController.checkRegistration();
-            System.assertEquals(true, result);
+          Boolean result = helplightning.HLSessionController.checkRegistration();
+          System.assertEquals(true, result);
         }
 
         // test an invalid user.
         System.RunAs(u3) {
-            Boolean result = helplightning.HLSessionController.checkRegistration();
-            System.assertEquals(false, result);
+          Boolean result = helplightning.HLSessionController.checkRegistration();
+          System.assertEquals(false, result);
         }
 
         Test.stopTest();
@@ -1761,7 +1803,7 @@ private class HLSessionControllerTest {
         Test.startTest();
 
         // set up a mock
-        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker());
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(false));
 
 
         System.RunAs(u1) {
@@ -1774,6 +1816,15 @@ private class HLSessionControllerTest {
             } catch (Exception e) {
                 System.assert(false, 'Caught incorrect exception');
             }
+        }
+
+        System.RunAs(u1) {
+          try {
+              helplightning.HLSessionController.checkForDefaultWorkspace(null);
+              System.assert(false, 'Exception wasn\'t raised');
+          } catch (Exception e) {
+              System.assert(true);
+          }
         }
 
         Test.stopTest();
@@ -1831,10 +1882,9 @@ private class HLSessionControllerTest {
         //  is a future, which means it runs asynchronously, and won't be guaranteed
         //  to complete until the stopTest is called.
         // https://developer.salesforce.com/docs/atlas.en-us.234.0.apexcode.meta/apexcode/apex_invoking_future_methods.htm
-        List<Attachment> attachments = [SELECT Name, ParentId, ContentType from Attachment];
-        System.assertEquals(1, attachments.size());
-
-        Attachment a1 = attachments.get(0);
-        System.assertEquals('screen_cap1.jpg', a1.Name);
+        
+        // Verify that the ContentVersion was created
+        List<ContentVersion> contentVersions = [SELECT Id FROM ContentVersion];
+        System.assertEquals(1, contentVersions.size());
     }
 }

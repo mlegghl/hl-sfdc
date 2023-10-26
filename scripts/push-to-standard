@@ -1,6 +1,19 @@
 #!/usr/bin/env bash
 #
 
+cat <<EOF
+##################################################
+## This is DEPRECREATED AND SHOLUDN'T BE USED   ##
+##################################################
+EOF
+
+echo -n "Continue (y/N) "
+read resp
+if [[ x"$resp" != "xy" ]]
+then
+    exit 1
+fi
+
 ## We can't use the normal force:source:push commands with our
 ## Standard DE since it isn't a DX organization (well you can,
 ## sometimes with the -f flag, but it isn't reliable). Therefore, if

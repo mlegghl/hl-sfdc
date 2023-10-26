@@ -1,3 +1,26 @@
+3.8
+==========
+2023-10-23  Micah Legg <micah.legg@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-86 - Support Site Level Tokens
+
+3.7
+==========
+2023-10-05  Micah Legg <micah.legg@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-91 - Call details occasionally don't show in the list
+
+3.6
+==========
+2023-10-03  Micah Legg <micah.legg@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-90 - Screenshots are duplicating in the case attachments
+
+2023-09-05  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-89 - Update to latest SF command
+
+3.5
+==========
+2023-08-31  Micah Legg <micah.legg@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-85 - Store screenshots as "Files" instead of "Attachments" in the Case/Work Order record
+
 3.4
 ==========
 2022-03-16  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>

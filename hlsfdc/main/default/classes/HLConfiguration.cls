@@ -23,6 +23,22 @@ public with sharing class HLConfiguration {
     }
 
     /**
+     * Get the workspace id
+     */
+    public static String getWorkspaceId() {
+      helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getInstance();
+      return config.helplightning__Workspace_Id__c;
+    }
+
+    /**
+     * Get the internal site key flag
+     */
+    public static Boolean getHasSiteKey() {
+      helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getInstance();
+      return config.helplightning__Has_Site_Key__c;
+    }
+
+    /**
      * Get the partner's private key
      */
     public static String getPrivateKey() {
@@ -83,6 +99,26 @@ public with sharing class HLConfiguration {
 
         // any user can override their instance of the custom settings
         //  and set their Help Lightning login value.
+        upsert config;
+    }
+
+    /**
+     * Set a flag to indicate that the user has a site level key.
+     */
+    public static void setHasSiteKey(Boolean hasSiteKey) {
+        helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getInstance();
+        config.helplightning__Has_Site_Key__c = hasSiteKey;
+
+        upsert config;
+    }
+
+    /**
+     * Set the workspace id
+     */
+    public static void setWorkspaceId(String workspaceId) {
+        helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getInstance();
+        config.helplightning__Workspace_Id__c = workspaceId;
+
         upsert config;
     }
 }

@@ -93,6 +93,8 @@ public class HLGaldrClient {
                                                                       '/v1/enterprise/calls/' + callId);
         Object result = request.get();
 
+        System.debug('getEnterpriseCallById result: ' + result);
+
         return HLModelCall.buildFromCall(result, sessionId);
     }
 
@@ -112,8 +114,8 @@ public class HLGaldrClient {
     /**
      * Get the ticket id from galdr workbox id
      */
-    public static helplightning.HLModelWorkboxInfo getTicketId(Integer workboxId) {
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLToken.build(),
+    public static helplightning.HLModelWorkboxInfo getTicketId(String token, Integer workboxId) {
+        helplightning.HLRequest request = new helplightning.HLRequest(token,
                                                                       '/v1/enterprise/workboxes/' + workboxId);
         Object result = request.get();
 

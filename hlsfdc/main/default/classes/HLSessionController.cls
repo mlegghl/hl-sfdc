@@ -440,6 +440,7 @@ public with sharing class HLSessionController {
         try {
             // getting the session id might be unnessesary. 
             // likely we could just use the callId in this case, remove later if it works
+            String token = HLTokenHelper.getToken();
             String sessionId;
             Integer workboxId = 0;
             helplightning__HLCall__c[] call;
@@ -455,7 +456,7 @@ public with sharing class HLSessionController {
             System.debug('sessionId: ' + sessionId);
             System.Debug('callId: ' + callId);
 
-            helplightning.HLModelCall callDetails = helplightning.HLGaldrClient.getEnterpriseCallById(sessionId, callId);
+            helplightning.HLModelCall callDetails = helplightning.HLGaldrClient.getEnterpriseCallById(token, sessionId, callId);
             System.debug('Call details' + callDetails);
             workboxId = callDetails.workboxId;
             System.debug('workboxId: ' + workboxId);

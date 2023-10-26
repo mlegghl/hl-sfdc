@@ -13,10 +13,12 @@ public with sharing class HLWorkboxDetailsController {
       try {
           System.debug('Getting workbox details for workboxId: ' + workboxId);
           String myUserEmail = helplightning.HLUserHelper.getLogin();
+          String token = HLTokenHelper.getToken();
+          
 
           // first get a list of users to find us, since
           //  we have to make this request as a specific user
-          List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(myUserEmail);
+          List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(token, myUserEmail);
           if (users == null || users.size() == 0) {
               System.debug('Error finding our user.');
               return null;
@@ -28,7 +30,7 @@ public with sharing class HLWorkboxDetailsController {
               System.debug('Invalid user token');
               return null;
           }
-          helplightning.HLModelWorkboxInfo ticket = helplightning.HLGaldrClient.getTicketId(workboxId);
+          helplightning.HLModelWorkboxInfo ticket = helplightning.HLGaldrClient.getTicketId(token, workboxId);
           System.debug('Got ticket: ' + ticket);
           helplightning.HLModelWorkboxDetails details = helplightning.HLGaldrClient.getWorkboxDetails(userToken, ticket.ticketId);
           System.debug('Got workbox details: ' + details);

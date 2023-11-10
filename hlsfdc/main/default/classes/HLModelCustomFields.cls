@@ -10,7 +10,8 @@
  public class HLModelCustomFields {
   public HLModelCustomFields(Integer id, String name, String description,
                             Boolean hidden, String type, String valueAsString,
-                            String mandatory, String defaultValue) {
+                            String mandatory, String defaultValue, Boolean multiSelect,
+                            List<HLModelCustomFieldListOption> options) {
       this.id = id;
       this.name = name;
       this.description = description;
@@ -19,10 +20,14 @@
       this.valueAsString = valueAsString;
       this.mandatory = mandatory;
       this.defaultValue = defaultValue;
+      this.multiSelect = multiSelect;
+      this.options = options;
   }
 
   public static HLModelCustomFields build(Object resultsObject) {
       Map<String,Object> s = (Map<String,Object>)resultsObject;
+      List<HLModelCustomFieldListOption> options = new List<HLModelCustomFieldListOption>();
+      System.debug('s: ' + s);
 
       Integer id = (Integer)s.get('id');
       String name = (String)s.get('name');
@@ -32,9 +37,22 @@
       String valueAsString = (String)s.get('valueAsString');
       String mandatory = (String)s.get('mandatory');
       String defaultValue = (String)s.get('defaultValue');
+      Boolean multiSelect = (Boolean)s.get('multiSelect');
+      
+      List<Object> optEntries = (List<Object>)s.get('options');
+      System.debug('optEntries: ' + optEntries);
+
+      // iterate through the cf options if found, building models
+      if (optEntries != null) {
+        for (Object u: optEntries) {
+          options.add(HLModelCustomFieldListOption.build(u));
+        }
+      }
+
+      System.debug('options: ' + options);
 
       return new HLModelCustomFields(id, name, description, hidden, type, valueAsString,
-                                     mandatory, defaultValue);
+                                     mandatory, defaultValue, multiSelect, options);
   }
 
   @auraEnabled
@@ -53,4 +71,8 @@
   public String mandatory = '';
   @auraEnabled
   public String defaultValue = '';
+  @auraEnabled
+  public Boolean multiSelect = false;
+  @auraEnabled
+  public List<HLModelCustomFieldListOption> options = new List<HLModelCustomFieldListOption>();
 }

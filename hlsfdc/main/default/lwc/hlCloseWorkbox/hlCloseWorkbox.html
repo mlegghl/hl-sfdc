@@ -1,13 +1,46 @@
 <template>
   <lightning-modal-header label="Workbox Details"></lightning-modal-header>
-  <lightning-modal-body> 
-    Workbox ID: {workboxId} 
+  <lightning-modal-body>
+    Workbox ID: {workboxId}
     <template lwc:if={data}>
-      hey! we have data
-      {data}
+      <div class="slds-col slds-size_11-of-12">
+        <template for:each={data.customFields} for:item="cf" for:index="index">
+          <div key={cf.id}>
+            <template if:true={cf.isText}>
+              <div class="slds-p-around_medium lgc-bg">
+                <lightning-input data-index={index} type="text" label={cf.name} value={cf.value} onchange={handleInputChange}></lightning-input>
+              </div>
+            </template> 
+            <template if:true={cf.isBoolean}>
+              <div class="slds-p-around_medium lgc-bg">
+                <lightning-input data-index={index} type="checkbox" label={cf.name} name={cf.name} value={cf.value} onchange={handleCheckChange}></lightning-input>
+              </div>
+            </template>
+            <template if:true={cf.isList}>
+              <div class="slds-p-around_medium lgc-bg">
+                <lightning-combobox
+                  data-index={index}
+                  name={cf.name}
+                  label={cf.name}
+                  value={cf.value}
+                  placeholder={cf.hint}
+                  options={cf.options}
+                  onchange={handleSelectChange}>
+                </lightning-combobox>
+              </div>
+            </template>  
+            <template if:true={cf.isMultiList}>
+              <div class="slds-p-around_medium lgc-bg">
+                <c-multi-list label={cf.name} name={cf.name} options={cf.options} onchange={handleMultiSelectChange}></c-multi-list>
+              </div>
+            </template>
+          </div>
+        </template>
+      </div>
     </template>
   </lightning-modal-body>
   <lightning-modal-footer>
-      <lightning-button label="OK" onclick={handleOkay}></lightning-button>
+    <lightning-button label="OK" onclick={handleOkay} style="margin-right: 10px;"></lightning-button>
+    <lightning-button label="SAVE AND CLOSE" onclick={handleSave}></lightning-button>
   </lightning-modal-footer>
 </template>

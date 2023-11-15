@@ -8,8 +8,7 @@ export default class HlCloseWorkbox extends LightningModal {
   data = null;
   loading = true;
 
-  @wire (getWorkboxDetails, { workboxId: "$workboxId" }) workboxDetails({data,error}){
-    console.log('>>> getting details: ')
+  @wire(getWorkboxDetails, { workboxId: "$workboxId" }) workboxDetails({ data, error }) {
     if (data && data.customFields) {
       this.loading = false;
       // this seems hacky, but LWC doesn't allow expressions in the template
@@ -65,40 +64,6 @@ export default class HlCloseWorkbox extends LightningModal {
     let clone = [...this.data.customFields];
     clone[event.detail.index].value = selectedOptions;
     this.data = { ...this.data, customFields: clone };
-  }
-
-  async handleOkay() {
-    console.log('>>> handleOkay: ', this.data)
-    await this.dispatchEvent(new CustomEvent("close", {
-      detail: { data: this.data }
-    }));
-  }
-  
-  handleSave() {
-    this.loading = true;
-    const payload = {
-      ticketId: this.data.workboxId,
-      expert: 0,
-      values: this.data.customFields.map((cf) => ({
-        id: cf.id,
-        value: cf.value
-      }))
-    }
-    closeWorkbox({ payload: payload })
-      .then((resp) => {
-        console.log('>>> handleSave: resp: ', resp)
-        this.loading = false;
-      })
-      .catch((err) => {
-        console.log('>>> handleSave: err: ', err)
-        this.loading = false;
-      })
-    // const valueChangeEvent = new CustomEvent("closeworkbox", {});
-    // this.dispatchEvent(valueChangeEvent);
-  }
-
-  handleClose() {
-    console.log('>>> handleClose: ')
   }
 
 } 

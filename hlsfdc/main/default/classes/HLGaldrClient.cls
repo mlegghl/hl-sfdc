@@ -130,12 +130,9 @@ public class HLGaldrClient {
       params.put('expert', payload.expert);
       params.put('ticketId', payload.ticketId);
       params.put('values', payload.values);
-      System.debug('closeWorkbox params: ' + params);
       helplightning.HLRequest request = new helplightning.HLRequest(userToken,
                                                                     '/fieldbit/memo/close');
       Object result = request.post(params);
-
-      System.debug('saveCustomFields result: ' + result);
     }
 
     /** User Methods **/

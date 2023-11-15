@@ -44,11 +44,9 @@ public with sharing class HLWorkboxDetailsController {
   @AuraEnabled(cacheable=true)
   public static Boolean closeWorkbox(HLModelCloseWorkbox payload) {
       try {
-          System.debug('Saving workbox: ' + payload);
           String myUserEmail = helplightning.HLUserHelper.getLogin();
           String token = HLTokenHelper.getToken();
           
-
           // first get a list of users to find us, since
           //  we have to make this request as a specific user
           List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(token, myUserEmail);
@@ -65,7 +63,7 @@ public with sharing class HLWorkboxDetailsController {
           }
 
           helplightning.HLGaldrClient.closeWorkbox(userToken, payload);
-          
+
           return true;
 
       } catch (helplightning.HLConfigurationException e) {

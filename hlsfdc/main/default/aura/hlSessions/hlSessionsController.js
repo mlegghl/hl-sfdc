@@ -75,6 +75,7 @@
     },
 
     closeModal: function(component, event, helper) { 
+      console.log("closeModal!!!", event)
       component.set("v.isModalOpen", false);
     },
 

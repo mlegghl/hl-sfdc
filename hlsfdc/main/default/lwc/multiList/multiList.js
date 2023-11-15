@@ -1,6 +1,6 @@
 import { api, LightningElement, track } from 'lwc';
 
-// this component was adapted and modified for Help Lightning from https://github.com/svierk/awesome-lwc-collection
+// this component is derrived from https://github.com/svierk/awesome-lwc-collection, and adapted and modified for Help Lightning 
 
 export default class MultiList extends LightningElement {
   @api disabled = false;
@@ -27,6 +27,7 @@ export default class MultiList extends LightningElement {
   @api required = false;
   @api singleSelect = false;
   @api showPills = false;
+  @api cfindex = 0;
 
   @track currentOptions = [];
   selectedItems = [];
@@ -96,7 +97,7 @@ export default class MultiList extends LightningElement {
       .forEach((item) => (item.selected = event.detail.selected));
     this.setSelection();
     const selection = this.getSelectedItems();
-    this.dispatchEvent(new CustomEvent('change', { detail: this.singleSelect ? selection[0] : selection }));
+    this.dispatchEvent(new CustomEvent('change', { detail: { data: this.singleSelect ? selection[0] : selection, index: this.cfindex} }));
 
     // for single select picklist close dropdown after selection is made
     if (this.singleSelect) {

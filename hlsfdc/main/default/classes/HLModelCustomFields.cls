@@ -27,7 +27,6 @@
   public static HLModelCustomFields build(Object resultsObject) {
       Map<String,Object> s = (Map<String,Object>)resultsObject;
       List<HLModelCustomFieldListOption> options = new List<HLModelCustomFieldListOption>();
-      System.debug('s: ' + s);
 
       Integer id = (Integer)s.get('id');
       String name = (String)s.get('name');
@@ -40,7 +39,6 @@
       Boolean multiSelect = (Boolean)s.get('multiSelect');
       
       List<Object> optEntries = (List<Object>)s.get('options');
-      System.debug('optEntries: ' + optEntries);
 
       // iterate through the cf options if found, building models
       if (optEntries != null) {
@@ -48,8 +46,6 @@
           options.add(HLModelCustomFieldListOption.build(u));
         }
       }
-
-      System.debug('options: ' + options);
 
       return new HLModelCustomFields(id, name, description, hidden, type, valueAsString,
                                      mandatory, defaultValue, multiSelect, options);

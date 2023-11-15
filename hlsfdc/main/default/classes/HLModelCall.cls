@@ -78,8 +78,6 @@ public class HLModelCall {
         String endTimeString = (String)call.get('timeCallEnded');
         Integer workboxId = (Integer)call.get('workbox_id');
 
-        System.debug('HLModelCall.buildFromCall: workbox_id: ' + workboxId);
-
         if (String.isEmpty(startTimeString) || String.isEmpty(endTimeString)) {
             System.debug('HLModelCall.buildFromCall: time empty: ' + startTimeString + ' ' + endTimeString);
             return null;
@@ -88,6 +86,7 @@ public class HLModelCall {
         // Wait until the call is over...
         String reason = (String)call.get('reasonCallEnded');
         if (String.isEmpty(reason)) {
+            // TODO: why does this break the call?
             System.debug('HLModelCall.buildFromCall: reason empty: ' + reason);
             // return null;
         }

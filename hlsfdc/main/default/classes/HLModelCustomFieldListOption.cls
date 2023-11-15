@@ -19,8 +19,6 @@ public class HLModelCustomFieldListOption {
 
         Map<String, Object> u = (Map<String,Object>)result;
 
-        System.debug('HLModelCustomFieldListOption.build: ' + u);
-
         return new HLModelCustomFieldListOption((String)u.get('name'),
                                   (Integer)u.get('id'));
     }

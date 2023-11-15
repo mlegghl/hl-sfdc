@@ -208,7 +208,6 @@
         action.setCallback(this, function(response) {
             var state = response.getState();
             if (component.isValid() && state == "SUCCESS") {
-                console.log("call saved successfully")
                 var sessions = component.get("v.calls");
                 var newHLCall = response.getReturnValue();
 
@@ -217,7 +216,6 @@
                 component.set("v.calls", sessions);
 
                 url = url + '&callbackState=' + newHLCall.Id;
-                console.log("open url: " + url)
                 var w = window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900');
                 component.set("v.callWindow", w);
             }

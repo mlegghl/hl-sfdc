@@ -44,7 +44,6 @@
 
         window.addEventListener('message', (event) => {
             const message = event.data;
-            console.log('message!!!', message)
             var callId = message.callId;
             var hlCallId = message.state;
             if (message.type === 'CALL_CONNECTED') {

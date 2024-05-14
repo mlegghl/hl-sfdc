@@ -639,7 +639,7 @@ public with sharing class HLSessionController {
                 }
             }
 
-            if (a.mimeType == 'image/jpeg' && !fileExists) {
+            if (a.type == 'incall' && a.mimeType == 'image/jpeg' && !fileExists) {
               // Get the file from signed URL
               Http h = new Http();
               HttpRequest req = new HttpRequest();

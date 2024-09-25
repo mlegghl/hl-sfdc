@@ -79,7 +79,7 @@
                 if (contact != null) {
                     component.set("v.contact", contact);
                     result = contact.Email;
-                } 
+                }
             } else if (component.isValid() && state == "ERROR") {
                 helper.setErrors(component, "getContactForRecord", response);
             }
@@ -115,6 +115,29 @@
         });
 
         $A.enqueueAction(action);
+    },
+
+    /**
+     * Handler for messages from Help Lightning
+     */
+    messageHandler : function(component, helper, event) {
+        const message = event.data;
+        if (message.type === 'CALL_CONNECTED') {
+            var callId = message.callId;
+            var hlCallId = message.state;
+
+            if (callId && hlCallId) {
+                helper.updateCallId(component, callId, hlCallId);
+            }
+        } else if (message.type === 'CALL_DISCONNECTED') {
+            var callWindow = component.get("v.callWindow");
+            if (callWindow) {
+                setTimeout(function() {
+                    callWindow.close();
+                    component.set("v.callWindow", null);
+                }, 2000);
+            }
+        }
     },
 
     /**

@@ -5,6 +5,15 @@
         var rId = component.get("v.recordId");
         var sObjectName = component.get("v.sObjectName");
 
+        // create an eventHandler and store it in our component
+        // We do this, because the only way to remove the event handler
+        //  in our destroy is to pass in the EXACT same function
+        // See: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+        var eventHandler = (evt) => {
+            helper.messageHandler(component, helper, evt);
+        };
+        component.set("v.eventHandler", eventHandler);
+
         // make sure this component type is supported.
         if (!helper.isSupportedComponent(component, sObjectName)) {
             return;
@@ -38,29 +47,11 @@
                 helper.contactIsHLUser(component, helper, response, function(response) {
                 });
 
-                
+
             });
         });
 
-        window.addEventListener('message', (event) => {
-            const message = event.data;
-            if (message.type === 'CALL_CONNECTED') {
-                var callId = message.callId;
-                var hlCallId = message.state;
-
-                if (callId && hlCallId) {
-                    helper.updateCallId(component, callId, hlCallId);
-                }
-            } else if (message.type === 'CALL_DISCONNECTED') {
-                var callWindow = component.get("v.callWindow");
-                if (callWindow) {
-                    setTimeout(function() {
-                        callWindow.close();
-                        component.set("v.callWindow", null);
-                    }, 2000);
-                }
-            }
-        })
+        window.addEventListener('message', eventHandler);
     },
 
     doDestroy : function(component, event, helper) {
@@ -68,6 +59,11 @@
         var timer = component.get("v.pollTimer");
         if (timer) {
             window.clearInterval(timer);
+        }
+
+        var eventHandler = component.get("v.eventHandler");
+        if (eventHandler) {
+            window.removeEventListener('message', eventHandler);
         }
     },
 

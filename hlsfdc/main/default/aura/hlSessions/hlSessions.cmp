@@ -13,6 +13,8 @@
     <aura:attribute name="pollTimer" type="Object" />
     <!-- handle to the window we open for a call -->
     <aura:attribute name="callWindow" type="Object" />
+    <!-- function handler for messages -->
+    <aura:attribute name="eventHandler" type="Object" />
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
     <aura:handler name="destroy" action="{!c.doDestroy}" value="{!this}"/>

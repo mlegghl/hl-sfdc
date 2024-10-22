@@ -1,3 +1,5 @@
+3.10
+==========
 2024-10-22  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
 	* SFDC-98 - Event Handler not cleared when component unloads
 

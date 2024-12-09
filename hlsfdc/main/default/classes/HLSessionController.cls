@@ -518,8 +518,8 @@ public with sharing class HLSessionController {
 
             // get our user info, which will give us our personal room session
             helplightning.HLModelAccount account = helplightning.HLGaldrClient.getInfo(userToken);
-
-            return (new helplightning.HLMeetingRoomAuth(userToken, username, name, account.personalRoomSessionId)).serialize();
+            helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+            return (new helplightning.HLMeetingRoomAuth(environment.url, userToken, username, name, account.personalRoomSessionId)).serialize();
         } catch (helplightning.HLConfigurationException e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');
         }

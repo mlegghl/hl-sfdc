@@ -10,7 +10,10 @@ public class HLMeetingRoomAuth {
     /**
      * This is a model that represents everything you need to connect to your own meeting room
      */
-    public HLMeetingRoomAuth(String userToken, String username, String userDisplayName, String sessionId) {
+    public HLMeetingRoomAuth(String webUrl,
+                             String userToken, String username,
+                             String userDisplayName, String sessionId) {
+        this.webUrl = webUrl;
         this.userToken = userToken;
         this.username = username;
         this.userDisplayName = userDisplayName;
@@ -19,6 +22,7 @@ public class HLMeetingRoomAuth {
 
     public Map<String,Object> serialize() {
         return new Map<String,Object> {
+            'webUrl' => webUrl,
             'token' => userToken,
             'name' => userDisplayName,
             'username' => username,
@@ -26,6 +30,7 @@ public class HLMeetingRoomAuth {
         };
     }
 
+    private String webUrl;
     private String userToken;
     private string username;
     private String userDisplayName;

@@ -10,15 +10,43 @@
 public class HLRequest {
     // This is the API Key for the SalesForce Integration App developed
     //  by Help Lightning.
-    private static final String API_KEY = '01e0bbdecb85a1f83bf6ade3624af03b';
+    private static final String US_API_KEY = '01e0bbdecb85a1f83bf6ade3624af03b';
+    private static final String EU_API_KEY = 'nmp2ovlzdnzhwej2zmvtdw4rzncwzz09';
 
     // Help Lightning API Endpoing
-    private static final String API_URL = 'https://api.helplightning.net/api';
+    private static final String US_API_URL = 'https://api.helplightning.net/api';
+    private static final String EU_API_URL = 'https://api.eu1.helplightning.net/api';
+
+    private static final Map<String, Map<String,String>> ENVIRONMENTS;
 
     private String token;
     private String route;
+    private Map<String,String> environment;
 
-    public HLRequest(String token, String route) {
+    // Static initializer block to initialize the nested map
+    static {
+        Map<String, String> usConfig = new Map<String, String>{
+                'api_key' => US_API_KEY,
+                'url' => US_API_URL
+                };
+
+        Map<String, String> euConfig = new Map<String, String>{
+                'api_key' => EU_API_URL,
+                'url' => EU_API_URL
+                };
+
+        ENVIRONMENTS = new Map<String, Map<String, String>>{
+                'US' => usConfig,
+                'EU' => euConfig
+                };
+    }
+
+    public HLRequest(String environment, String token, String route) {
+        this.environment = ENVIRONMENTS.get(environment);
+        if (this.environment == null) {
+            throw new helplightning.HLRequestException('Invalid Environment selected');
+        }
+
         this.token = token;
         this.route = route;
     }
@@ -63,7 +91,7 @@ public class HLRequest {
         req.setMethod(method);
         req.setHeader('content-type', 'application/json');
         req.setHeader('Authorization', this.token);
-        req.setHeader('x-helplightning-api-key', HLRequest.API_KEY);
+        req.setHeader('x-helplightning-api-key', this.environment.get('api_key'));
         req.setEndPoint(buildUrl(route));
 
         return req;
@@ -82,6 +110,6 @@ public class HLRequest {
     }
 
     private String buildUrl(String route) {
-        return HLRequest.API_URL + route;
+        return this.environment.get('url') + route;
     }
 }

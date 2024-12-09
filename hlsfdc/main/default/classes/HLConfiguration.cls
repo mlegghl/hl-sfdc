@@ -39,6 +39,14 @@ public with sharing class HLConfiguration {
     }
 
     /**
+     * Get the environment
+     */
+    public static String getEnvironment() {
+        helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getInstance();
+        return config.helplightning__Environment__c;
+    }
+
+    /**
      * Get the partner's private key
      */
     public static String getPrivateKey() {

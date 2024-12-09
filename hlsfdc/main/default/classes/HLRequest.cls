@@ -31,7 +31,7 @@ public class HLRequest {
                 };
 
         Map<String, String> euConfig = new Map<String, String>{
-                'api_key' => EU_API_URL,
+                'api_key' => EU_API_KEY,
                 'url' => EU_API_URL
                 };
 

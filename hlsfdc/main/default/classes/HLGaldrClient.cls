@@ -17,7 +17,8 @@ public class HLGaldrClient {
     * Get a list of available workspaces using a site level token
     */
     public static List<helplightning.HLModelWorkspace> getWorkspaces() {
-      helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLConfiguration.getEnvironment(),
+      helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+      helplightning.HLRequest request = new helplightning.HLRequest(environment,
                                                                     helplightning.HLToken.build(),
                                                                     '/v1r1/enterprise/workspaces');
       Object results = request.get();
@@ -30,7 +31,8 @@ public class HLGaldrClient {
     * Get workspace by id
     */
     public static helplightning.HLModelWorkspace getWorkspaceById(String workspaceId) {
-      helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLConfiguration.getEnvironment(),
+      helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+      helplightning.HLRequest request = new helplightning.HLRequest(environment,
                                                                     helplightning.HLToken.build(),
                                                                     '/v1r1/enterprise/workspaces/' + workspaceId);
       Object result = request.get();
@@ -48,7 +50,8 @@ public class HLGaldrClient {
         params.put('search_term', searchTerm);
         params.put('include_token', true);
 
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLConfiguration.getEnvironment(),
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
                                                                       token,
                                                                       '/v1/search');
         Object results = request.post(params);
@@ -66,7 +69,8 @@ public class HLGaldrClient {
         Map<String,String> params = new Map<String,String>();
         params.put('filter', 'email=' + email);
 
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLConfiguration.getEnvironment(),
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
                                                                       token,
                                                                       '/v1/enterprise/users');
         Object results = request.get(params);
@@ -81,7 +85,8 @@ public class HLGaldrClient {
      *  for a potential match.
      */
     public static List<helplightning.HLModelCall> getEnterpriseCall(String token, String sessionId) {
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLConfiguration.getEnvironment(),
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
                                                                       token,
                                                                       '/v1/enterprise/sessions/' + sessionId);
 
@@ -94,7 +99,8 @@ public class HLGaldrClient {
      * Get the details of a specific call, where we have the session and call id.
      */
     public static helplightning.HLModelCall getEnterpriseCallById(String token, String sessionId, String callId) {
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLConfiguration.getEnvironment(),
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
                                                                       token,
                                                                       '/v1/enterprise/calls/' + callId);
         Object result = request.get();
@@ -108,7 +114,8 @@ public class HLGaldrClient {
      * Get the account info of a single user (us).
      */
     public static HLModelAccount getInfo(String userToken) {
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLConfiguration.getEnvironment(),
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
                                                                       userToken,
                                                                       '/v1/info');
         Object result = request.get();
@@ -126,7 +133,8 @@ public class HLGaldrClient {
             params.put('filter', 'name~=' + '%' + searchTerm + '%');
         }
 
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLConfiguration.getEnvironment(),
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
                                                                       token,
                                                                       '/v1r1/enterprise/users');
         Object results = request.get(params);
@@ -142,7 +150,8 @@ public class HLGaldrClient {
         Map<String,Object> sessionParams = new Map<String,Object>();
         sessionParams.put('contact_tokens', contactTokens);
 
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLConfiguration.getEnvironment(),
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
                                                                       userToken,
                                                                       '/v1/sessions');
         Object result = request.post(sessionParams);
@@ -154,7 +163,8 @@ public class HLGaldrClient {
      * Get info about an existing session
      */
     public static HLModelSession getSession(String userToken, String sessionId) {
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLConfiguration.getEnvironment(),
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
                                                                       userToken,
                                                                       '/v1/sessions/' + sessionId);
         Object result = request.get();
@@ -169,7 +179,8 @@ public class HLGaldrClient {
         Map<String,String> videoParams = new Map<String,String>();
         videoParams.put('user_token', userToken);
 
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLConfiguration.getEnvironment(),
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
                                                                       session.token,
                                                                       '/v1/session/video');
         Object results = request.post(videoParams);
@@ -185,7 +196,8 @@ public class HLGaldrClient {
         params.put('linkType', '2');
         params.put('message', message);
 
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLConfiguration.getEnvironment(),
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
                                                                       userToken,
                                                                       '/v1/sessions/link/invite');
         Object results = request.post(params);
@@ -200,7 +212,8 @@ public class HLGaldrClient {
      * Get attachments for a call
      */
     public static List<helplightning.HLModelAttachment> getAttachments(String token, String callId) {
-        helplightning.HLRequest request = new helplightning.HLRequest(helplightning.HLConfiguration.getEnvironment(),
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
                                                                       token,
                                                                       '/v1r1/enterprise/calls/' + callId + '/attachments');
         Object results = request.get();

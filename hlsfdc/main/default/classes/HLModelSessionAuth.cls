@@ -13,10 +13,12 @@ public class HLModelSessionAuth {
      *  give back to clients to join
      *  into a GSS Session
      */
-    public HLModelSessionAuth(String userToken, String sessionId,
+    public HLModelSessionAuth(String webUrl,
+                              String userToken, String sessionId,
                               String userDisplayName,
                               String username,
                               helplightning.HLModelVideoSession sessionAuth) {
+        this.webUrl = webUrl;
         this.userToken = userToken;
         this.sessionId = sessionId;
         this.userDisplayName = userDisplayName;
@@ -26,6 +28,7 @@ public class HLModelSessionAuth {
 
     public Map<String,Object> serialize() {
         return new Map<String,Object> {
+            'webUrl' => webUrl,
             'token' => userToken,
             'sessionId' => sessionId,
             'displayName' => userDisplayName,
@@ -34,6 +37,7 @@ public class HLModelSessionAuth {
         };
     }
 
+    private String webUrl;
     private String userToken;
     private string sessionId;
     private String userDisplayName;

@@ -72,7 +72,8 @@ private class HLRequestTest2 {
         String route = '/v1/get-test';
 
         try {
-            helplightning.HLRequest request = new helplightning.HLRequest('Invalid Environment', token, route);
+            helplightning.HLEnvironment env = new helplightning.HLEnvironment('Invalid Environment');
+            helplightning.HLRequest request = new helplightning.HLRequest(env, token, route);
         } catch (helplightning.HLRequestException e) {
             System.assert(true);
         }
@@ -86,7 +87,8 @@ private class HLRequestTest2 {
         // set up our mock
         Test.setMock(HttpCalloutMock.class, new HLRequestTest2Mocker());
 
-        helplightning.HLRequest request = new helplightning.HLRequest('US', token, route);
+        helplightning.HLEnvironment env = new helplightning.HLEnvironment('US');
+        helplightning.HLRequest request = new helplightning.HLRequest(env, token, route);
         Object result = request.get();
 
         System.assertEquals(true, result);
@@ -100,7 +102,8 @@ private class HLRequestTest2 {
         // set up our mock
         Test.setMock(HttpCalloutMock.class, new HLRequestTest2Mocker());
 
-        helplightning.HLRequest request = new helplightning.HLRequest('US', token, route);
+        helplightning.HLEnvironment env = new helplightning.HLEnvironment('US');
+        helplightning.HLRequest request = new helplightning.HLRequest(env, token, route);
         Object result = request.get();
 
         // null means failure
@@ -120,7 +123,8 @@ private class HLRequestTest2 {
         params.put('key2', '1');
         params.put('key3', '2342');
 
-        helplightning.HLRequest request = new helplightning.HLRequest('US', token, route);
+        helplightning.HLEnvironment env = new helplightning.HLEnvironment('US');
+        helplightning.HLRequest request = new helplightning.HLRequest(env, token, route);
         Object result = request.get(params);
 
         // The result should be the same map
@@ -141,7 +145,8 @@ private class HLRequestTest2 {
         params.put('key2', true);
         params.put('key3', 2342);
 
-        helplightning.HLRequest request = new helplightning.HLRequest('US', token, route);
+        helplightning.HLEnvironment env = new helplightning.HLEnvironment('US');
+        helplightning.HLRequest request = new helplightning.HLRequest(env, token, route);
         Object result = request.post(params);
 
         // The result should be the same map
@@ -162,7 +167,8 @@ private class HLRequestTest2 {
         params.put('key2', 'this<+>that');
         params.put('key3', 'Аркона');
 
-        helplightning.HLRequest request = new helplightning.HLRequest('US', token, route);
+        helplightning.HLEnvironment env = new helplightning.HLEnvironment('US');
+        helplightning.HLRequest request = new helplightning.HLRequest(env, token, route);
         Object result = request.get(params);
 
         // assert the params are encoded

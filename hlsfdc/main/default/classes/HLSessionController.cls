@@ -465,8 +465,10 @@ public with sharing class HLSessionController {
             helplightning.HLModelVideoSession videoSession = helplightning.HLGaldrClient.sessionRequestVideo(us.authToken, session);
 
             // build a model
+            helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
             helplightning.HLModelSessionAuth sessionAuth = new
-                helplightning.HLModelSessionAuth(us.authToken, sessionId,
+                helplightning.HLModelSessionAuth(environment.url,
+                                                 us.authToken, sessionId,
                                                  UserInfo.getName(), us.username, videoSession);
 
             return sessionAuth.serialize();
@@ -666,7 +668,7 @@ public with sharing class HLSessionController {
             // Specify the share type
             // V = Viewer permission. The user can explicitly view but not edit the shared file.
             // C = Collaborator permission. The user can explicitly view and edit the shared file.
-            // I = Inferred permission. The user’s permission is determined by the related record. 
+            // I = Inferred permission. The user’s permission is determined by the related record.
             conDocLink.shareType = 'I';
             insert conDocLink;
         }

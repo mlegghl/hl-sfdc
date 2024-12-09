@@ -121,4 +121,13 @@ public with sharing class HLConfiguration {
 
         upsert config;
     }
+
+    /**
+     * Set the Environment
+     *
+     * This is hard-coded to only allow US/EU
+     */
+    public static Boolean checkEnvironment(String environment) {
+        return (environment == 'US' || environment == 'EU');
+    }
 }

@@ -13,6 +13,7 @@ public with sharing class HLConfigurationController {
     public Boolean createEvents { get; set; }
     public Boolean saveAttachments { get; set; }
     public Boolean hasSiteKey { get; set; }
+    public String environment { get; set; }
 
     public HLConfigurationController() {
         config = new Map<String,String>();
@@ -37,6 +38,7 @@ public with sharing class HLConfigurationController {
         config.put('enterpriseId', enterpriseId);
         config.put('privateKey', privateKey);
 
+        environment = hlConfig.helplightning__Environment__c;
         createEvents = hlConfig.helplightning__Create_Events__c;
         saveAttachments = hlConfig.helplightning__Save_Attachments__c;
         hasSiteKey = hlConfig.helplightning__Has_Site_Key__c;
@@ -67,8 +69,16 @@ public with sharing class HLConfigurationController {
             }
         }
 
+        // validate the environment
+        if (!helplightning.HLConfiguration.checkEnvironment(environment)) {
+            ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.Error,
+                                                       'Invalid Environment Selected'));
+            return null;
+        }
+
         hlConfig.helplightning__Create_Events__c = createEvents;
         hlConfig.helplightning__Save_Attachments__c = saveAttachments;
+        hlConfig.helplightning__Environment__c = environment;
 
         // save
         if (schema.SObjectType.helplightning__Help_Lightning_Config__c.isUpdateable() &&

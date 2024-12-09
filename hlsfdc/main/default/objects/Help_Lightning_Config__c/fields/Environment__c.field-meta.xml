@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Environment__c</fullName>
+    <caseSensitive>false</caseSensitive>
+    <defaultValue>&quot;US&quot;</defaultValue>
+    <description>The Help Lightning Environment to connect to.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Please set this to the Help Lightning Environment that this component should use (e.g. US - United States / EU - European Union)</inlineHelpText>
+    <label>Environment</label>
+    <length>128</length>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>true</unique>
+</CustomField>

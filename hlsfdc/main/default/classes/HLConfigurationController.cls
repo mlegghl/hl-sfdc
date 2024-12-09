@@ -38,7 +38,8 @@ public with sharing class HLConfigurationController {
         config.put('enterpriseId', enterpriseId);
         config.put('privateKey', privateKey);
 
-        environment = hlConfig.helplightning__Environment__c;
+        // If not set, default to US
+        environment = (hlConfig.helplightning__Environment__c != null) ? hlConfig.helplightning__Environment__c : 'US';
         createEvents = hlConfig.helplightning__Create_Events__c;
         saveAttachments = hlConfig.helplightning__Save_Attachments__c;
         hasSiteKey = hlConfig.helplightning__Has_Site_Key__c;

@@ -67,6 +67,18 @@ private class HLRequestTest2 {
     }
 
     @isTest
+    static void testInvalidEnvironment() {
+        String token = 'fake-token';
+        String route = '/v1/get-test';
+
+        try {
+            helplightning.HLRequest request = new helplightning.HLRequest('Invalid Environment', token, route);
+        } catch (helplightning.HLRequestException e) {
+            System.assert(true);
+        }
+    }
+
+    @isTest
     static void testGetSuccess() {
         String token = 'fake-token';
         String route = '/v1/get-test';
@@ -74,7 +86,7 @@ private class HLRequestTest2 {
         // set up our mock
         Test.setMock(HttpCalloutMock.class, new HLRequestTest2Mocker());
 
-        helplightning.HLRequest request = new helplightning.HLRequest(token, route);
+        helplightning.HLRequest request = new helplightning.HLRequest('US', token, route);
         Object result = request.get();
 
         System.assertEquals(true, result);
@@ -88,7 +100,7 @@ private class HLRequestTest2 {
         // set up our mock
         Test.setMock(HttpCalloutMock.class, new HLRequestTest2Mocker());
 
-        helplightning.HLRequest request = new helplightning.HLRequest(token, route);
+        helplightning.HLRequest request = new helplightning.HLRequest('US', token, route);
         Object result = request.get();
 
         // null means failure
@@ -108,7 +120,7 @@ private class HLRequestTest2 {
         params.put('key2', '1');
         params.put('key3', '2342');
 
-        helplightning.HLRequest request = new helplightning.HLRequest(token, route);
+        helplightning.HLRequest request = new helplightning.HLRequest('US', token, route);
         Object result = request.get(params);
 
         // The result should be the same map
@@ -129,7 +141,7 @@ private class HLRequestTest2 {
         params.put('key2', true);
         params.put('key3', 2342);
 
-        helplightning.HLRequest request = new helplightning.HLRequest(token, route);
+        helplightning.HLRequest request = new helplightning.HLRequest('US', token, route);
         Object result = request.post(params);
 
         // The result should be the same map
@@ -150,7 +162,7 @@ private class HLRequestTest2 {
         params.put('key2', 'this<+>that');
         params.put('key3', 'Аркона');
 
-        helplightning.HLRequest request = new helplightning.HLRequest(token, route);
+        helplightning.HLRequest request = new helplightning.HLRequest('US', token, route);
         Object result = request.get(params);
 
         // assert the params are encoded

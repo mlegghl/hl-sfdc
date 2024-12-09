@@ -22,6 +22,8 @@ private class HLConfigurationControllerTest {
         config.put('enterpriseId', '1');
         config.put('privateKey', HLConfigurationControllerTest.privateKey);
 
+        System.assertEquals('US', c.environment);
+
         c.save();
 
         c = new helplightning.HLConfigurationController();

@@ -79,6 +79,7 @@
             if (component.isValid() && state == "SUCCESS") {
                 var r = response.getReturnValue();
 
+                var webUrl = r.webUrl;
                 var userToken = r.token;
                 var sessionId = r.sessionId;
                 var name = encodeURIComponent(r.displayName);
@@ -86,7 +87,7 @@
                 var gssToken = r.gssInfo.token;
                 var gssUrl = r.gssInfo.serverWSURL;
 
-                var url = 'https://helplightning.net/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
+                var url = webUrl + '/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
 
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId, email, null, sessionId, false, url);
@@ -123,13 +124,14 @@
                 toastEvent.fire();
 
                 var r = response.getReturnValue();
+                var webUrl = r.webUrl;
                 var userToken = r.token;
                 var name = r.name;
                 var email = sendToEmail;
                 var username = r.username;
                 var sessionId = r.sessionId;
 
-                var url = 'https://helplightning.net/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&mode=autoAccept';
+                var url = webUrl + '/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&mode=autoAccept';
 
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId, email, phone, sessionId, true, url);

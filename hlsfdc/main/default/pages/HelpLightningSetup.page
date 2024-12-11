@@ -10,6 +10,12 @@
     <apex:pageBlock title="Help Lightning Configuration">
       <apex:pageBlockSection columns="2">
 
+        <apex:outputText value="Environment" />
+        <apex:selectList value="{!environment}" size="1">
+          <apex:selectOption itemValue="US" itemLabel="United States (Default)" />
+          <apex:selectOption itemValue="EU" itemLabel="European Union" />
+        </apex:selectList>
+        
         <apex:outputText value="Enterprise Id" />
         <apex:inputText value="{!config['enterpriseId']}" />
 

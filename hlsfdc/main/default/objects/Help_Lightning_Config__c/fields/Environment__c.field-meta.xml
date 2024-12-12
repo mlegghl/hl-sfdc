@@ -7,7 +7,7 @@
     <inlineHelpText>Please set this to the Help Lightning Environment that this component should use (e.g. US - United States / EU - European Union)</inlineHelpText>
     <label>Environment</label>
     <length>128</length>
-    <required>true</required>
+    <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Text</type>
     <unique>false</unique>

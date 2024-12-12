@@ -43,6 +43,11 @@ public with sharing class HLConfiguration {
      */
     public static String getEnvironment() {
         helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getInstance();
+        if (config.helplightning__Environment__c == null ||
+            config.helplightning__Environment__c == '') {
+            // Default to US if not set
+            return 'US';
+        }
         return config.helplightning__Environment__c;
     }
 

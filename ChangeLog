@@ -1,3 +1,5 @@
+3.12
+==========
 2024-12-12  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
 	* SFDC-101 - Upgrading from 3.10 does not automatically set the US/EU environment
 

@@ -6,16 +6,34 @@ WorkOrder objects, allowing the Salesforce user to directly call their
 contact. It also records the Help Lightning call and associates it
 with the corresponding Case or WorkOrder.
 
+## License
+
+The Help Lightning Salesforce component is released under the MIT
+License, copyright (c) 2025 Help Lightning Inc.
+
+## Code Structure
+
+This code consists of an apex backend
+(`hlsfdc/main/default/classes/HLSessionController.cls`) and a
+Lightning web component
+(`hlsfdc/main/default/aura/hlSessions/hlSessions.cmp`).
+
+## Namespace
+
+This component is a managed package distributed by Help Lightning via
+the Salesforce App Store.
+
+If you are going to release internally, please change the namespace
+from `helplighting__` to something different!
+
 ## Setting up a Scratch Environment
 
 To do anything, you must first install the sf clitools:
 https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_release_notes.htm
 
 For development, we use a Salesforce DX environment to create
-temporary scratch environments. First, have an administrator create an
-account in our `ISV` org: `helplightning@isvedition.org`. Once you
-have an account, connect it using the sfdx command. You need to alias
-it as `ISV`.
+temporary scratch environments. We'll call this scratch envirornment
+an `ISV` in the following examples.
 
 `sf org login web -a ISV -d`
 

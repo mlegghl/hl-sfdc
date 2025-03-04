@@ -8,17 +8,16 @@
  */
 
 public class HLRequest {
-    // This is the API Key for the SalesForce Integration App developed
-    //  by Help Lightning.
-    private static final String API_KEY = '01e0bbdecb85a1f83bf6ade3624af03b';
-
-    // Help Lightning API Endpoing
-    private static final String API_URL = 'https://api.helplightning.net/api';
-
     private String token;
     private String route;
+    private helplightning.HLEnvironment environment;
 
-    public HLRequest(String token, String route) {
+    public HLRequest(helplightning.HLEnvironment environment, String token, String route) {
+        this.environment = environment;
+        if (this.environment == null || this.environment.api_url == null) {
+            throw new helplightning.HLRequestException('Invalid Environment selected');
+        }
+
         this.token = token;
         this.route = route;
     }
@@ -63,7 +62,7 @@ public class HLRequest {
         req.setMethod(method);
         req.setHeader('content-type', 'application/json');
         req.setHeader('Authorization', this.token);
-        req.setHeader('x-helplightning-api-key', HLRequest.API_KEY);
+        req.setHeader('x-helplightning-api-key', this.environment.api_key);
         req.setEndPoint(buildUrl(route));
 
         return req;
@@ -82,6 +81,6 @@ public class HLRequest {
     }
 
     private String buildUrl(String route) {
-        return HLRequest.API_URL + route;
+        return this.environment.api_url + route;
     }
 }

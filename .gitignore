@@ -5,3 +5,5 @@
 .forceignore
 **jsconfig.json
 .sf
+
+hlsfdc/main/default/profiles/

@@ -39,6 +39,19 @@ public with sharing class HLConfiguration {
     }
 
     /**
+     * Get the environment
+     */
+    public static String getEnvironment() {
+        helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getInstance();
+        if (config.helplightning__Environment__c == null ||
+            config.helplightning__Environment__c == '') {
+            // Default to US if not set
+            return 'US';
+        }
+        return config.helplightning__Environment__c;
+    }
+
+    /**
      * Get the partner's private key
      */
     public static String getPrivateKey() {
@@ -120,5 +133,14 @@ public with sharing class HLConfiguration {
         config.helplightning__Workspace_Id__c = workspaceId;
 
         upsert config;
+    }
+
+    /**
+     * Set the Environment
+     *
+     * This is hard-coded to only allow US/EU
+     */
+    public static Boolean checkEnvironment(String environment) {
+        return (environment == 'US' || environment == 'EU');
     }
 }

@@ -5,6 +5,15 @@
         var rId = component.get("v.recordId");
         var sObjectName = component.get("v.sObjectName");
 
+        // create an eventHandler and store it in our component
+        // We do this, because the only way to remove the event handler
+        //  in our destroy is to pass in the EXACT same function
+        // See: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+        var eventHandler = (evt) => {
+            helper.messageHandler(component, helper, evt);
+        };
+        component.set("v.eventHandler", eventHandler);
+
         // make sure this component type is supported.
         if (!helper.isSupportedComponent(component, sObjectName)) {
             return;
@@ -38,31 +47,11 @@
                 helper.contactIsHLUser(component, helper, response, function(response) {
                 });
 
-                
+
             });
         });
 
-        window.addEventListener('message', (event) => {
-            const message = event.data;
-            var callId = message.callId;
-            var hlCallId = message.state;
-            if (message.type === 'CALL_CONNECTED') {
-                if (callId && hlCallId) {
-                    helper.updateCallId(component, callId, hlCallId);
-                }
-            } else if (message.type === 'CALL_DISCONNECTED') {
-                var callWindow = component.get("v.callWindow");
-                if (callWindow) {
-                    setTimeout(function() {
-                        callWindow.close();
-                        component.set("v.callWindow", null);
-                        if (callId && hlCallId) {
-                          helper.checkForWorkbox(component, callId, hlCallId)
-                        }
-                    }, 2000);
-                }
-            }
-        })
+        window.addEventListener('message', eventHandler);
     },
 
     doDestroy : function(component, event, helper) {
@@ -70,6 +59,11 @@
         var timer = component.get("v.pollTimer");
         if (timer) {
             window.clearInterval(timer);
+        }
+
+        var eventHandler = component.get("v.eventHandler");
+        if (eventHandler) {
+            window.removeEventListener('message', eventHandler);
         }
     },
 
@@ -89,6 +83,7 @@
             if (component.isValid() && state == "SUCCESS") {
                 var r = response.getReturnValue();
 
+                var webUrl = r.webUrl;
                 var userToken = r.token;
                 var sessionId = r.sessionId;
                 var name = encodeURIComponent(r.displayName);
@@ -96,7 +91,7 @@
                 var gssToken = r.gssInfo.token;
                 var gssUrl = r.gssInfo.serverWSURL;
 
-                var url = 'https://helplightning.net/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
+                var url = webUrl + '/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&gssToken=' + gssToken + '&gssUrl=' + gssUrl;
 
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId, email, null, sessionId, false, url);
@@ -133,13 +128,14 @@
                 toastEvent.fire();
 
                 var r = response.getReturnValue();
+                var webUrl = r.webUrl;
                 var userToken = r.token;
                 var name = r.name;
                 var email = sendToEmail;
                 var username = r.username;
                 var sessionId = r.sessionId;
 
-                var url = 'https://helplightning.net/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&mode=autoAccept';
+                var url = webUrl + '/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&mode=autoAccept';
 
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId, email, phone, sessionId, true, url);

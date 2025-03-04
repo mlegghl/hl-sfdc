@@ -22,6 +22,8 @@ private class HLConfigurationControllerTest {
         config.put('enterpriseId', '1');
         config.put('privateKey', HLConfigurationControllerTest.privateKey);
 
+        System.assertEquals('US', c.environment);
+
         c.save();
 
         c = new helplightning.HLConfigurationController();
@@ -61,5 +63,19 @@ private class HLConfigurationControllerTest {
         System.assertEquals('', config.get('enterpriseId'));
         System.assertEquals('', config.get('privateKey'));
 
+    }
+
+    @isTest
+    static void testControllerInvalidEnvironment() {
+        helplightning.HLConfigurationController c = new helplightning.HLConfigurationController();
+
+        // set an invalid environment
+        c.environment = 'Invalid Environment';
+
+        // nothing should happen
+        c.save();
+
+        c = new helplightning.HLConfigurationController();
+        System.assertEquals('US', c.environment);
     }
 }

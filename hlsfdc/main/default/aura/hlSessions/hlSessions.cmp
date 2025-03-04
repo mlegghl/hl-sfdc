@@ -16,6 +16,8 @@
     <!-- shows the custom fields modal -->
     <aura:attribute name="isModalOpen" type="boolean" default="false"/>
     <aura:attribute name="workboxId" type="Integer" default=""/>
+    <!-- function handler for messages -->
+    <aura:attribute name="eventHandler" type="Object" />
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
     <aura:handler name="destroy" action="{!c.doDestroy}" value="{!this}"/>

@@ -1,3 +1,31 @@
+3.13
+==========
+2025-02-06  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-102 - Update License and Readme
+
+3.12
+==========
+2024-12-12  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-101 - Upgrading from 3.10 does not automatically set the US/EU environment
+
+3.11
+==========
+2024-12-12  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-100 - SFDC Widget Logo is broken
+
+2024-12-11  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-99 - Make SFDC Integration compatible with EU data center
+
+3.10
+==========
+2024-10-22  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-98 - Event Handler not cleared when component unloads
+
+3.9
+==========
+2024-05-14  Micah Legg <micah.legg@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-94 - Screenshots are being duplicated
+
 3.8
 ==========
 2023-10-23  Micah Legg <micah.legg@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>

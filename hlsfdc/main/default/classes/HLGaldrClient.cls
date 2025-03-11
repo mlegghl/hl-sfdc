@@ -114,9 +114,11 @@ public class HLGaldrClient {
      * Get the details of a workbox
      */
     public static helplightning.HLModelWorkboxDetails getWorkboxDetails(String userToken, Integer ticketId) {
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
         Map<String,Integer> params = new Map<String,Integer>();
         params.put('ticketId', ticketId);
-        helplightning.HLRequest request = new helplightning.HLRequest(userToken,
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
+                                                                      userToken,
                                                                       '/fieldbit/ticket/getTicket');
         Object result = request.post(params);
 
@@ -127,7 +129,9 @@ public class HLGaldrClient {
      * Get the ticket id from galdr workbox id
      */
     public static helplightning.HLModelWorkboxInfo getTicketId(String token, Integer workboxId) {
-        helplightning.HLRequest request = new helplightning.HLRequest(token,
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
+                                                                      token,
                                                                       '/v1/enterprise/workboxes/' + workboxId);
         Object result = request.get();
 
@@ -138,11 +142,13 @@ public class HLGaldrClient {
      * Save the custom fields for a workbox
      */
     public static void closeWorkbox(String userToken, HLModelCloseWorkbox payload) {
+      helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
       Map<String,Object> params = new Map<String,Object>();
       params.put('expert', payload.expert);
       params.put('ticketId', payload.ticketId);
       params.put('values', payload.values);
-      helplightning.HLRequest request = new helplightning.HLRequest(userToken,
+      helplightning.HLRequest request = new helplightning.HLRequest(environment,
+                                                                    userToken,
                                                                     '/fieldbit/memo/close');
       Object result = request.post(params);
     }

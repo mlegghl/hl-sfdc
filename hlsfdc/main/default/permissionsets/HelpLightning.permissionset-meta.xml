@@ -77,6 +77,18 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>HLWorkboxDetailsController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>HLTokenHelper</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+      <classAccesses>
+        <apexClass>HLContactListController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>HLUserHelper</apexClass>
         <enabled>true</enabled>
     </classAccesses>

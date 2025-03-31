@@ -14,7 +14,7 @@ export default class HlCloseWorkbox extends LightningModal {
       // to get around this, we can add a new property to the data object
       const resp = {
         ...value,
-        customFields: value.customFields.map((cf) => ({
+        customFields: value.customFields?.reverse().map((cf) => ({
           ...cf,
           value: null,
           required: cf.mandatory === "MANDATORY_ON_CREATION" || cf.mandatory === "MANDATORY_ON_CLOSE",
@@ -24,7 +24,6 @@ export default class HlCloseWorkbox extends LightningModal {
           isMultiList: cf.type === "LIST" && cf.multiSelect === true,
         }))
       };
-      console.log('>>> hlCloseWorkbox: workboxInfo: ', JSON.stringify(resp));
       this._workboxInfo = resp;
     }
   }

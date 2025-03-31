@@ -8,9 +8,10 @@
  */
 
  public class HLModelWorkboxDetails {
-  public HLModelWorkboxDetails(Integer workboxId, String status,
+  public HLModelWorkboxDetails(Integer workboxId, String workboxToken, String status,
                         List<helplightning.HLModelCustomFields> customFields) {
       this.workboxId = workboxId;
+      this.workboxToken = workboxToken;
       this.status = status;
       this.customFields = customFields;
   }
@@ -20,9 +21,9 @@
           return null;
 
       Map<String,Object> t = (Map<String,Object>)detailsObject;
-      Map<String,Object> s = (Map<String,Object>)t.get('Result');
-
-      Integer workboxId = (Integer)s.get('ticketId');
+      Map<String,Object> s = (Map<String,Object>)t.get('workbox');
+      Integer workboxId = (Integer)s.get('id');
+      String workboxToken = (String)s.get('token');
       String status = (String)s.get('status');
       List<helplightning.HLModelCustomFields> fields = new List<helplightning.HLModelCustomFields>();
 
@@ -30,10 +31,12 @@
         fields.add(helplightning.HLModelCustomFields.build(u));
       }
 
-      return new HLModelWorkboxDetails(workboxId, status, fields);
+      return new HLModelWorkboxDetails(workboxId, workboxToken, status, fields);
   }
   @auraEnabled
   public Integer workboxId = 0;
+  @auraEnabled
+  public String workboxToken = '';
   @auraEnabled
   public String status = '';
   @auraEnabled

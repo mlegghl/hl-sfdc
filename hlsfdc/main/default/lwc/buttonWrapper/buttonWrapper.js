@@ -22,8 +22,8 @@ export default class ButtonWrapper extends LightningElement {
   handleSave() {
     this.disabled = true;
     const payload = {
-      ticketId: this.cfdata.workboxId,
-      expert: 0,
+      workboxId: this.cfdata.workboxId,
+      workboxToken: this.cfdata.workboxToken,
       values: this.cfdata.customFields.map((cf) => ({
         id: cf.id,
         value: cf.value
@@ -32,7 +32,7 @@ export default class ButtonWrapper extends LightningElement {
     closeWorkbox({ payload: payload })
       .then((resp) => {
         const evt = new ShowToastEvent({
-          message: 'Workbox Closed Successfully',
+          message: 'Help Thread Closed Successfully',
           variant: 'success',
         });
         this.dispatchEvent(evt);

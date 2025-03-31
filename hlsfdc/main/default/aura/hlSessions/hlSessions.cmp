@@ -15,7 +15,7 @@
     <aura:attribute name="callWindow" type="Object" />
     <!-- shows the custom fields modal -->
     <aura:attribute name="isModalOpen" type="boolean" default="false"/>
-    <aura:attribute name="workboxId" type="Integer" default=""/>
+    <aura:attribute name="workboxInfo" type="Object" default=""/>
     <!-- function handler for messages -->
     <aura:attribute name="eventHandler" type="Object" />
 
@@ -26,7 +26,7 @@
       <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
           <div class="slds-modal__container">
               <!-- Modal/Popup Box Header Starts here-->
-              <c:hlCloseWorkbox recordId="{!v.recordId}" sObjectName="{!v.sObjectName}" workboxId="{!v.workboxId}" onclose="{!c.closeModal}"></c:hlCloseWorkbox>
+              <c:hlCloseWorkbox recordId="{!v.recordId}" sObjectName="{!v.sObjectName}" workboxInfo="{!v.workboxInfo}" onclose="{!c.closeModal}"></c:hlCloseWorkbox>
           </div>
       </section>
       <div class="slds-backdrop slds-backdrop_open"></div>

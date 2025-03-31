@@ -94,24 +94,22 @@
     /**
      * Check if a call has an associated workbox
      */
-    checkForWorkbox : function(component, callId, hlCallId) {
-        var action = component.get("c.getWorkboxId");
-        action.setParams({"callId": callId, "hlCallId": hlCallId});
+    getWorkboxFromCall : function(component, callId) {
+        var action = component.get("c.getWorkboxByCallId");
+        action.setParams({"callId": callId});
         action.setCallback(this, function(response) {
             var result = false;
             var state = response.getState();
             if (component.isValid() && state == "SUCCESS") {
                 result = response.getReturnValue();
                 if (result !== null && result !== undefined && result !== '') {
-                    component.set("v.workboxId", result);
+                    component.set("v.workboxInfo", result);
                     component.set("v.isModalOpen", true);
                 }
             } else if (component.isValid && state == "ERROR") {
+                console.log('getWorkboxFromCall error: ' + JSON.stringify(response));
                 helper.setErrors(component, "isHLUser", response);
             }
-
-            // execute our callback
-            callback(result);
         });
 
         $A.enqueueAction(action);
@@ -161,7 +159,7 @@
             callWindow.close();
             component.set("v.callWindow", null);
             if (callId && hlCallId) {
-              helper.checkForWorkbox(component, callId, hlCallId)
+              helper.getWorkboxFromCall(component, callId)
             }
           }, 2000);
         }

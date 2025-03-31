@@ -105,51 +105,45 @@ public class HLGaldrClient {
                                                                       '/v1/enterprise/calls/' + callId);
         Object result = request.get();
 
-        System.debug('getEnterpriseCallById result: ' + result);
-
         return HLModelCall.buildFromCall(result, sessionId);
     }
 
     /**
-     * Get the details of a workbox
+     * Get the details of a workbox by the call id
      */
-    public static helplightning.HLModelWorkboxDetails getWorkboxDetails(String userToken, Integer ticketId) {
+    public static helplightning.HLModelWorkboxDetails getWorkboxByCallId(String token, String callId) {
         helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
-        Map<String,Integer> params = new Map<String,Integer>();
-        params.put('ticketId', ticketId);
         helplightning.HLRequest request = new helplightning.HLRequest(environment,
-                                                                      userToken,
-                                                                      '/fieldbit/ticket/getTicket');
-        Object result = request.post(params);
+                                                                      token,
+                                                                      '/v1r1/enterprise/workboxes/by_call_id/' + callId);
+        Object result = request.get();
 
         return HLModelWorkboxDetails.build(result);
     }
 
     /**
-     * Get the ticket id from galdr workbox id
+     * Save the custom fields for a workbox
      */
-    public static helplightning.HLModelWorkboxInfo getTicketId(String token, Integer workboxId) {
-        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
-        helplightning.HLRequest request = new helplightning.HLRequest(environment,
-                                                                      token,
-                                                                      '/v1/enterprise/workboxes/' + workboxId);
-        Object result = request.get();
-
-        return HLModelWorkboxInfo.build(result);
+    public static void saveCustomFields(String workboxToken, HLModelCloseWorkbox payload) {
+      System.debug('HLGaldrClient.saveCustomFields: ' + payload);
+      helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+      Map<String,Object> params = new Map<String,Object>();
+      params.put('values', payload.values);
+      helplightning.HLRequest request = new helplightning.HLRequest(environment,
+                                                                    workboxToken,
+                                                                    '/v1r1/workbox/custom_fields');
+      Object result = request.put(params);
     }
 
     /**
-     * Save the custom fields for a workbox
+     * Close the workbox
      */
-    public static void closeWorkbox(String userToken, HLModelCloseWorkbox payload) {
+    public static void closeWorkbox(String workboxToken) {
       helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
       Map<String,Object> params = new Map<String,Object>();
-      params.put('expert', payload.expert);
-      params.put('ticketId', payload.ticketId);
-      params.put('values', payload.values);
       helplightning.HLRequest request = new helplightning.HLRequest(environment,
-                                                                    userToken,
-                                                                    '/fieldbit/memo/close');
+                                                                    workboxToken,
+                                                                    '/v1r1/workbox/close');
       Object result = request.post(params);
     }
 

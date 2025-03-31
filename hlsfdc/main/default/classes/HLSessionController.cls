@@ -436,32 +436,14 @@ public with sharing class HLSessionController {
     }
 
     @AuraEnabled
-    public static Integer getWorkboxId(string callId, Id hlCallId) {
+    public static HLModelWorkboxDetails getWorkboxByCallId(String callId) {
         try {
-            // getting the session id might be unnessesary. 
-            // likely we could just use the callId in this case, remove later if it works
             String token = HLTokenHelper.getToken();
-            String sessionId;
-            Integer workboxId = 0;
-            helplightning__HLCall__c[] call;
-
-            call = [SELECT Id, helplightning__Session_Id__c
-                    FROM helplightning__HLCall__c
-                    WHERE Id = :hlCallId];
-
-            if (call.size() > 0) {
-                sessionId = call[0].helplightning__Session_Id__c;
-            }
-
-            System.debug('sessionId: ' + sessionId);
             System.Debug('callId: ' + callId);
 
-            helplightning.HLModelCall callDetails = helplightning.HLGaldrClient.getEnterpriseCallById(token, sessionId, callId);
-            System.debug('Call details' + callDetails);
-            workboxId = callDetails.workboxId;
-            System.debug('workboxId: ' + workboxId);
-
-            return workboxId;
+            helplightning.HLModelWorkboxDetails details = helplightning.HLGaldrClient.getWorkboxByCallId(token, callId);
+            System.debug('Got workbox details: ' + details);
+            return details;
 
         } catch (helplightning.HLConfigurationException e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');

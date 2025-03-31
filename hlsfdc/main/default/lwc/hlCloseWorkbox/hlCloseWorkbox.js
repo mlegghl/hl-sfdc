@@ -1,21 +1,20 @@
-import { wire, api } from 'lwc';
-import getWorkboxDetails from '@salesforce/apex/HLWorkboxDetailsController.getWorkboxDetails';
-import closeWorkbox from '@salesforce/apex/HLWorkboxDetailsController.closeWorkbox';
+import { api } from 'lwc';
 import LightningModal from 'lightning/modal';
 
 export default class HlCloseWorkbox extends LightningModal {
-  @api workboxId;
-  data = null;
-  loading = true;
-
-  @wire(getWorkboxDetails, { workboxId: "$workboxId" }) workboxDetails({ data, error }) {
-    if (data && data.customFields) {
-      this.loading = false;
+  _workboxInfo;
+  
+  @api
+  get workboxInfo() {
+    return this._workboxInfo;
+  }
+  set workboxInfo(value) {
+    if (value && value.customFields) {
       // this seems hacky, but LWC doesn't allow expressions in the template
       // to get around this, we can add a new property to the data object
       const resp = {
-        ...data,
-        customFields: data.customFields.map((cf) => ({
+        ...value,
+        customFields: value.customFields.map((cf) => ({
           ...cf,
           value: null,
           required: cf.mandatory === "MANDATORY_ON_CREATION" || cf.mandatory === "MANDATORY_ON_CLOSE",
@@ -25,33 +24,32 @@ export default class HlCloseWorkbox extends LightningModal {
           isMultiList: cf.type === "LIST" && cf.multiSelect === true,
         }))
       };
-      this.data = resp;
-    } else if (error) {
-      console.log(error);
+      console.log('>>> hlCloseWorkbox: workboxInfo: ', JSON.stringify(resp));
+      this._workboxInfo = resp;
     }
   }
 
   @api
   get isSaveDisabled() {
-    return this.data?.customFields?.some((cf) => cf.required && !cf.value);
+    return this.workboxInfo?.customFields?.some((cf) => cf.required && !cf.value);
   }
 
   handleInputChange(event) {
-    let clone = [...this.data.customFields];
+    let clone = [...this.workboxInfo.customFields];
     clone[event.target.dataset.index].value = event.detail.value;
-    this.data = { ...this.data, customFields: clone };
+    this._workboxInfo = { ...this._workboxInfo, customFields: clone };
   }
 
   handleCheckChange(event) {
-    let clone = [...this.data.customFields];
+    let clone = [...this.workboxInfo.customFields];
     clone[event.target.dataset.index].value = event.target.checked;
-    this.data = { ...this.data, customFields: clone };
+    this._workboxInfo = { ...this.workboxInfo, customFields: clone };
   }
 
   handleSelectChange(event) {
-    let clone = [...this.data.customFields];
+    let clone = [...this.workboxInfo.customFields];
     clone[event.target.dataset.index].value = parseInt(event.detail.value);
-    this.data = { ...this.data, customFields: clone };
+    this._workboxInfo = { ...this.workboxInfo, customFields: clone };
   }
 
   handleMultiSelectChange(event) {
@@ -61,9 +59,8 @@ export default class HlCloseWorkbox extends LightningModal {
         selectedOptions.push(i.value);
       }
     });
-    let clone = [...this.data.customFields];
+    let clone = [...this.workboxInfo.customFields];
     clone[event.detail.index].value = selectedOptions;
-    this.data = { ...this.data, customFields: clone };
+    this._workboxInfo = { ...this.workboxInfo, customFields: clone };
   }
-
 } 

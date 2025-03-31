@@ -9,9 +9,9 @@
 
  public class HLModelCloseWorkbox {
   @AuraEnabled
-  public Integer ticketId {get;set;}
+  public Integer workboxId {get;set;}
   @AuraEnabled
-  public Integer expert {get;set;}
+  public String workboxToken {get;set;}
   @AuraEnabled
   public Object values {get;set;}
 }

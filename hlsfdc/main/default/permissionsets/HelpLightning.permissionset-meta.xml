@@ -84,7 +84,7 @@
         <apexClass>HLTokenHelper</apexClass>
         <enabled>true</enabled>
     </classAccesses>
-      <classAccesses>
+    <classAccesses>
         <apexClass>HLContactListController</apexClass>
         <enabled>true</enabled>
     </classAccesses>

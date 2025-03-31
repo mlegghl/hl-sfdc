@@ -10,7 +10,7 @@
  public class HLModelCustomFields {
   public HLModelCustomFields(Integer id, String name, String description,
                             Boolean hidden, String type, String valueAsString,
-                            String mandatory, String defaultValue, Boolean multiSelect,
+                            String mandatory, Object defaultValue, Boolean multiSelect,
                             List<HLModelCustomFieldListOption> options) {
       this.id = id;
       this.name = name;
@@ -35,7 +35,7 @@
       String type = (String)s.get('type');
       String valueAsString = (String)s.get('valueAsString');
       String mandatory = (String)s.get('mandatory');
-      String defaultValue = (String)s.get('defaultValue');
+      Object defaultValue = s.get('defaultValue');
       Boolean multiSelect = (Boolean)s.get('multiSelect');
       
       List<Object> optEntries = (List<Object>)s.get('options');
@@ -66,7 +66,7 @@
   @auraEnabled
   public String mandatory = '';
   @auraEnabled
-  public String defaultValue = '';
+  public Object defaultValue;
   @auraEnabled
   public Boolean multiSelect = false;
   @auraEnabled

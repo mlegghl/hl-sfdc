@@ -1,14 +1,9 @@
 <template>
   <lightning-modal-header label="Workbox Details"></lightning-modal-header>
   <lightning-modal-body>
-    <template lwc:if={loading}>
-      <div class="spinnerContainer">
-        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
-       </div>
-    </template>
-    <template lwc:elseif={data}>
+    <template lwc:if={workboxInfo}>
       <div class="slds-col slds-size_12-of-12">
-        <template for:each={data.customFields} for:item="cf" for:index="index">
+        <template for:each={workboxInfo.customFields} for:item="cf" for:index="index">
           <div key={cf.id}>
             <template if:true={cf.isText}>
               <div class="slds-p-around_small lgc-bg">
@@ -60,6 +55,6 @@
     </template>
   </lightning-modal-body>
   <lightning-modal-footer>
-    <c-button-wrapper cfdata={data} disabled={isSaveDisabled}></c-button-wrapper>
+    <c-button-wrapper cfdata={workboxInfo} disabled={isSaveDisabled}></c-button-wrapper>
   </lightning-modal-footer>
 </template>

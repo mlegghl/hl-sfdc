@@ -33,7 +33,7 @@ private class HLCallUtilTest {
                                               new helplightning.HLModelCallUser('12', 'Support',
                                                                                 'support@helplightning.com'),
                                               new helplightning.HLModelCallUser('32', 'Contact',
-                                                                                'contact@helplightning.com'), 0)
+                                                                                'contact@helplightning.com'))
             };
 
         // run as a support@helplightning.com user, since this
@@ -79,7 +79,7 @@ private class HLCallUtilTest {
                                               new helplightning.HLModelCallUser('12', 'Support',
                                                                                 'SUPPORT@helplightning.com'),
                                               new helplightning.HLModelCallUser('32', 'Contact',
-                                                                                'contact@helplightning.com'), 0)
+                                                                                'contact@helplightning.com'))
             };
 
         // run as a support@helplightning.com user, since this
@@ -194,7 +194,7 @@ private class HLCallUtilTest {
                                               new helplightning.HLModelCallUser('12', 'Support',
                                                                                 'support@helplightning.com'),
                                               new helplightning.HLModelCallUser('32', 'Contact',
-                                                                                'contact@helplightning.com'), 0),
+                                                                                'contact@helplightning.com')),
                 new helplightning.HLModelCall('aabbccdd', 'ccdd',
                                               DateTime.newInstanceGmt(2016, 10, 14, 10, 25, 31),
                                               DateTime.newInstanceGmt(2016, 10, 14, 10, 26, 0),
@@ -202,7 +202,7 @@ private class HLCallUtilTest {
                                               new helplightning.HLModelCallUser('12', 'Support',
                                                                                 'support@helplightning.com'),
                                               new helplightning.HLModelCallUser('32', 'Contact',
-                                                                                'contact@helplightning.com'), 0)
+                                                                                'contact@helplightning.com'))
 
         };
 
@@ -246,7 +246,7 @@ private class HLCallUtilTest {
                                               new helplightning.HLModelCallUser('12', 'Support',
                                                                                 'support@helplightning.com'),
                                               new helplightning.HLModelCallUser('32', 'Contact',
-                                                                                'contact@helplightning.com'), 0)
+                                                                                'contact@helplightning.com'))
             };
 
         // run as a support@helplightning.com user, since this
@@ -293,7 +293,7 @@ private class HLCallUtilTest {
                                               new helplightning.HLModelCallUser('12', 'Support',
                                                                                 'support@helplightning.com'),
                                               new helplightning.HLModelCallUser('32', 'Contact',
-                                                                                'contact@helplightning.com'), 0)
+                                                                                'contact@helplightning.com'))
             };
 
         // run as a support@helplightning.com user, since this
@@ -333,7 +333,7 @@ private class HLCallUtilTest {
                                               new helplightning.HLModelCallUser('12', 'Support',
                                                                                 'support@helplightning.com'),
                                               new helplightning.HLModelCallUser('32', 'Contact',
-                                                                                'contact@helplightning.com'), 0)
+                                                                                'contact@helplightning.com'))
             };
 
         // run as a support@helplightning.com user, since this
@@ -374,7 +374,7 @@ private class HLCallUtilTest {
                                               new helplightning.HLModelCallUser('14', 'User1',
                                                                                 'user1@helplightning.com'),
                                               new helplightning.HLModelCallUser('4', 'User2',
-                                                                                'user2@helplightning.com'), 0)
+                                                                                'user2@helplightning.com'))
             };
 
         // run as a support@helplightning.com user, since this
@@ -413,7 +413,7 @@ private class HLCallUtilTest {
                                               new helplightning.HLModelCallUser('12', 'Support',
                                                                                 'support@helplightning.com'),
                                               new helplightning.HLModelCallUser('32', 'Contact',
-                                                                                'contact@helplightning.com'), 0),
+                                                                                'contact@helplightning.com')),
                 new helplightning.HLModelCall('aabbccdd', '1234',
                                               DateTime.newInstanceGmt(2016, 10, 14, 11, 46, 1),
                                               DateTime.newInstanceGmt(2016, 10, 14, 11, 52, 0),
@@ -421,7 +421,7 @@ private class HLCallUtilTest {
                                               new helplightning.HLModelCallUser('12', 'Support',
                                                                                 'support@helplightning.com'),
                                               new helplightning.HLModelCallUser('32', 'Contact',
-                                                                                'contact@helplightning.com'), 0),
+                                                                                'contact@helplightning.com')),
                 new helplightning.HLModelCall('aabbccdd', 'xxyyzz',
                                               DateTime.newInstanceGmt(2016, 10, 14, 11, 46, 12),
                                               DateTime.newInstanceGmt(2016, 10, 14, 11, 56, 32),
@@ -429,7 +429,7 @@ private class HLCallUtilTest {
                                               new helplightning.HLModelCallUser('12', 'Support',
                                                                                 'support@helplightning.com'),
                                               new helplightning.HLModelCallUser('32', 'Contact',
-                                                                                'contact@helplightning.com'), 0)
+                                                                                'contact@helplightning.com'))
             };
 
         // run as a support@helplightning.com user, since this
@@ -472,7 +472,7 @@ private class HLCallUtilTest {
                                               new helplightning.HLModelCallUser('12', 'Support',
                                                                                 'support@helplightning.com'),
                                               new helplightning.HLModelCallUser('xx', 'Invalid',
-                                                                                'invalid-contact@helplightning.com'), 0)
+                                                                                'invalid-contact@helplightning.com'))
             };
 
         // run as a support@helplightning.com user, since this
@@ -511,7 +511,7 @@ private class HLCallUtilTest {
                                               new helplightning.HLModelCallUser('xx', 'Invalid',
                                                                                 'invalid-contact@helplightning.com'),
                                               new helplightning.HLModelCallUser('12', 'Support',
-                                                                                'support@helplightning.com'), 0)
+                                                                                'support@helplightning.com'))
             };
 
         // run as a support@helplightning.com user, since this
@@ -552,7 +552,7 @@ private class HLCallUtilTest {
                                               new helplightning.HLModelCallUser('12', 'Support',
                                                                                 'support@helplightning.com'),
                                               new helplightning.HLModelCallUser('32', 'Contact',
-                                                                                'contact@helplightning.com'), 0)
+                                                                                'contact@helplightning.com'))
             };
 
         // run as a support@helplightning.com user, since this

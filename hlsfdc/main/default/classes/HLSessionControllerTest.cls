@@ -816,6 +816,42 @@ private class HLSessionControllerTest {
         }
     }
 
+    class GetWorkboxByCallIdMocker implements HttpCalloutMock {
+      public HTTPResponse respond(HTTPRequest req) {
+          URL endpoint = new URL(req.getEndpoint());
+  
+          HttpResponse response = new HttpResponse();
+          response.setHeader('Content-Type', 'application/json');
+  
+          if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1r1/enterprise/workboxes/by_call_id/')) {
+              Map<String,Object> responseWrapper = new Map<String,Object>{
+                  'workbox' => new Map<String,Object>{
+                      'id' => 12345,
+                      'token' => 'test_token',
+                      'status' => 'active',
+                      'ticketFieldsFull' => new List<Map<String,Object>>{ 
+                          new Map<String,Object>{
+                              'name' => 'field1',
+                              'value' => 'value1'
+                          },
+                          new Map<String,Object>{
+                              'name' => 'field2',
+                              'value' => 'value2'
+                          }
+                      }
+                  }
+              };
+  
+              response.setBody(JSON.serialize(responseWrapper));
+              response.setStatusCode(200);
+          } else {
+              response.setStatusCode(500);
+          }
+  
+          return response;
+      }
+    }
+
     @testSetup static void setup() {
         // create some data.
 
@@ -1887,4 +1923,23 @@ private class HLSessionControllerTest {
         List<ContentVersion> contentVersions = [SELECT Id FROM ContentVersion];
         System.assertEquals(1, contentVersions.size());
     }
+
+    @isTest
+    static void testGetWorkboxByCallId() {
+        Test.setMock(HttpCalloutMock.class, new GetWorkboxByCallIdMocker());
+        
+        Test.startTest();
+        HLModelWorkboxDetails result = HLSessionController.getWorkboxByCallId('test_call_123');
+        Test.stopTest();
+
+        System.assertNotEquals(null, result);
+        System.assertEquals(12345, result.workboxId);
+        System.assertEquals('test_token', result.workboxToken);
+        System.assertEquals('active', result.status);
+        
+        // Verify custom fields
+        System.assertNotEquals(null, result.customFields);
+        System.assertEquals(2, result.customFields.size());
+    }
+    
 }

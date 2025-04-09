@@ -852,6 +852,25 @@ private class HLSessionControllerTest {
       }
     }
 
+    class GetWorkboxByCallIdNullMocker implements HttpCalloutMock {
+      public HTTPResponse respond(HTTPRequest req) {
+          URL endpoint = new URL(req.getEndpoint());
+  
+          HttpResponse response = new HttpResponse();
+          response.setHeader('Content-Type', 'application/json');
+  
+          if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1r1/enterprise/workboxes/by_call_id/')) {
+              // Return null response to test the null check in HLModelWorkboxDetails.build()
+              response.setBody('null');
+              response.setStatusCode(200);
+          } else {
+              response.setStatusCode(500);
+          }
+  
+          return response;
+      }
+    }
+
     @testSetup static void setup() {
         // create some data.
 
@@ -1942,4 +1961,15 @@ private class HLSessionControllerTest {
         System.assertEquals(2, result.customFields.size());
     }
     
+    @isTest
+    static void testGetWorkboxByCallIdWithNullResponse() {
+        Test.setMock(HttpCalloutMock.class, new GetWorkboxByCallIdNullMocker());
+        
+        Test.startTest();
+        HLModelWorkboxDetails result = HLSessionController.getWorkboxByCallId('test_call_123');
+        Test.stopTest();
+
+        // Verify that the result is null when the response is null
+        System.assertEquals(null, result, 'Result should be null when response is null');
+    }
 }

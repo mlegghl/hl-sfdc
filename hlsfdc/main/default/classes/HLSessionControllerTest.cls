@@ -871,6 +871,49 @@ private class HLSessionControllerTest {
       }
     }
 
+    class SaveCustomFieldsMocker implements HttpCalloutMock {
+      public HTTPResponse respond(HTTPRequest req) {
+          URL endpoint = new URL(req.getEndpoint());
+  
+          HttpResponse response = new HttpResponse();
+          response.setHeader('Content-Type', 'application/json');
+  
+          if (req.getMethod() == 'PUT' && endpoint.getPath().startsWith('/api/v1r1/workbox/custom_fields')) {
+              // Verify the request body contains the expected values
+              Map<String, Object> requestBody = (Map<String, Object>)JSON.deserializeUntyped(req.getBody());
+              System.assertNotEquals(null, requestBody, 'Request body should not be null');
+              System.assertNotEquals(null, requestBody.get('values'), 'Values should not be null');
+              
+              // Return a success response
+              response.setStatusCode(200);
+              response.setBody('{"success": true}');
+          } else {
+              response.setStatusCode(500);
+          }
+  
+          return response;
+      }
+    }
+  
+    class CloseWorkboxMocker implements HttpCalloutMock {
+        public HTTPResponse respond(HTTPRequest req) {
+            URL endpoint = new URL(req.getEndpoint());
+    
+            HttpResponse response = new HttpResponse();
+            response.setHeader('Content-Type', 'application/json');
+    
+            if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1r1/workbox/close')) {
+                // Return a success response
+                response.setStatusCode(200);
+                response.setBody('{"success": true}');
+            } else {
+                response.setStatusCode(500);
+            }
+    
+            return response;
+        }
+    }
+
     @testSetup static void setup() {
         // create some data.
 
@@ -1971,5 +2014,38 @@ private class HLSessionControllerTest {
 
         // Verify that the result is null when the response is null
         System.assertEquals(null, result, 'Result should be null when response is null');
+    }
+    
+    @isTest
+    static void testSaveCustomFields() {
+        Test.setMock(HttpCalloutMock.class, new SaveCustomFieldsMocker());
+        
+        // Create a test payload
+        HLModelCloseWorkbox payload = new HLModelCloseWorkbox();
+        payload.workboxId = 12345;
+        payload.workboxToken = 'test_token';
+        payload.values = new Map<String, Object>{
+            'field1' => 'value1',
+            'field2' => 'value2'
+        };
+        
+        Test.startTest();
+        // Call the method directly
+        helplightning.HLGaldrClient.saveCustomFields('test_token', payload);
+        Test.stopTest();
+        
+        // No assertions needed as we're just verifying the method executes without exceptions
+    }
+    
+    @isTest
+    static void testCloseWorkbox() {
+        Test.setMock(HttpCalloutMock.class, new CloseWorkboxMocker());
+        
+        Test.startTest();
+        // Call the method directly
+        helplightning.HLGaldrClient.closeWorkbox('test_token');
+        Test.stopTest();
+        
+        // No assertions needed as we're just verifying the method executes without exceptions
     }
 }

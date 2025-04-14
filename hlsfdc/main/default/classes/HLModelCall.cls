@@ -69,7 +69,7 @@ public class HLModelCall {
         if (call == null) {
             return null;
         }
-        
+
         String startTimeString = (String)call.get('timeCallStarted');
         String endTimeString = (String)call.get('timeCallEnded');
 
@@ -80,7 +80,6 @@ public class HLModelCall {
         // Wait until the call is over...
         String reason = (String)call.get('reasonCallEnded');
         if (String.isEmpty(reason)) {
-            // TODO: why does this break the call?
             return null;
         }
 

@@ -62,13 +62,11 @@ public class HLModelCall {
     public static HLModelCall buildFromCall(Object result, String sessionId) {
         Map<String,Object> s = (Map<String,Object>)result;
         if (s == null) {
-            System.debug('HLModelCall.buildFromCall: S null result');
             return null;
         }
 
         Map<String,Object> call = (Map<String,Object>)s.get('call');
         if (call == null) {
-            System.debug('HLModelCall.buildFromCall: call null result');
             return null;
         }
         
@@ -76,7 +74,6 @@ public class HLModelCall {
         String endTimeString = (String)call.get('timeCallEnded');
 
         if (String.isEmpty(startTimeString) || String.isEmpty(endTimeString)) {
-            System.debug('HLModelCall.buildFromCall: time empty: ' + startTimeString + ' ' + endTimeString);
             return null;
         }
 
@@ -84,7 +81,6 @@ public class HLModelCall {
         String reason = (String)call.get('reasonCallEnded');
         if (String.isEmpty(reason)) {
             // TODO: why does this break the call?
-            System.debug('HLModelCall.buildFromCall: reason empty: ' + reason);
             // return null;
         }
 

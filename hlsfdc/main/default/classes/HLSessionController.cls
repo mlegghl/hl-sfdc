@@ -439,12 +439,10 @@ public with sharing class HLSessionController {
     public static HLModelWorkboxDetails getWorkboxByCallId(String callId) {
         try {
             String token = HLTokenHelper.getToken();
-            System.Debug('callId: ' + callId);
 
             helplightning.HLModelWorkboxDetails details = helplightning.HLGaldrClient.getWorkboxByCallId(token, callId);
-            System.debug('Got workbox details: ' + details);
             return details;
-
+            
         } catch (helplightning.HLConfigurationException e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');
         }

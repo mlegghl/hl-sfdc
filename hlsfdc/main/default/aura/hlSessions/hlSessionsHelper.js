@@ -208,7 +208,6 @@
         var newCall;
 
         var callType = fromInvite ? "Invitation" : "Direct"
-        console.log("callType: " + callType)
 
         if (sObjectName === "Case") {
                 newCall = {'sobjectType': 'helplightning__HLCall__c',

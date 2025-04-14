@@ -13,7 +13,6 @@ public with sharing class HLWorkboxDetailsController {
       try {
 
           // use the workbox token to authenticate
-          System.debug('workboxToken: ' + payload.workboxToken);
           helplightning.HLGaldrClient.saveCustomFields(payload.workboxToken, payload);
           helplightning.HLGaldrClient.closeWorkbox(payload.workboxToken);
 

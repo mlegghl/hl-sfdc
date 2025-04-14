@@ -125,7 +125,6 @@ public class HLGaldrClient {
      * Save the custom fields for a workbox
      */
     public static void saveCustomFields(String workboxToken, HLModelCloseWorkbox payload) {
-      System.debug('HLGaldrClient.saveCustomFields: ' + payload);
       helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
       Map<String,Object> params = new Map<String,Object>();
       params.put('values', payload.values);

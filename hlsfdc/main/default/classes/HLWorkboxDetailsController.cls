@@ -9,13 +9,14 @@
 public with sharing class HLWorkboxDetailsController {
 
   @AuraEnabled(cacheable=true)
-  public static Boolean closeWorkbox(HLModelCloseWorkbox payload) {
+  public static Boolean updateWorkbox(HLModelUpdateWorkbox payload) {
       try {
 
           // use the workbox token to authenticate
           helplightning.HLGaldrClient.saveCustomFields(payload.workboxToken, payload);
-          helplightning.HLGaldrClient.closeWorkbox(payload.workboxToken);
-
+          if (payload.close) {
+            helplightning.HLGaldrClient.closeWorkbox(payload.workboxToken);
+          }
           return true;
 
       } catch (helplightning.HLConfigurationException e) {

@@ -2021,13 +2021,14 @@ private class HLSessionControllerTest {
         Test.setMock(HttpCalloutMock.class, new SaveCustomFieldsMocker());
         
         // Create a test payload
-        HLModelCloseWorkbox payload = new HLModelCloseWorkbox();
+        HLModelUpdateWorkbox payload = new HLModelUpdateWorkbox();
         payload.workboxId = 12345;
         payload.workboxToken = 'test_token';
         payload.values = new Map<String, Object>{
             'field1' => 'value1',
             'field2' => 'value2'
         };
+        payload.close = false;
         
         Test.startTest();
         // Call the method directly

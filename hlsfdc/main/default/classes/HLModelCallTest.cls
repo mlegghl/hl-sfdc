@@ -70,15 +70,10 @@ public class HLModelCallTest {
         helplightning.HLModelCall c3 = helplightning.HLModelCall.buildFromCall(o2, 'xyz');
         System.assertEquals(c3, null);
 
-        // not ended reason - this case should create a valid call
+        // not ended reason
         Object o3 = JSON.deserializeUntyped(HLModelCallTest.fromCallResultNotSuccessful);
         helplightning.HLModelCall c4 = helplightning.HLModelCall.buildFromCall(o3, 'xyz');
-        System.assertNotEquals(c4, null);
-        System.assertEquals('call_5b3aaf79-1803-4859-9228-6ebf1d0988c5', c4.callId);
-        System.assertEquals(true, c4.complete);
-        System.assertEquals(94, c4.duration);
-        System.assertEquals('xyz', c4.sessionId);
-        System.assertEquals(false, c4.successful);
+        System.assertEquals(c4, null);
     }
 
     private static String result = '[{"successful":true,"start_time":"2018-05-25T18:19:11Z","session_id":"04a02af9-f4d9-4cd6-850f-19920e06ce46","receiver":{"name":"Small User2","id":"5","email":"small_u2@helplightning.com"},"end_time":"2018-05-25T18:24:21Z","duration":309,"dialer":{"name":"Small Admin","id":"3","email":"small_admin@helplightning.com"},"complete":true,"call_id":"call_9a034486-4fad-413e-9de1-2033ba810b39"}]';

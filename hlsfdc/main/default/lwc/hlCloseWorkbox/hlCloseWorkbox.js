@@ -10,11 +10,13 @@ export default class HlCloseWorkbox extends LightningModal {
   }
   set workboxInfo(value) {
     if (value && value.customFields) {
+      // since LWC returns proxy objects, we have to create a new array via the spread operator in order to reverse it
+      const orderedCustomFields = value.customFields ? [...value.customFields].reverse() : [];
       // this seems hacky, but LWC doesn't allow expressions in the template
       // to get around this, we can add a new property to the data object
       const resp = {
         ...value,
-        customFields: value.customFields?.reverse().map((cf) => ({
+        customFields: orderedCustomFields.map((cf) => ({
           ...cf,
           value: null,
           required: cf.mandatory === "MANDATORY_ON_CREATION" || cf.mandatory === "MANDATORY_ON_CLOSE",

@@ -81,7 +81,7 @@ public class HLModelCall {
         String reason = (String)call.get('reasonCallEnded');
         if (String.isEmpty(reason)) {
             // TODO: why does this break the call?
-            // return null;
+            return null;
         }
 
         // start / end times are unix timestamps in seconds. Convert to milliseconds

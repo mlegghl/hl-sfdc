@@ -67,6 +67,10 @@
         }
     },
 
+    closeModal: function(component, event, helper) { 
+      component.set("v.isModalOpen", false);
+    },
+
     clickCall : function(component, event, helper) {
         var sObjectName = component.get("v.sObjectName");
         var rId = component.get("v.recordId");

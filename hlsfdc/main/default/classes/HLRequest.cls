@@ -32,6 +32,16 @@ public class HLRequest {
         return sendRequest(req);
     }
 
+    public Object put(Map<String,Object> params) {
+      HttpRequest req = createRequest('PUT', this.route);
+
+      // serialize the params
+      String body = JSON.serialize(params);
+      req.setBody(body);
+
+      return sendRequest(req);
+  }
+
     public Object get() {
         return get(new Map<String,String>());
     }

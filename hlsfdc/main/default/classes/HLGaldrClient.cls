@@ -108,6 +108,46 @@ public class HLGaldrClient {
         return HLModelCall.buildFromCall(result, sessionId);
     }
 
+    /**
+     * Get the details of a workbox by the call id
+     */
+    public static helplightning.HLModelWorkboxDetails getWorkboxByCallId(String token, String callId) {
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
+                                                                      token,
+                                                                      '/v1r1/enterprise/workboxes/by_call_id/' + callId);
+        Object result = request.get();
+
+        return HLModelWorkboxDetails.build(result);
+    }
+
+    /**
+     * Save the custom fields for a workbox
+     */
+    public static Boolean saveCustomFields(String workboxToken, HLModelUpdateWorkbox payload) {
+      helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+      Map<String,Object> params = new Map<String,Object>();
+      params.put('values', payload.values);
+      helplightning.HLRequest request = new helplightning.HLRequest(environment,
+                                                                    workboxToken,
+                                                                    '/v1r1/workbox/custom_fields');
+      Object result = request.put(params);
+      return (result != null);
+    }
+
+    /**
+     * Close the workbox
+     */
+    public static Boolean closeWorkbox(String workboxToken) {
+      helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+      Map<String,Object> params = new Map<String,Object>();
+      helplightning.HLRequest request = new helplightning.HLRequest(environment,
+                                                                    workboxToken,
+                                                                    '/v1r1/workbox/close');
+      Object result = request.post(params);
+      return (result != null);
+    }
+
     /** User Methods **/
 
     /**

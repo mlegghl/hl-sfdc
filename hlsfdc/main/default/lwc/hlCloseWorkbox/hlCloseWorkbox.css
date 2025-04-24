@@ -1,0 +1,10 @@
+.avatar {
+  height: 30px;
+  border-radius: 50%;
+}
+
+.spinnerContainer{
+  text-align: center;
+  width: 80px;
+  height: 80px;
+}

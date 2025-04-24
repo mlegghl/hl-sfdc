@@ -92,6 +92,30 @@
     },
 
     /**
+     * Check if a call has an associated workbox
+     */
+    getWorkboxFromCall : function(component, callId) {
+        var action = component.get("c.getWorkboxByCallId");
+        action.setParams({"callId": callId});
+        action.setCallback(this, function(response) {
+            var result = false;
+            var state = response.getState();
+            if (component.isValid() && state == "SUCCESS") {
+                result = response.getReturnValue();
+                if (result !== null && result !== undefined && result !== '') {
+                    component.set("v.workboxInfo", result);
+                    component.set("v.isModalOpen", true);
+                }
+            } else if (component.isValid && state == "ERROR") {
+                console.log('getWorkboxFromCall error: ' + JSON.stringify(response));
+                helper.setErrors(component, "getWorkboxFromCall", response);
+            }
+        });
+
+        $A.enqueueAction(action);
+    },
+
+    /**
      * Check if an email of a contact is a registered
      *  help lightning user.
      */
@@ -121,23 +145,25 @@
      * Handler for messages from Help Lightning
      */
     messageHandler : function(component, helper, event) {
-        const message = event.data;
-        if (message.type === 'CALL_CONNECTED') {
-            var callId = message.callId;
-            var hlCallId = message.state;
-
-            if (callId && hlCallId) {
-                helper.updateCallId(component, callId, hlCallId);
-            }
-        } else if (message.type === 'CALL_DISCONNECTED') {
-            var callWindow = component.get("v.callWindow");
-            if (callWindow) {
-                setTimeout(function() {
-                    callWindow.close();
-                    component.set("v.callWindow", null);
-                }, 2000);
-            }
+      const message = event.data;
+      var callId = message.callId;
+      var hlCallId = message.state;
+      if (message.type === 'CALL_CONNECTED') {
+        if (callId && hlCallId) {
+          helper.updateCallId(component, callId, hlCallId);
         }
+      } else if (message.type === 'CALL_DISCONNECTED') {
+        var callWindow = component.get("v.callWindow");
+        if (callWindow) {
+          setTimeout(function () {
+            callWindow.close();
+            component.set("v.callWindow", null);
+            if (callId && hlCallId) {
+              helper.getWorkboxFromCall(component, callId)
+            }
+          }, 2000);
+        }
+      }
     },
 
     /**

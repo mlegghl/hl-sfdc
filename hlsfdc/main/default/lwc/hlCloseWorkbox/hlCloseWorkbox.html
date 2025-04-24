@@ -1,0 +1,60 @@
+<template>
+  <lightning-modal-header label="Call Ended - Close Help Thread"></lightning-modal-header>
+  <lightning-modal-body>
+    <template lwc:if={workboxInfo}>
+      <div class="slds-col slds-size_12-of-12">
+        <template for:each={workboxInfo.customFields} for:item="cf" for:index="index">
+          <div key={cf.id}>
+            <template if:true={cf.isText}>
+              <div class="slds-p-around_small lgc-bg">
+                <lightning-input 
+                  data-index={index} 
+                  type="text" 
+                  label={cf.name} 
+                  value={cf.value} 
+                  onchange={handleInputChange} 
+                  required={cf.required}>
+                </lightning-input>
+              </div>
+            </template> 
+            <template if:true={cf.isBoolean}>
+              <div class="slds-p-around_small lgc-bg">
+                <lightning-input 
+                  data-index={index} 
+                  type="checkbox" 
+                  label={cf.name} 
+                  name={cf.name} 
+                  value={cf.value} 
+                  onchange={handleCheckChange} 
+                  required={cf.required}>
+                </lightning-input>
+              </div>
+            </template>
+            <template if:true={cf.isList}>
+              <div class="slds-p-around_small lgc-bg">
+                <lightning-combobox
+                  data-index={index}
+                  name={cf.name}
+                  label={cf.name}
+                  value={cf.value}
+                  placeholder={cf.hint}
+                  options={cf.options}
+                  onchange={handleSelectChange}
+                  required={cf.required}>
+                </lightning-combobox>
+              </div>
+            </template>  
+            <template if:true={cf.isMultiList}>
+              <div class="slds-p-around_small lgc-bg">
+                <c-multi-list cfindex={index} label={cf.name} name={cf.name} options={cf.options} onchange={handleMultiSelectChange}></c-multi-list>
+              </div>
+            </template>
+          </div>
+        </template>
+      </div>
+    </template>
+  </lightning-modal-body>
+  <lightning-modal-footer>
+    <c-button-wrapper cfdata={workboxInfo} disabled={isSaveDisabled}></c-button-wrapper>
+  </lightning-modal-footer>
+</template>

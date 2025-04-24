@@ -19,6 +19,8 @@ public class HLModelCustomFieldListOption {
 
         Map<String, Object> u = (Map<String,Object>)result;
 
+        // In ticketFieldsFull the id is the value that is used to then save back to the custom field
+        // in /v1r1/workbox/custom_fields. The label is the name of the option.
         return new HLModelCustomFieldListOption((String)u.get('name'),
                                   (Integer)u.get('id'));
     }

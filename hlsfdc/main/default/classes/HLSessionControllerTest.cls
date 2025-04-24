@@ -2031,11 +2031,8 @@ private class HLSessionControllerTest {
         payload.close = false;
         
         Test.startTest();
-        // Call the method directly
-        helplightning.HLGaldrClient.saveCustomFields('test_token', payload);
-        Test.stopTest();
-        
-        // No assertions needed as we're just verifying the method executes without exceptions
+        Boolean result = helplightning.HLGaldrClient.saveCustomFields('test_token', payload);
+        System.assertEquals(true, result, 'saveCustomFields should return true when successful');
     }
     
     @isTest
@@ -2043,10 +2040,9 @@ private class HLSessionControllerTest {
         Test.setMock(HttpCalloutMock.class, new CloseWorkboxMocker());
         
         Test.startTest();
-        // Call the method directly
-        helplightning.HLGaldrClient.closeWorkbox('test_token');
+        Boolean result = helplightning.HLGaldrClient.closeWorkbox('test_token');
         Test.stopTest();
         
-        // No assertions needed as we're just verifying the method executes without exceptions
+        System.assertEquals(true, result, 'closeWorkbox should return true when successful');
     }
 }

@@ -11,11 +11,18 @@ public with sharing class HLWorkboxDetailsController {
   @AuraEnabled(cacheable=true)
   public static Boolean updateWorkbox(HLModelUpdateWorkbox payload) {
       try {
-
           // use the workbox token to authenticate
-          helplightning.HLGaldrClient.saveCustomFields(payload.workboxToken, payload);
+          Boolean saveResult = helplightning.HLGaldrClient.saveCustomFields(payload.workboxToken, payload);
+          
+          if (!saveResult) {
+              return false;
+          }
+          
           if (payload.close) {
-            helplightning.HLGaldrClient.closeWorkbox(payload.workboxToken);
+            Boolean closeResult = helplightning.HLGaldrClient.closeWorkbox(payload.workboxToken);
+            if (!closeResult) {
+                return false;
+            }
           }
           return true;
 

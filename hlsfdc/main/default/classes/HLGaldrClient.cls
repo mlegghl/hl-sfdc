@@ -124,7 +124,7 @@ public class HLGaldrClient {
     /**
      * Save the custom fields for a workbox
      */
-    public static void saveCustomFields(String workboxToken, HLModelUpdateWorkbox payload) {
+    public static Boolean saveCustomFields(String workboxToken, HLModelUpdateWorkbox payload) {
       helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
       Map<String,Object> params = new Map<String,Object>();
       params.put('values', payload.values);
@@ -132,18 +132,20 @@ public class HLGaldrClient {
                                                                     workboxToken,
                                                                     '/v1r1/workbox/custom_fields');
       Object result = request.put(params);
+      return (result != null);
     }
 
     /**
      * Close the workbox
      */
-    public static void closeWorkbox(String workboxToken) {
+    public static Boolean closeWorkbox(String workboxToken) {
       helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
       Map<String,Object> params = new Map<String,Object>();
       helplightning.HLRequest request = new helplightning.HLRequest(environment,
                                                                     workboxToken,
                                                                     '/v1r1/workbox/close');
       Object result = request.post(params);
+      return (result != null);
     }
 
     /** User Methods **/

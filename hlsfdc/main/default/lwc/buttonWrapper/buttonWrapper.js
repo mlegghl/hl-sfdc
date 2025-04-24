@@ -67,8 +67,9 @@ export default class ButtonWrapper extends LightningElement {
         this.handleCloseDialog();
       })
       .catch((err) => {
-        this.disabled = false;
         console.log('>>> handleSaveAndClose: err: ', err)
+        this.disabled = false;
+        this.handleCloseDialog();
       })
   }
 }

@@ -108,7 +108,7 @@
                 }
             } else if (component.isValid && state == "ERROR") {
                 console.log('getWorkboxFromCall error: ' + JSON.stringify(response));
-                helper.setErrors(component, "isHLUser", response);
+                helper.setErrors(component, "getWorkboxFromCall", response);
             }
         });
 

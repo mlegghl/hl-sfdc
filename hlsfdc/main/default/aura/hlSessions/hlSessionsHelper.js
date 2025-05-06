@@ -95,8 +95,6 @@
      * Check if a call has an associated workbox
      */
     getWorkboxFromCall : function(component, callId) {
-        // start timer to see how long this call takes
-        var startTime = new Date();
         var action = component.get("c.getWorkboxByCallId");
         action.setParams({"callId": callId});
         action.setCallback(this, function(response) {
@@ -104,9 +102,6 @@
             var state = response.getState();
             if (component.isValid() && state == "SUCCESS") {
                 result = response.getReturnValue();
-                var endTime = new Date();
-                var duration = endTime - startTime;
-                console.log('getWorkboxFromCall duration: ' + duration);
                 if (result !== null && result !== undefined && result !== '') {
                     component.set("v.workboxInfo", result);
                     component.set("v.isModalOpen", true);

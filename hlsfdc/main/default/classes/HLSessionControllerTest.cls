@@ -936,7 +936,7 @@ private class HLSessionControllerTest {
                               'name' => 'Support',
                               'username' => 'support',
                               'active' => true,
-                              'token' => 'user-auth-token', // Correct field name for user-specific auth
+                              'token' => 'user-auth-token',
                               'avatar' => new Map<String,String> {
                                       'original' => '/path/to/avatar.jpg',
                                       'thumb' => '/path/to/avatar-thumb.jpg'
@@ -950,11 +950,6 @@ private class HLSessionControllerTest {
               response.setStatusCode(200);
               response.setBody(JSON.serialize(result));
           } else if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1/sessions/link')) {
-               // Check for user auth token in header if necessary
-               // String authToken = req.getHeader('Authorization'); // Example: 'Token token="user-auth-token"'
-               // System.assert(authToken != null && authToken.contains('user-auth-token'));
-
-              // Simulate successful link creation
               Map<String,Object> linkResult = new Map<String,Object>{
                   'link' => 'https://short.link/abcdef12345',
                   'long_link' => 'https://app.helplightning.net/invite/abcdef12345?sig=xyz',
@@ -963,11 +958,6 @@ private class HLSessionControllerTest {
               response.setStatusCode(200);
               response.setBody(JSON.serialize(linkResult));
           } else if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1/info')) {
-              // Check for user auth token in header if necessary
-               // String authToken = req.getHeader('Authorization'); // Example: 'Token token="user-auth-token"'
-               // System.assert(authToken != null && authToken.contains('user-auth-token'));
-
-              // Simulate getting user account info
               Map<String, Object> accountResult = new Map<String, Object>{
                       'id' => 234,
                       'name' => 'User',
@@ -2128,8 +2118,6 @@ private class HLSessionControllerTest {
 
     @isTest
     static void testCreateOneTimeUseLink() {
-        // run as a support@helplightning.com user, since this
-        //  looks up the current user to find a match.
         Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
         User u1 = new User(Alias = 'support', Email='support@helplightning.com',
                            EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',

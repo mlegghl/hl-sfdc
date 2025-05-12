@@ -145,5 +145,48 @@
         });
 
         $A.enqueueAction(action);
+    },
+
+    clickCreateOneTimeUseLink : function(component, event, helper) {
+        var sObjectName = component.get("v.sObjectName");
+        var rId = component.get("v.recordId");
+        var action = component.get("c.createOneTimeUseLink");
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if (component.isValid() && state == "SUCCESS") {
+                var r = response.getReturnValue();
+                var link = r?.link;
+                var auth = r?.auth;
+                
+                // copy the mhs link to the clipboard
+                navigator.clipboard.writeText(link.longLink);
+
+                var toastEvent = $A.get("e.force:showToast");
+                toastEvent.setParams({
+                    "type": "success",
+                    "message": "Invite link copied to the clipboard."
+                });
+                toastEvent.fire();
+
+                var webUrl = auth.webUrl;
+                var userToken = auth.token;
+                var name = auth.name;
+                var username = auth.username;
+                var sessionId = auth.sessionId;
+
+                // we don't have an email or phone for the one time use link
+                var email = '';
+                var phone = '';
+
+                var url = webUrl + '/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&mode=autoAccept';
+
+                // create a new HLCall
+                helper.createNewCall(component, helper, sObjectName, rId, email, phone, sessionId, true, url);
+            } else {
+                console.log("HL::createOneTimeUseLink response failed: " + state);
+            }
+        });
+
+        $A.enqueueAction(action);
     }
 })

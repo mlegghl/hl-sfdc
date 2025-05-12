@@ -42,6 +42,7 @@
                                 defaultEmail="{!v.contact.Email || ''}"
                                 defaultPhone="{!not(empty(v.contact.MobilePhone)) ? v.contact.MobilePhone : v.contact.Phone}"
                                 onCallClick="{!c.clickCall}"
+                                onCopyLinkClick="{!c.clickCreateOneTimeUseLink}"
                                 onInviteClick="{!c.clickSendOneTimeUseLink}" />
         </aura:if>
 

@@ -15,6 +15,7 @@
     <!-- register our callback event to use as callbacks for presses on buttons -->
     <aura:registerEvent name="onCallClick" type="helplightning:hlCallContactEvent" />
     <aura:registerEvent name="onInviteClick" type="helplightning:hlInviteContactEvent" />
+    <aura:registerEvent name="onCopyLinkClick" type="helplightning:hlCopyLinkEvent" />
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
 
@@ -57,6 +58,9 @@
                         <div class="slds-float_right" style="margin-top: 15px;">
                             <ui:button class="slds-button slds-button_brand" press="{!c.sendInvite}">
                                     Send
+                            </ui:button>
+                            <ui:button class="slds-button slds-button_brand" press="{!c.copyLink}">
+                                    Copy Link
                             </ui:button>
                         </div>
                     </div>

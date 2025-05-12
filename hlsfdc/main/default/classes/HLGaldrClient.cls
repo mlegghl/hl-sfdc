@@ -260,10 +260,7 @@ public class HLGaldrClient {
                                                                     '/v1/sessions/link');
       Object results = request.post(params);
 
-      if (results == null)
-          return null;
-      else
-          return HLModelSessionLink.build(results);
+      return HLModelSessionLink.build(results);
     }
 
     /**

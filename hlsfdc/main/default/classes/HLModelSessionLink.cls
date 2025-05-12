@@ -23,15 +23,11 @@ public class HLModelSessionLink {
      *  response object
      */
     public static HLModelSessionLink build(Object linkObject) {
-        if (linkObject == null)
-            return null;
-
         Map<String,Object> l = (Map<String,Object>)linkObject;
 
         String link = (String)l.get('link');
         String longLink = (String)l.get('long_link');
         String signature = (String)l.get('signature');
-
 
         return new HLModelSessionLink(link, longLink, signature);
     }

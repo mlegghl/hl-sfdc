@@ -695,7 +695,7 @@ private class HLSessionControllerTest {
                         'active' => true,
                         'status' => 0,
                         'personal_room_url' => '/meet/support',
-                        'personal_room_session_id' => 'personal-room-session-123'
+                        'personal_room_session_id' => 'xxx-yyyy-zzz'
                         };
 
                 response.setStatusCode(200);

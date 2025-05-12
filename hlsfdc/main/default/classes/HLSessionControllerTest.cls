@@ -1802,7 +1802,7 @@ private class HLSessionControllerTest {
             System.assertEquals('my-token', result.get('token'));
             System.assertEquals('Support', result.get('name'));
             System.assertEquals('support', result.get('username'));
-            System.assertEquals('personal-room-session-123', result.get('sessionId'));
+            System.assertEquals('xxx-yyyy-zzz', result.get('sessionId'));
 
             // try an invalid case
             result = helplightning.HLSessionController.sendOneTimeUseLink('Invalid User', 'invalid-user@helplightning.com', '', '');

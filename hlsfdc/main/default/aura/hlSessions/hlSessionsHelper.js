@@ -186,9 +186,9 @@
      *
      * If one exists, remove it first
      */
-    addMessageHandler : function(component) {
+    addMessageHandler : function(component, helper) {
         // remove any existing one
-        removeMessageHandler();
+        helper.removeMessageHandler();
 
         var eventHandler = component.get("v.eventHandler");
         if (eventHandler) {
@@ -280,7 +280,7 @@
                 url = url + '&callbackState=' + newHLCall.Id;
                 var w = window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900');
                 component.set("v.callWindow", w);
-                addMessageHandler(component);
+                helper.addMessageHandler(component, helper);
             }
         });
 

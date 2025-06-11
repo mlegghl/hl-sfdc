@@ -50,8 +50,6 @@
 
             });
         });
-
-        window.addEventListener('message', eventHandler);
     },
 
     doDestroy : function(component, event, helper) {
@@ -61,13 +59,13 @@
             window.clearInterval(timer);
         }
 
-        var eventHandler = component.get("v.eventHandler");
-        if (eventHandler) {
-            window.removeEventListener('message', eventHandler);
-        }
+        // Do any cleanup. This would normally have been removed, but
+        //  if the user navigated away, while a Help Lightning call
+        //  was in progress, this may linger.
+        helper.removeMessageHandler(component);
     },
 
-    closeModal: function(component, event, helper) { 
+    closeModal: function(component, event, helper) {
       component.set("v.isModalOpen", false);
     },
 

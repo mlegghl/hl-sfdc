@@ -1,3 +1,6 @@
+2025-06-11  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-110 - Random component error when call connects
+
 2025-06-11  Micah Legg <micah.legg@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
 	* SFDC-109 - Make custom fields appear quicker after call is ended
 

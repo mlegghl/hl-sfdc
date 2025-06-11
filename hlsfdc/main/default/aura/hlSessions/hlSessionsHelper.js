@@ -153,14 +153,15 @@
           helper.updateCallId(component, callId, hlCallId);
         }
       } else if (message.type === 'CALL_DISCONNECTED') {
+        if (callId) {
+          helper.getWorkboxFromCall(component, callId);
+        }
+
         var callWindow = component.get("v.callWindow");
         if (callWindow) {
           setTimeout(function () {
             callWindow.close();
             component.set("v.callWindow", null);
-            if (callId && hlCallId) {
-              helper.getWorkboxFromCall(component, callId)
-            }
           }, 2000);
         }
       }

@@ -145,25 +145,66 @@
      * Handler for messages from Help Lightning
      */
     messageHandler : function(component, helper, event) {
-      const message = event.data;
-      var callId = message.callId;
-      var hlCallId = message.state;
-      if (message.type === 'CALL_CONNECTED') {
-        if (callId && hlCallId) {
-          helper.updateCallId(component, callId, hlCallId);
-        }
-      } else if (message.type === 'CALL_DISCONNECTED') {
         var callWindow = component.get("v.callWindow");
-        if (callWindow) {
-          setTimeout(function () {
-            callWindow.close();
-            component.set("v.callWindow", null);
-            if (callId && hlCallId) {
-              helper.getWorkboxFromCall(component, callId)
+        if (event.source !== callWindow) {
+            // This is not our message.
+            //
+            // Check if our callWindow is still valid and open. If
+            // now, remove this handler, it isn't useful anymore
+            if (!callWindow || callWindow.closed) {
+                helper.removeMessageHandler(component);
             }
-          }, 2000);
+            return;
+        } else {
+            const message = event.data;
+            var callId = message.callId;
+            var hlCallId = message.state;
+            if (message.type === 'CALL_CONNECTED') {
+                if (callId && hlCallId) {
+                    helper.updateCallId(component, callId, hlCallId);
+                }
+            } else if (message.type === 'CALL_DISCONNECTED') {
+                // remove the event handler
+                helper.removeMessageHandler(component);
+
+                if (callId) {
+                    helper.getWorkboxFromCall(component, callId);
+                }
+
+                var callWindow = component.get("v.callWindow");
+                if (callWindow) {
+                    setTimeout(function () {
+                        callWindow.close();
+                        component.set("v.callWindow", null);
+                    }, 2000);
+                }
+            }
         }
-      }
+    },
+
+    /**
+     * Set up a message handler
+     *
+     * If one exists, remove it first
+     */
+    addMessageHandler : function(component, helper) {
+        // remove any existing one
+        helper.removeMessageHandler(component);
+
+        var eventHandler = component.get("v.eventHandler");
+        if (eventHandler) {
+            window.addEventListener('message', eventHandler);
+        }
+    },
+
+    /**
+     * Remove our message event handler from the main window
+     */
+    removeMessageHandler : function(component) {
+        var eventHandler = component.get("v.eventHandler");
+        if (eventHandler) {
+            window.removeEventListener('message', eventHandler);
+        }
     },
 
     /**
@@ -240,6 +281,7 @@
                 url = url + '&callbackState=' + newHLCall.Id;
                 var w = window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900');
                 component.set("v.callWindow", w);
+                helper.addMessageHandler(component, helper);
             }
         });
 

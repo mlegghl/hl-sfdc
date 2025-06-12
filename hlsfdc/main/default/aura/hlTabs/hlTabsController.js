@@ -36,7 +36,11 @@
             event.setParam("message", message);
             event.fire();
         }
+    },
 
-        
+    copyLink : function(component, event, helper) {
+        // call the parent handler
+        var event = component.getEvent('onCopyLinkClick');
+        event.fire();
     }
 })

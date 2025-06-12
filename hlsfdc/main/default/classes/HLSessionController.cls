@@ -493,6 +493,59 @@ public with sharing class HLSessionController {
      *  This will send out an email to them.
      */
     @AuraEnabled
+    public static Map<String,Object> createOneTimeUseLink() {
+        System.debug('createOneTimeUseLink');
+
+        try {
+            String myUserEmail = helplightning.HLUserHelper.getLogin();
+            System.debug('myUserId=' + myUserEmail);
+
+            // first get a list of users to find us, since
+            //  we have to make this request as a specific user
+            String token = HLTokenHelper.getToken();
+            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(token, myUserEmail);
+            if (users == null || users.size() == 0) {
+                System.debug('Error finding our user.');
+                return null;
+            }
+
+            // use the first user.
+            String name = users.get(0).name;
+            String username = users.get(0).username;
+            String userToken = users.get(0).authToken;
+            if (userToken == null) {
+                System.debug('Invalid user token');
+                return null;
+            }
+
+            // Now create the invite. We use the user
+            //  token we retrieved so that this acts
+            //  on behalf of that user.
+            helplightning.HLModelSessionLink link = helplightning.HLGaldrClient.createOneTimeUseLink(userToken);
+            if (link == null) {
+                System.debug('Failed to create link');
+                return null;
+            }
+
+            // get our user info, which will give us our personal room session
+            helplightning.HLModelAccount account = helplightning.HLGaldrClient.getInfo(userToken);
+            helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+
+            // return both the link and the auth info
+            Map<String,Object> result = new Map<String,Object>();
+            result.put('link', link);
+            result.put('auth', (new helplightning.HLMeetingRoomAuth(environment.url, userToken, username, name, account.personalRoomSessionId)).serialize());
+            return result;
+        } catch (helplightning.HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
+        }
+    }
+
+    /**
+     * Invite a user to a personal room.
+     *  This will send out an email to them.
+     */
+    @AuraEnabled
     public static Map<String,Object> sendOneTimeUseLink(String otherUsersName, String otherUsersEmail, String otherUsersPhone, String message) {
         System.debug('sendOneTimeUseLink: ' + otherUsersName + ' email: ' + otherUsersEmail + ' phone: ' + otherUsersPhone);
 

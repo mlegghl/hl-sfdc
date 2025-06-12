@@ -1,3 +1,6 @@
+2025-06-12  Marcus Dillavou <marcus.dillavou@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>
+	* SFDC-113 - Component Error in removeMessageHandler
+
 3.15
 ==========
 2025-06-12  Micah Legg <micah.legg@helplightning.com> - Merged by Marcus Dillavou  <marcus.dillavou@helplightning.com>

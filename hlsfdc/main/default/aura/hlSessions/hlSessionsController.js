@@ -78,9 +78,8 @@
         action.setParams({"otherUsersEmail": email});
         action.setCallback(this, function(response) {
             var state = response.getState();
-            if (component.isValid() && state == "SUCCESS") {
-                var r = response.getReturnValue();
-
+            var r = response.getReturnValue();
+            if (component.isValid() && state == "SUCCESS" && r) {
                 var webUrl = r.webUrl;
                 var userToken = r.token;
                 var sessionId = r.sessionId;
@@ -94,6 +93,12 @@
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId, email, null, sessionId, false, url);
             } else {
+                var toastEvent = $A.get("e.force:showToast");
+                toastEvent.setParams({
+                    "type": "error",
+                    "message": "Failed to create a call."
+                });
+                toastEvent.fire();
                 console.log("HL::makeSessionWith response failed: " + state);
             }
         });
@@ -114,7 +119,8 @@
         action.setParams({"otherUsersName": contactName, "otherUsersEmail": sendToEmail, "otherUsersPhone": phone, message: message});
         action.setCallback(this, function(response) {
             var state = response.getState();
-            if (component.isValid() && state == "SUCCESS") {
+            var r = response.getReturnValue();
+            if (component.isValid() && state == "SUCCESS" && r) {
                 console.log("successfully invited to personal room");
 
                 // show notification to user when helpspace link is sent
@@ -125,7 +131,6 @@
                 });
                 toastEvent.fire();
 
-                var r = response.getReturnValue();
                 var webUrl = r.webUrl;
                 var userToken = r.token;
                 var name = r.name;
@@ -138,6 +143,12 @@
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId, email, phone, sessionId, true, url);
             } else {
+                var toastEvent = $A.get("e.force:showToast");
+                toastEvent.setParams({
+                    "type": "error",
+                    "message": "Failed to send invite."
+                });
+                toastEvent.fire();
                 console.log("HL::sendOneTimeUseLink response failed: " + state);
             }
         });
@@ -151,8 +162,8 @@
         var action = component.get("c.createOneTimeUseLink");
         action.setCallback(this, function(response) {
             var state = response.getState();
-            if (component.isValid() && state == "SUCCESS") {
-                var r = response.getReturnValue();
+            var r = response.getReturnValue();
+            if (component.isValid() && state == "SUCCESS" && r) {
                 var link = r?.link;
                 var auth = r?.auth;
 
@@ -188,6 +199,12 @@
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId, email, phone, sessionId, true, url);
             } else {
+                var toastEvent = $A.get("e.force:showToast");
+                toastEvent.setParams({
+                    "type": "error",
+                    "message": "Failed to create invite link."
+                });
+                toastEvent.fire();
                 console.log("HL::createOneTimeUseLink response failed: " + state);
             }
         });

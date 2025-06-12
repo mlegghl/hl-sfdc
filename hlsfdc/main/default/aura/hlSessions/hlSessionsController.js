@@ -78,9 +78,8 @@
         action.setParams({"otherUsersEmail": email});
         action.setCallback(this, function(response) {
             var state = response.getState();
-            if (component.isValid() && state == "SUCCESS") {
-                var r = response.getReturnValue();
-
+            var r = response.getReturnValue();
+            if (component.isValid() && state == "SUCCESS" && r) {
                 var webUrl = r.webUrl;
                 var userToken = r.token;
                 var sessionId = r.sessionId;
@@ -94,6 +93,12 @@
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId, email, null, sessionId, false, url);
             } else {
+                var toastEvent = $A.get("e.force:showToast");
+                toastEvent.setParams({
+                    "type": "error",
+                    "message": "Failed to create a call."
+                });
+                toastEvent.fire();
                 console.log("HL::makeSessionWith response failed: " + state);
             }
         });
@@ -114,7 +119,8 @@
         action.setParams({"otherUsersName": contactName, "otherUsersEmail": sendToEmail, "otherUsersPhone": phone, message: message});
         action.setCallback(this, function(response) {
             var state = response.getState();
-            if (component.isValid() && state == "SUCCESS") {
+            var r = response.getReturnValue();
+            if (component.isValid() && state == "SUCCESS" && r) {
                 console.log("successfully invited to personal room");
 
                 // show notification to user when helpspace link is sent
@@ -125,7 +131,6 @@
                 });
                 toastEvent.fire();
 
-                var r = response.getReturnValue();
                 var webUrl = r.webUrl;
                 var userToken = r.token;
                 var name = r.name;
@@ -138,7 +143,69 @@
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId, email, phone, sessionId, true, url);
             } else {
+                var toastEvent = $A.get("e.force:showToast");
+                toastEvent.setParams({
+                    "type": "error",
+                    "message": "Failed to send invite."
+                });
+                toastEvent.fire();
                 console.log("HL::sendOneTimeUseLink response failed: " + state);
+            }
+        });
+
+        $A.enqueueAction(action);
+    },
+
+    clickCreateOneTimeUseLink : function(component, event, helper) {
+        var sObjectName = component.get("v.sObjectName");
+        var rId = component.get("v.recordId");
+        var action = component.get("c.createOneTimeUseLink");
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            var r = response.getReturnValue();
+            if (component.isValid() && state == "SUCCESS" && r) {
+                var link = r?.link;
+                var auth = r?.auth;
+
+                // copy the mhs link to the clipboard
+                navigator.clipboard.writeText(link.longLink).then(function() {
+                    var toastEvent = $A.get("e.force:showToast");
+                    toastEvent.setParams({
+                        "type": "success",
+                        "message": "Invite link copied to the clipboard."
+                    });
+                    toastEvent.fire();
+                }).catch(function() {
+                    var toastEvent = $A.get("e.force:showToast");
+                    toastEvent.setParams({
+                        "type": "error",
+                        "message": "Failed to copy invite link to clipboard."
+                    });
+                    toastEvent.fire();
+                });
+
+                var webUrl = auth.webUrl;
+                var userToken = auth.token;
+                var name = auth.name;
+                var username = auth.username;
+                var sessionId = auth.sessionId;
+
+                // we don't have an email or phone for the one time use link
+                var email = '';
+                var phone = '';
+
+                var url = webUrl + '/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&mode=autoAccept';
+
+                // create a new HLCall
+                helper.createNewCall(component, helper, sObjectName, rId, email, phone, sessionId, true, url);
+            } else {
+                var toastEvent = $A.get("e.force:showToast");
+                toastEvent.setParams({
+                    "type": "error",
+                    "message": "Failed to create invite link."
+                });
+                toastEvent.fire();
+                console.log("HL::createOneTimeUseLink response failed: " + state);
             }
         });
 

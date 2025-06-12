@@ -1,0 +1,2 @@
+<aura:event type="COMPONENT" description="Event fired when the copy link button is clicked">
+</aura:event> 

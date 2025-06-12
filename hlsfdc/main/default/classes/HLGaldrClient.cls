@@ -249,6 +249,21 @@ public class HLGaldrClient {
     }
 
     /**
+     * Create a one time use link
+     */
+    public static HLModelSessionLink createOneTimeUseLink(String userToken) {
+      Map<String,String> params = new Map<String,String>();
+      params.put('linkType', 'otu');
+      helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+      helplightning.HLRequest request = new helplightning.HLRequest(environment,
+                                                                    userToken,
+                                                                    '/v1/sessions/link');
+      Object results = request.post(params);
+
+      return HLModelSessionLink.build(results);
+    }
+
+    /**
      * Get attachments for a call
      */
     public static List<helplightning.HLModelAttachment> getAttachments(String token, String callId) {

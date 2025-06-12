@@ -914,6 +914,76 @@ private class HLSessionControllerTest {
         }
     }
 
+
+    /**
+     * Mocker for the testCreateOneTimeUseLink
+     */
+    class CreateOneTimeUseLinkMocker implements HttpCalloutMock {
+      public HTTPResponse respond(HTTPRequest req) {
+          URL endpoint = new URL(req.getEndpoint());
+
+          HttpResponse response = new HttpResponse();
+          response.setHeader('Content-Type', 'application/json');
+
+          if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1/enterprise/users')) {
+              Map<String, Object> result = new Map<String, Object>();
+
+              if (endpoint.getQuery() == 'filter=email%3Dsupport%40helplightning.com') {
+                  result.put('total_entries', 1);
+                  result.put('entries', new List<Object> {
+                          new Map<String,Object>{
+                              'id' => 234,
+                              'name' => 'Support',
+                              'username' => 'support',
+                              'active' => true,
+                              'token' => 'user-auth-token',
+                              'avatar' => new Map<String,String> {
+                                      'original' => '/path/to/avatar.jpg',
+                                      'thumb' => '/path/to/avatar-thumb.jpg'
+                              }
+                          }
+                      });
+              } else {
+                  result.put('total_entries', 0);
+                  result.put('entries', new List<Object>{});
+              }
+              response.setStatusCode(200);
+              response.setBody(JSON.serialize(result));
+          } else if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1/sessions/link')) {
+              Map<String,Object> linkResult = new Map<String,Object>{
+                  'link' => 'https://short.link/abcdef12345',
+                  'long_link' => 'https://app.helplightning.net/invite/abcdef12345?sig=xyz',
+                  'signature' => 'test-signature-123'
+              };
+              response.setStatusCode(200);
+              response.setBody(JSON.serialize(linkResult));
+          } else if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1/info')) {
+              Map<String, Object> accountResult = new Map<String, Object>{
+                      'id' => 234,
+                      'name' => 'User',
+                      'username' => 'test-user',
+                      'email' => 'test-user@helplightning.com',
+                      'avatar' => new Map<String,String> {
+                              'original' => '/path/to/avatar.jpg',
+                              'thumb' => '/path/to/avatar-thumb.jpg'
+                              },
+                      'available' => true,
+                      'active' => true,
+                      'status' => 0,
+                      'personal_room_url' => '/meet/test-user',
+                      'personal_room_session_id' => 'personal-room-session-123'
+                      };
+
+              response.setStatusCode(200);
+              response.setBody(JSON.serialize(accountResult));
+          } else {
+              response.setStatusCode(500);
+          }
+
+          return response;
+      }
+    }
+
     @testSetup static void setup() {
         // create some data.
 
@@ -2044,5 +2114,36 @@ private class HLSessionControllerTest {
         Test.stopTest();
         
         System.assertEquals(true, result, 'closeWorkbox should return true when successful');
+    }
+
+    @isTest
+    static void testCreateOneTimeUseLink() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u1 = new User(Alias = 'support', Email='support@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u1;
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up the mock
+        Test.setMock(HttpCalloutMock.class, new CreateOneTimeUseLinkMocker());
+
+        System.RunAs(u1) {
+            Map<String,Object> result = helplightning.HLSessionController.createOneTimeUseLink();
+            
+            // Simplified assertions - just check that it's not null and has expected structure
+            System.assertNotEquals(null, result, 'Result should not be null');
+            System.assert(result.containsKey('link'), 'Result should contain link key');
+            System.assert(result.containsKey('auth'), 'Result should contain auth key');
+        }
+
+        Test.stopTest();
     }
 }

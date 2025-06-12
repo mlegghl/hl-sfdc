@@ -189,7 +189,7 @@
      */
     addMessageHandler : function(component, helper) {
         // remove any existing one
-        helper.removeMessageHandler();
+        helper.removeMessageHandler(component);
 
         var eventHandler = component.get("v.eventHandler");
         if (eventHandler) {

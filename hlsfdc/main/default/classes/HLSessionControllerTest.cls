@@ -1896,7 +1896,7 @@ private class HLSessionControllerTest {
         Test.startTest();
 
         // set up a mock
-        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(1));
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(0));
 
         System.RunAs(u1) {
             Boolean result = helplightning.HLSessionController.checkRegistration();
@@ -2010,16 +2010,49 @@ private class HLSessionControllerTest {
      */
     @isTest
     static void testCheckRegistrationSiteLevel() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u1 = new User(Alias = 'support', Email='support@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u1;
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up a mock with 1 workspace, which means our key was a
+        //  site level key
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(1));
+
+        System.RunAs(u1) {
+            Boolean result = helplightning.HLSessionController.checkRegistration();
+            System.assertEquals(true, result);
+        }
+
+        Test.stopTest();
+    }
+
+    /**
+     * Test checkRegistration when the partner key is
+     *  at the site level AND the user has multiple
+     *  aliases AND a default workspace
+     */
+    @isTest
+    static void testCheckRegistrationSiteLevelMultipleAliases() {
         System.assert(false);
     }
 
     /**
      * Test checkRegistration when the partner key is
      *  at the site level AND the user has multiple
-     *  aliases
+     *  aliases AND NO default workspace has been set
      */
     @isTest
-    static void testCheckRegistrationSiteLevelMultipleAliases() {
+    static void testCheckRegistrationSiteLevelMultipleAliasesNoDefaultWorkspace() {
         System.assert(false);
     }
 

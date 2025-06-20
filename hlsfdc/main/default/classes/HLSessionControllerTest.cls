@@ -500,10 +500,11 @@ private class HLSessionControllerTest {
               result.put('total_entries', numWorkspaces);
               List<Map<String,Object>> entries = new List<Map<String,Object>>();
               for (Integer i = 0; i < numWorkspaces; i++) {
-                  System.debug('adding workspace entry ' + i);
+                  Integer workspaceId = 50 + i;
+                  System.debug('adding workspace entry ' + workspaceId);
                   entries.add(new Map<String,Object>{
-                          'id' => i,
-                          'name' => 'name_' + i,
+                          'id' => workspaceId,
+                          'name' => 'name_' + workspaceId,
                           'token' => 'valid-token',
                           'active' => true
                       });
@@ -2052,7 +2053,7 @@ private class HLSessionControllerTest {
 
         // set a default workspace override
         System.RunAs(u1) {
-            HLConfiguration.setWorkspaceId('1');
+            HLConfiguration.setWorkspaceId('51');
         }
 
         // We are not allowed to do an DML operations
@@ -2081,7 +2082,116 @@ private class HLSessionControllerTest {
      */
     @isTest
     static void testCheckRegistrationSiteLevelMultipleAliasesNoDefaultWorkspace() {
-        System.assert(false);
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u1 = new User(Alias = 'support', Email='support@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u1;
+
+        // This user will have no defaultWorkspaceId override,
+        //  and since they are in two workspaces, it will just pick
+        //  the first one available
+        System.RunAs(u1) {
+            HLConfiguration.setWorkspaceId(null);
+        }
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up a mock with 2 workspaces, which means our key was a
+        //  site level key, AND we have 2 aliases
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(2));
+
+        System.RunAs(u1) {
+            Boolean result = helplightning.HLSessionController.checkRegistration();
+            System.assertEquals(true, result);
+        }
+
+        Test.stopTest();
+    }
+
+    /**
+     * Test checkRegistration when the partner key is
+     *  at the site level AND the user doesn't exist in
+     *  any of the workspaces
+     */
+    @isTest
+    static void testCheckRegistrationSiteLevelNoAliases() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u1 = new User(Alias = 'noexist', Email='noexist@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='noexist@helplightning.com');
+        insert u1;
+
+        // This user will have no defaultWorkspaceId override,
+        //  and since they are in two workspaces, it will just pick
+        //  the first one available
+        System.RunAs(u1) {
+            HLConfiguration.setWorkspaceId(null);
+        }
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up a mock with 2 workspaces, which means our key was a
+        //  site level key, AND we have 0 aliases
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(2));
+
+        System.RunAs(u1) {
+            Boolean result = helplightning.HLSessionController.checkRegistration();
+            System.assertEquals(false, result);
+        }
+
+        Test.stopTest();
+    }
+
+    /**
+     * Test checkRegistration when the partner key is
+     *  at the site level AND the user has multiple
+     *  aliases AND the defaultWorkspaceId is set incorrectly
+     */
+    @isTest
+    static void testCheckRegistrationSiteLevelMultipleAliasesWrongDefaultWorkspace() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u1 = new User(Alias = 'support', Email='support@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u1;
+
+        // This user will have an invalid defaultWorkspaceId override,
+        // This will cause a login failure
+        System.RunAs(u1) {
+            HLConfiguration.setWorkspaceId('23434');
+        }
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up a mock with 2 workspaces, which means our key was a
+        //  site level key, AND we have 2 aliases, but our default is invalid
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(2));
+
+        System.RunAs(u1) {
+            Boolean result = helplightning.HLSessionController.checkRegistration();
+            System.assertEquals(false, result);
+        }
+
+        Test.stopTest();
     }
 
     /**

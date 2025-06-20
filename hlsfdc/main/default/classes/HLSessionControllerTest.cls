@@ -2043,7 +2043,35 @@ private class HLSessionControllerTest {
      */
     @isTest
     static void testCheckRegistrationSiteLevelMultipleAliases() {
-        System.assert(false);
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u1 = new User(Alias = 'support', Email='support@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u1;
+
+        // set a default workspace override
+        System.RunAs(u1) {
+            HLConfiguration.setWorkspaceId('1');
+        }
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up a mock with 2 workspaces, which means our key was a
+        //  site level key, AND we have 2 aliases
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(2));
+
+        System.RunAs(u1) {
+            Boolean result = helplightning.HLSessionController.checkRegistration();
+            System.assertEquals(true, result);
+        }
+
+        Test.stopTest();
     }
 
     /**

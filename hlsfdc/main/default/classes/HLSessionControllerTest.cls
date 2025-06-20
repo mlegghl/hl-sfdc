@@ -433,10 +433,16 @@ private class HLSessionControllerTest {
      * Mocker for the checkRegistration
      */
     class CheckRegistrationMocker implements HttpCalloutMock {
-        // this flag is used to simulate 2 different responses for the same endpoint
-        Boolean empty;
-        CheckRegistrationMocker(Boolean e) {
-          this.empty = e;
+        // this flag is used to simulate how many workspaces
+        // this user might be in. Setting this to 0 is going to
+        // indicate that the key used is a key for a workspace.
+        // Settings this to > 0, indicates that the key is for
+        // a Site, and we need to find an alias user. Ideally,
+        // there is only 1 workspace, but if there are more than
+        // that, this will fail unless the user has set a default.
+        Integer numWorkspaces;
+        CheckRegistrationMocker(Integer numWorkspaces) {
+          this.numWorkspaces = numWorkspaces;
         }
         public HTTPResponse respond(HTTPRequest req) {
             URL endpoint = new URL(req.getEndpoint());
@@ -491,20 +497,20 @@ private class HLSessionControllerTest {
                 response.setBody(JSON.serialize(result));
             } else if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1r1/enterprise/workspaces')) {
               Map<String, Object> result = new Map<String, Object>();
-              if (empty) {
-                result.put('total_entries', 0);
-                result.put('entries', new List<Object>{});
-              } else {
-                result.put('total_entries', 1);
-                result.put('entries', new List<Object> {
-                  new Map<String,Object>{
-                      'id' => 123,
-                      'name' => 'name',
-                      'token' => 'valid-token',
-                      'active' => true
-                      }
-                });
+              result.put('total_entries', numWorkspaces);
+              List<Map<String,Object>> entries = new List<Map<String,Object>>();
+              for (Integer i = 0; i < numWorkspaces; i++) {
+                  System.debug('adding workspace entry ' + i);
+                  entries.add(new Map<String,Object>{
+                          'id' => i,
+                          'name' => 'name_' + i,
+                          'token' => 'valid-token',
+                          'active' => true
+                      });
               }
+              result.put('entries', entries);
+
+              System.debug('returning result');
               response.setStatusCode(200);
               response.setBody(JSON.serialize(result));
             }  else {
@@ -1890,7 +1896,7 @@ private class HLSessionControllerTest {
         Test.startTest();
 
         // set up a mock
-        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(false));
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(1));
 
         System.RunAs(u1) {
             Boolean result = helplightning.HLSessionController.checkRegistration();
@@ -1930,7 +1936,7 @@ private class HLSessionControllerTest {
         Test.startTest();
 
         // set up a mock
-        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(true));
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(0));
 
         // make sure it works for u2 with an override.
         System.RunAs(u2) {
@@ -1971,7 +1977,7 @@ private class HLSessionControllerTest {
         Test.startTest();
 
         // set up a mock
-        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(false));
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(1));
 
 
         System.RunAs(u1) {
@@ -1996,6 +2002,25 @@ private class HLSessionControllerTest {
         }
 
         Test.stopTest();
+    }
+
+    /**
+     * Test checkRegistration when the partner key is
+     *  at the site level
+     */
+    @isTest
+    static void testCheckRegistrationSiteLevel() {
+        System.assert(false);
+    }
+
+    /**
+     * Test checkRegistration when the partner key is
+     *  at the site level AND the user has multiple
+     *  aliases
+     */
+    @isTest
+    static void testCheckRegistrationSiteLevelMultipleAliases() {
+        System.assert(false);
     }
 
     /**

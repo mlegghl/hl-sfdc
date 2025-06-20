@@ -826,17 +826,17 @@ private class HLSessionControllerTest {
     class GetWorkboxByCallIdMocker implements HttpCalloutMock {
       public HTTPResponse respond(HTTPRequest req) {
           URL endpoint = new URL(req.getEndpoint());
-  
+
           HttpResponse response = new HttpResponse();
           response.setHeader('Content-Type', 'application/json');
-  
+
           if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1r1/enterprise/workboxes/by_call_id/')) {
               Map<String,Object> responseWrapper = new Map<String,Object>{
                   'workbox' => new Map<String,Object>{
                       'id' => 12345,
                       'token' => 'test_token',
                       'status' => 'active',
-                      'ticketFieldsFull' => new List<Map<String,Object>>{ 
+                      'ticketFieldsFull' => new List<Map<String,Object>>{
                           new Map<String,Object>{
                               'name' => 'field1',
                               'value' => 'value1'
@@ -848,13 +848,13 @@ private class HLSessionControllerTest {
                       }
                   }
               };
-  
+
               response.setBody(JSON.serialize(responseWrapper));
               response.setStatusCode(200);
           } else {
               response.setStatusCode(500);
           }
-  
+
           return response;
       }
     }
@@ -862,10 +862,10 @@ private class HLSessionControllerTest {
     class GetWorkboxByCallIdNullMocker implements HttpCalloutMock {
       public HTTPResponse respond(HTTPRequest req) {
           URL endpoint = new URL(req.getEndpoint());
-  
+
           HttpResponse response = new HttpResponse();
           response.setHeader('Content-Type', 'application/json');
-  
+
           if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1r1/enterprise/workboxes/by_call_id/')) {
               // Return null response to test the null check in HLModelWorkboxDetails.build()
               response.setBody('null');
@@ -873,7 +873,7 @@ private class HLSessionControllerTest {
           } else {
               response.setStatusCode(500);
           }
-  
+
           return response;
       }
     }
@@ -881,34 +881,34 @@ private class HLSessionControllerTest {
     class SaveCustomFieldsMocker implements HttpCalloutMock {
       public HTTPResponse respond(HTTPRequest req) {
           URL endpoint = new URL(req.getEndpoint());
-  
+
           HttpResponse response = new HttpResponse();
           response.setHeader('Content-Type', 'application/json');
-  
+
           if (req.getMethod() == 'PUT' && endpoint.getPath().startsWith('/api/v1r1/workbox/custom_fields')) {
               // Verify the request body contains the expected values
               Map<String, Object> requestBody = (Map<String, Object>)JSON.deserializeUntyped(req.getBody());
               System.assertNotEquals(null, requestBody, 'Request body should not be null');
               System.assertNotEquals(null, requestBody.get('values'), 'Values should not be null');
-              
+
               // Return a success response
               response.setStatusCode(200);
               response.setBody('{"success": true}');
           } else {
               response.setStatusCode(500);
           }
-  
+
           return response;
       }
     }
-  
+
     class CloseWorkboxMocker implements HttpCalloutMock {
         public HTTPResponse respond(HTTPRequest req) {
             URL endpoint = new URL(req.getEndpoint());
-    
+
             HttpResponse response = new HttpResponse();
             response.setHeader('Content-Type', 'application/json');
-    
+
             if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1r1/workbox/close')) {
                 // Return a success response
                 response.setStatusCode(200);
@@ -916,7 +916,7 @@ private class HLSessionControllerTest {
             } else {
                 response.setStatusCode(500);
             }
-    
+
             return response;
         }
     }
@@ -2246,7 +2246,7 @@ private class HLSessionControllerTest {
         //  is a future, which means it runs asynchronously, and won't be guaranteed
         //  to complete until the stopTest is called.
         // https://developer.salesforce.com/docs/atlas.en-us.234.0.apexcode.meta/apexcode/apex_invoking_future_methods.htm
-        
+
         // Verify that the ContentVersion was created
         List<ContentVersion> contentVersions = [SELECT Id FROM ContentVersion];
         System.assertEquals(1, contentVersions.size());
@@ -2255,7 +2255,7 @@ private class HLSessionControllerTest {
     @isTest
     static void testGetWorkboxByCallId() {
         Test.setMock(HttpCalloutMock.class, new GetWorkboxByCallIdMocker());
-        
+
         Test.startTest();
         HLModelWorkboxDetails result = HLSessionController.getWorkboxByCallId('test_call_123');
         Test.stopTest();
@@ -2264,16 +2264,16 @@ private class HLSessionControllerTest {
         System.assertEquals(12345, result.workboxId);
         System.assertEquals('test_token', result.workboxToken);
         System.assertEquals('active', result.status);
-        
+
         // Verify custom fields
         System.assertNotEquals(null, result.customFields);
         System.assertEquals(2, result.customFields.size());
     }
-    
+
     @isTest
     static void testGetWorkboxByCallIdWithNullResponse() {
         Test.setMock(HttpCalloutMock.class, new GetWorkboxByCallIdNullMocker());
-        
+
         Test.startTest();
         HLModelWorkboxDetails result = HLSessionController.getWorkboxByCallId('test_call_123');
         Test.stopTest();
@@ -2281,11 +2281,11 @@ private class HLSessionControllerTest {
         // Verify that the result is null when the response is null
         System.assertEquals(null, result, 'Result should be null when response is null');
     }
-    
+
     @isTest
     static void testSaveCustomFields() {
         Test.setMock(HttpCalloutMock.class, new SaveCustomFieldsMocker());
-        
+
         // Create a test payload
         HLModelUpdateWorkbox payload = new HLModelUpdateWorkbox();
         payload.workboxId = 12345;
@@ -2295,20 +2295,20 @@ private class HLSessionControllerTest {
             'field2' => 'value2'
         };
         payload.close = false;
-        
+
         Test.startTest();
         Boolean result = helplightning.HLGaldrClient.saveCustomFields('test_token', payload);
         System.assertEquals(true, result, 'saveCustomFields should return true when successful');
     }
-    
+
     @isTest
     static void testCloseWorkbox() {
         Test.setMock(HttpCalloutMock.class, new CloseWorkboxMocker());
-        
+
         Test.startTest();
         Boolean result = helplightning.HLGaldrClient.closeWorkbox('test_token');
         Test.stopTest();
-        
+
         System.assertEquals(true, result, 'closeWorkbox should return true when successful');
     }
 
@@ -2333,7 +2333,7 @@ private class HLSessionControllerTest {
 
         System.RunAs(u1) {
             Map<String,Object> result = helplightning.HLSessionController.createOneTimeUseLink();
-            
+
             // Simplified assertions - just check that it's not null and has expected structure
             System.assertNotEquals(null, result, 'Result should not be null');
             System.assert(result.containsKey('link'), 'Result should contain link key');

@@ -350,6 +350,10 @@ public with sharing class HLSessionController {
 
             // Query the users in our enteprise, and filter
             //  for our email.
+            if (token == null) {
+                System.debug('No token found. This user doesnt exist');
+                return false;
+            }
             List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(token, myUserEmail);
 
             // After all web callouts are complete, we can set our flags.

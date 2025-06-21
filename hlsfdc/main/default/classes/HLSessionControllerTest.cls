@@ -433,10 +433,16 @@ private class HLSessionControllerTest {
      * Mocker for the checkRegistration
      */
     class CheckRegistrationMocker implements HttpCalloutMock {
-        // this flag is used to simulate 2 different responses for the same endpoint
-        Boolean empty;
-        CheckRegistrationMocker(Boolean e) {
-          this.empty = e;
+        // this flag is used to simulate how many workspaces
+        // this user might be in. Setting this to 0 is going to
+        // indicate that the key used is a key for a workspace.
+        // Settings this to > 0, indicates that the key is for
+        // a Site, and we need to find an alias user. Ideally,
+        // there is only 1 workspace, but if there are more than
+        // that, this will fail unless the user has set a default.
+        Integer numWorkspaces;
+        CheckRegistrationMocker(Integer numWorkspaces) {
+          this.numWorkspaces = numWorkspaces;
         }
         public HTTPResponse respond(HTTPRequest req) {
             URL endpoint = new URL(req.getEndpoint());
@@ -491,20 +497,21 @@ private class HLSessionControllerTest {
                 response.setBody(JSON.serialize(result));
             } else if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1r1/enterprise/workspaces')) {
               Map<String, Object> result = new Map<String, Object>();
-              if (empty) {
-                result.put('total_entries', 0);
-                result.put('entries', new List<Object>{});
-              } else {
-                result.put('total_entries', 1);
-                result.put('entries', new List<Object> {
-                  new Map<String,Object>{
-                      'id' => 123,
-                      'name' => 'name',
-                      'token' => 'valid-token',
-                      'active' => true
-                      }
-                });
+              result.put('total_entries', numWorkspaces);
+              List<Map<String,Object>> entries = new List<Map<String,Object>>();
+              for (Integer i = 0; i < numWorkspaces; i++) {
+                  Integer workspaceId = 50 + i;
+                  System.debug('adding workspace entry ' + workspaceId);
+                  entries.add(new Map<String,Object>{
+                          'id' => workspaceId,
+                          'name' => 'name_' + workspaceId,
+                          'token' => 'valid-token',
+                          'active' => true
+                      });
               }
+              result.put('entries', entries);
+
+              System.debug('returning result');
               response.setStatusCode(200);
               response.setBody(JSON.serialize(result));
             }  else {
@@ -819,17 +826,17 @@ private class HLSessionControllerTest {
     class GetWorkboxByCallIdMocker implements HttpCalloutMock {
       public HTTPResponse respond(HTTPRequest req) {
           URL endpoint = new URL(req.getEndpoint());
-  
+
           HttpResponse response = new HttpResponse();
           response.setHeader('Content-Type', 'application/json');
-  
+
           if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1r1/enterprise/workboxes/by_call_id/')) {
               Map<String,Object> responseWrapper = new Map<String,Object>{
                   'workbox' => new Map<String,Object>{
                       'id' => 12345,
                       'token' => 'test_token',
                       'status' => 'active',
-                      'ticketFieldsFull' => new List<Map<String,Object>>{ 
+                      'ticketFieldsFull' => new List<Map<String,Object>>{
                           new Map<String,Object>{
                               'name' => 'field1',
                               'value' => 'value1'
@@ -841,13 +848,13 @@ private class HLSessionControllerTest {
                       }
                   }
               };
-  
+
               response.setBody(JSON.serialize(responseWrapper));
               response.setStatusCode(200);
           } else {
               response.setStatusCode(500);
           }
-  
+
           return response;
       }
     }
@@ -855,10 +862,10 @@ private class HLSessionControllerTest {
     class GetWorkboxByCallIdNullMocker implements HttpCalloutMock {
       public HTTPResponse respond(HTTPRequest req) {
           URL endpoint = new URL(req.getEndpoint());
-  
+
           HttpResponse response = new HttpResponse();
           response.setHeader('Content-Type', 'application/json');
-  
+
           if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1r1/enterprise/workboxes/by_call_id/')) {
               // Return null response to test the null check in HLModelWorkboxDetails.build()
               response.setBody('null');
@@ -866,7 +873,7 @@ private class HLSessionControllerTest {
           } else {
               response.setStatusCode(500);
           }
-  
+
           return response;
       }
     }
@@ -874,34 +881,34 @@ private class HLSessionControllerTest {
     class SaveCustomFieldsMocker implements HttpCalloutMock {
       public HTTPResponse respond(HTTPRequest req) {
           URL endpoint = new URL(req.getEndpoint());
-  
+
           HttpResponse response = new HttpResponse();
           response.setHeader('Content-Type', 'application/json');
-  
+
           if (req.getMethod() == 'PUT' && endpoint.getPath().startsWith('/api/v1r1/workbox/custom_fields')) {
               // Verify the request body contains the expected values
               Map<String, Object> requestBody = (Map<String, Object>)JSON.deserializeUntyped(req.getBody());
               System.assertNotEquals(null, requestBody, 'Request body should not be null');
               System.assertNotEquals(null, requestBody.get('values'), 'Values should not be null');
-              
+
               // Return a success response
               response.setStatusCode(200);
               response.setBody('{"success": true}');
           } else {
               response.setStatusCode(500);
           }
-  
+
           return response;
       }
     }
-  
+
     class CloseWorkboxMocker implements HttpCalloutMock {
         public HTTPResponse respond(HTTPRequest req) {
             URL endpoint = new URL(req.getEndpoint());
-    
+
             HttpResponse response = new HttpResponse();
             response.setHeader('Content-Type', 'application/json');
-    
+
             if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1r1/workbox/close')) {
                 // Return a success response
                 response.setStatusCode(200);
@@ -909,7 +916,7 @@ private class HLSessionControllerTest {
             } else {
                 response.setStatusCode(500);
             }
-    
+
             return response;
         }
     }
@@ -1890,7 +1897,7 @@ private class HLSessionControllerTest {
         Test.startTest();
 
         // set up a mock
-        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(false));
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(0));
 
         System.RunAs(u1) {
             Boolean result = helplightning.HLSessionController.checkRegistration();
@@ -1930,7 +1937,7 @@ private class HLSessionControllerTest {
         Test.startTest();
 
         // set up a mock
-        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(true));
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(0));
 
         // make sure it works for u2 with an override.
         System.RunAs(u2) {
@@ -1971,7 +1978,7 @@ private class HLSessionControllerTest {
         Test.startTest();
 
         // set up a mock
-        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(false));
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(1));
 
 
         System.RunAs(u1) {
@@ -1993,6 +2000,195 @@ private class HLSessionControllerTest {
           } catch (Exception e) {
               System.assert(true);
           }
+        }
+
+        Test.stopTest();
+    }
+
+    /**
+     * Test checkRegistration when the partner key is
+     *  at the site level
+     */
+    @isTest
+    static void testCheckRegistrationSiteLevel() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u1 = new User(Alias = 'support', Email='support@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u1;
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up a mock with 1 workspace, which means our key was a
+        //  site level key
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(1));
+
+        System.RunAs(u1) {
+            Boolean result = helplightning.HLSessionController.checkRegistration();
+            System.assertEquals(true, result);
+        }
+
+        Test.stopTest();
+    }
+
+    /**
+     * Test checkRegistration when the partner key is
+     *  at the site level AND the user has multiple
+     *  aliases AND a default workspace
+     */
+    @isTest
+    static void testCheckRegistrationSiteLevelMultipleAliases() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u1 = new User(Alias = 'support', Email='support@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u1;
+
+        // set a default workspace override
+        System.RunAs(u1) {
+            HLConfiguration.setWorkspaceId('51');
+        }
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up a mock with 2 workspaces, which means our key was a
+        //  site level key, AND we have 2 aliases
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(2));
+
+        System.RunAs(u1) {
+            Boolean result = helplightning.HLSessionController.checkRegistration();
+            System.assertEquals(true, result);
+        }
+
+        Test.stopTest();
+    }
+
+    /**
+     * Test checkRegistration when the partner key is
+     *  at the site level AND the user has multiple
+     *  aliases AND NO default workspace has been set
+     */
+    @isTest
+    static void testCheckRegistrationSiteLevelMultipleAliasesNoDefaultWorkspace() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u1 = new User(Alias = 'support', Email='support@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u1;
+
+        // This user will have no defaultWorkspaceId override,
+        //  and since they are in two workspaces, it will just pick
+        //  the first one available
+        System.RunAs(u1) {
+            HLConfiguration.setWorkspaceId(null);
+        }
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up a mock with 2 workspaces, which means our key was a
+        //  site level key, AND we have 2 aliases
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(2));
+
+        System.RunAs(u1) {
+            Boolean result = helplightning.HLSessionController.checkRegistration();
+            System.assertEquals(true, result);
+        }
+
+        Test.stopTest();
+    }
+
+    /**
+     * Test checkRegistration when the partner key is
+     *  at the site level AND the user doesn't exist in
+     *  any of the workspaces
+     */
+    @isTest
+    static void testCheckRegistrationSiteLevelNoAliases() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u1 = new User(Alias = 'noexist', Email='noexist@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='noexist@helplightning.com');
+        insert u1;
+
+        // This user will have no defaultWorkspaceId override,
+        //  and since they are in two workspaces, it will just pick
+        //  the first one available
+        System.RunAs(u1) {
+            HLConfiguration.setWorkspaceId(null);
+        }
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up a mock with 2 workspaces, which means our key was a
+        //  site level key, AND we have 0 aliases
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(2));
+
+        System.RunAs(u1) {
+            Boolean result = helplightning.HLSessionController.checkRegistration();
+            System.assertEquals(false, result);
+        }
+
+        Test.stopTest();
+    }
+
+    /**
+     * Test checkRegistration when the partner key is
+     *  at the site level AND the user has multiple
+     *  aliases AND the defaultWorkspaceId is set incorrectly
+     */
+    @isTest
+    static void testCheckRegistrationSiteLevelMultipleAliasesWrongDefaultWorkspace() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u1 = new User(Alias = 'support', Email='support@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u1;
+
+        // This user will have an invalid defaultWorkspaceId override,
+        // This will cause a login failure
+        System.RunAs(u1) {
+            HLConfiguration.setWorkspaceId('23434');
+        }
+
+        // We are not allowed to do an DML operations
+        //  before doing a call-out. But, we need test data
+        //  to be inserted first.
+        // This start/stopTest hack works around this.
+        // https://salesforce.stackexchange.com/questions/46438/unit-test-you-have-uncommitted-work-pending-please-commit-or-rollback-before-c
+        Test.startTest();
+
+        // set up a mock with 2 workspaces, which means our key was a
+        //  site level key, AND we have 2 aliases, but our default is invalid
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(2));
+
+        System.RunAs(u1) {
+            Boolean result = helplightning.HLSessionController.checkRegistration();
+            System.assertEquals(false, result);
         }
 
         Test.stopTest();
@@ -2050,7 +2246,7 @@ private class HLSessionControllerTest {
         //  is a future, which means it runs asynchronously, and won't be guaranteed
         //  to complete until the stopTest is called.
         // https://developer.salesforce.com/docs/atlas.en-us.234.0.apexcode.meta/apexcode/apex_invoking_future_methods.htm
-        
+
         // Verify that the ContentVersion was created
         List<ContentVersion> contentVersions = [SELECT Id FROM ContentVersion];
         System.assertEquals(1, contentVersions.size());
@@ -2059,7 +2255,7 @@ private class HLSessionControllerTest {
     @isTest
     static void testGetWorkboxByCallId() {
         Test.setMock(HttpCalloutMock.class, new GetWorkboxByCallIdMocker());
-        
+
         Test.startTest();
         HLModelWorkboxDetails result = HLSessionController.getWorkboxByCallId('test_call_123');
         Test.stopTest();
@@ -2068,16 +2264,16 @@ private class HLSessionControllerTest {
         System.assertEquals(12345, result.workboxId);
         System.assertEquals('test_token', result.workboxToken);
         System.assertEquals('active', result.status);
-        
+
         // Verify custom fields
         System.assertNotEquals(null, result.customFields);
         System.assertEquals(2, result.customFields.size());
     }
-    
+
     @isTest
     static void testGetWorkboxByCallIdWithNullResponse() {
         Test.setMock(HttpCalloutMock.class, new GetWorkboxByCallIdNullMocker());
-        
+
         Test.startTest();
         HLModelWorkboxDetails result = HLSessionController.getWorkboxByCallId('test_call_123');
         Test.stopTest();
@@ -2085,11 +2281,11 @@ private class HLSessionControllerTest {
         // Verify that the result is null when the response is null
         System.assertEquals(null, result, 'Result should be null when response is null');
     }
-    
+
     @isTest
     static void testSaveCustomFields() {
         Test.setMock(HttpCalloutMock.class, new SaveCustomFieldsMocker());
-        
+
         // Create a test payload
         HLModelUpdateWorkbox payload = new HLModelUpdateWorkbox();
         payload.workboxId = 12345;
@@ -2099,20 +2295,20 @@ private class HLSessionControllerTest {
             'field2' => 'value2'
         };
         payload.close = false;
-        
+
         Test.startTest();
         Boolean result = helplightning.HLGaldrClient.saveCustomFields('test_token', payload);
         System.assertEquals(true, result, 'saveCustomFields should return true when successful');
     }
-    
+
     @isTest
     static void testCloseWorkbox() {
         Test.setMock(HttpCalloutMock.class, new CloseWorkboxMocker());
-        
+
         Test.startTest();
         Boolean result = helplightning.HLGaldrClient.closeWorkbox('test_token');
         Test.stopTest();
-        
+
         System.assertEquals(true, result, 'closeWorkbox should return true when successful');
     }
 
@@ -2137,7 +2333,7 @@ private class HLSessionControllerTest {
 
         System.RunAs(u1) {
             Map<String,Object> result = helplightning.HLSessionController.createOneTimeUseLink();
-            
+
             // Simplified assertions - just check that it's not null and has expected structure
             System.assertNotEquals(null, result, 'Result should not be null');
             System.assert(result.containsKey('link'), 'Result should contain link key');

@@ -199,11 +199,11 @@ private class HLGaldrClientTest {
 
         Test.startTest();
 
-        Test.setMock(HttpCalloutMock.class, new GetWorkspacesPaginatedMocker(55, 10));
+        Test.setMock(HttpCalloutMock.class, new GetWorkspacesPaginatedMocker(25, 10));
 
         System.RunAs(u1) {
             List<helplightning.HLModelWorkspace> workspaces = HLGaldrClient.getWorkspaces();
-            System.assertEquals(55, workspaces.size());
+            System.assertEquals(25, workspaces.size());
         }
 
         Test.stopTest();

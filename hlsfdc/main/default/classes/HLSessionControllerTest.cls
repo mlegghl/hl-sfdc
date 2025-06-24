@@ -498,6 +498,7 @@ private class HLSessionControllerTest {
             } else if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1r1/enterprise/workspaces')) {
               Map<String, Object> result = new Map<String, Object>();
               result.put('total_entries', numWorkspaces);
+              result.put('total_pages', 1);
               List<Map<String,Object>> entries = new List<Map<String,Object>>();
               for (Integer i = 0; i < numWorkspaces; i++) {
                   Integer workspaceId = 50 + i;

@@ -18,10 +18,41 @@ public class HLGaldrClient {
     */
     public static List<helplightning.HLModelWorkspace> getWorkspaces() {
       helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
-      helplightning.HLRequest request = new helplightning.HLRequest(environment,
-                                                                    helplightning.HLToken.build(),
-                                                                    '/v1r1/enterprise/workspaces');
-      Object results = request.get();
+      // This is a paginated API. It is likely, that there are more workspaces than are returned in a single page. We need to
+      // paginate through ALL pages! In the future, I'd be good to define a general pagination method
+
+      Boolean done = false;
+      List<Object> entries = new List<Object>();
+
+      Integer page = 1;
+      while (done == false) {
+          helplightning.HLRequest request = new helplightning.HLRequest(environment,
+                                                                        helplightning.HLToken.build(),
+                                                                        '/v1r1/enterprise/workspaces');
+
+          Map<String,String> queryParams = new Map<String,String>();
+          queryParams.put('page', String.valueOf(page));
+
+          Object result = request.get(queryParams);
+          Map<String, Object> r = (Map<String,Object>)result;
+          // get the entries
+          List<Object> e = (List<Object>)r.get('entries');
+
+          // add the entries into the all Results
+          entries.addAll(e);
+
+          // check if there are more pages to get
+          Integer totalPages = (Integer)(r.get('total_pages'));
+          if (totalPages <= page) {
+              done = true;
+          } else {
+              page++;
+          }
+      }
+
+      // Create a new object that has _all_ the entries
+      Map<String, List<Object>> results = new Map<String, List<Object>>();
+      results.put('entries', entries);
 
       // deserialize
       return HLModelWorkspace.buildMany(results);

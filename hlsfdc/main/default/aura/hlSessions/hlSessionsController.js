@@ -168,21 +168,31 @@
                 var auth = r?.auth;
 
                 // copy the mhs link to the clipboard
-                navigator.clipboard.writeText(link.longLink).then(function() {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(link.longLink).then(function() {
+                        var toastEvent = $A.get("e.force:showToast");
+                        toastEvent.setParams({
+                            "type": "success",
+                            "message": "Invite link copied to the clipboard."
+                        });
+                        toastEvent.fire();
+                    }).catch(function() {
+                        var toastEvent = $A.get("e.force:showToast");
+                        toastEvent.setParams({
+                            "type": "error",
+                            "message": "Failed to copy invite link to clipboard."
+                        });
+                        toastEvent.fire();
+                    });
+                } else {
+                    // Fallback: show the link to the user if clipboard API is not available
                     var toastEvent = $A.get("e.force:showToast");
                     toastEvent.setParams({
-                        "type": "success",
-                        "message": "Invite link copied to the clipboard."
+                        "type": "info",
+                        "message": "Invite link created: " + link.longLink
                     });
                     toastEvent.fire();
-                }).catch(function() {
-                    var toastEvent = $A.get("e.force:showToast");
-                    toastEvent.setParams({
-                        "type": "error",
-                        "message": "Failed to copy invite link to clipboard."
-                    });
-                    toastEvent.fire();
-                });
+                }
 
                 var webUrl = auth.webUrl;
                 var userToken = auth.token;

@@ -167,22 +167,58 @@
                 var link = r?.link;
                 var auth = r?.auth;
 
-                // copy the mhs link to the clipboard
-                navigator.clipboard.writeText(link.longLink).then(function() {
-                    var toastEvent = $A.get("e.force:showToast");
-                    toastEvent.setParams({
-                        "type": "success",
-                        "message": "Invite link copied to the clipboard."
+                // Copy the mhs link to the clipboard
+                // NOTE: navigator.clipboard is not available in Lightning Locker, but works with orgs that have Lightning Web Security enabled.
+                // LWS is enabled by default in new orgs (winter 2023+), but can be disabled in existing orgs. The recommended approach is to enable LWS.
+                // If LWS is disabled, we will fallback to using execCommand to copy the link to the clipboard. (SFDC-114)
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(link.longLink).then(function() {
+                        var toastEvent = $A.get("e.force:showToast");
+                        toastEvent.setParams({
+                            "type": "success",
+                            "message": "Invite link copied to the clipboard."
+                        });
+                        toastEvent.fire();
+                    }).catch(function() {
+                        var toastEvent = $A.get("e.force:showToast");
+                        toastEvent.setParams({
+                            "type": "error",
+                            "message": "Failed to copy invite link to clipboard."
+                        });
+                        toastEvent.fire();
                     });
-                    toastEvent.fire();
-                }).catch(function() {
-                    var toastEvent = $A.get("e.force:showToast");
-                    toastEvent.setParams({
-                        "type": "error",
-                        "message": "Failed to copy invite link to clipboard."
-                    });
-                    toastEvent.fire();
-                });
+                } else {
+                    // Fallback: try deprecated execCommand (for Lightning Locker)
+                    try {
+                        var textArea = document.createElement("textarea");
+                        textArea.value = link.longLink;
+                        textArea.style.cssText = 'position:absolute;left:-9999px;opacity:0;';
+                        textArea.setAttribute('readonly', '');
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        var successful = document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        
+                        if (successful) {
+                            var toastEvent = $A.get("e.force:showToast");
+                            toastEvent.setParams({
+                                "type": "success",
+                                "message": "Invite link copied to the clipboard."
+                            });
+                            toastEvent.fire();
+                        } else {
+                            throw new Error('execCommand failed');
+                        }
+                    } catch (err) {
+                        // If all else fails, show the link to the user in a toast
+                        var toastEvent = $A.get("e.force:showToast");
+                        toastEvent.setParams({
+                            "type": "info",
+                            "message": "Invite link created: " + link.longLink
+                        });
+                        toastEvent.fire();
+                    }
+                }
 
                 var webUrl = auth.webUrl;
                 var userToken = auth.token;

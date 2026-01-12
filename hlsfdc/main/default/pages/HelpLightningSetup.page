@@ -14,6 +14,7 @@
         <apex:selectList value="{!environment}" size="1">
           <apex:selectOption itemValue="US" itemLabel="United States (Default)" />
           <apex:selectOption itemValue="EU" itemLabel="European Union" />
+          <apex:selectOption itemValue="DEV" itemLabel="Development" />
         </apex:selectList>
         
         <apex:outputText value="Enterprise Id" />

@@ -17,14 +17,17 @@ public class HLEnvironment {
     //  by Help Lightning.
     private static final String US_API_KEY = '01e0bbdecb85a1f83bf6ade3624af03b';
     private static final String EU_API_KEY = 'nmp2ovlzdnzhwej2zmvtdw4rzncwzz09';
+    private static final String DEV_API_KEY = '9BoKBM2MQ27nPdHW0XckRw';
 
     // Help Lightning API Endpoints
     private static final String US_API_URL = 'https://api.helplightning.net/api';
     private static final String EU_API_URL = 'https://api.eu1.helplightning.net/api';
+    private static final String DEV_API_URL = 'https://api.dev.helplightning.net/api';
 
     // Help Lightning Web Endpoints
     private static final String US_URL = 'https://helplightning.net';
     private static final String EU_URL = 'https://app.eu1.helplightning.net';
+    private static final String DEV_URL = 'https://app.dev.helplightning.net';
 
     private static final Map<String, Map<String,String>> ENVIRONMENTS;
 
@@ -43,9 +46,16 @@ public class HLEnvironment {
                 'url' => EU_URL
                 };
 
+        Map<String, String> devConfig = new Map<String, String>{
+                'api_key' => DEV_API_KEY,
+                'api_url' => DEV_API_URL,
+                'url' => DEV_URL
+                };
+
         ENVIRONMENTS = new Map<String, Map<String, String>>{
                 'US' => usConfig,
-                'EU' => euConfig
+                'EU' => euConfig,
+                'DEV' => devConfig
                 };
     }
 

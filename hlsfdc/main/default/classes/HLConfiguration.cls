@@ -42,7 +42,7 @@ public with sharing class HLConfiguration {
      * Get the environment
      */
     public static String getEnvironment() {
-        helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getInstance();
+        helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getOrgDefaults();
         if (config.helplightning__Environment__c == null ||
             config.helplightning__Environment__c == '') {
             // Default to US if not set
@@ -138,9 +138,9 @@ public with sharing class HLConfiguration {
     /**
      * Set the Environment
      *
-     * This is hard-coded to only allow US/EU
+     * This is hard-coded to only allow US/EU/DEV
      */
     public static Boolean checkEnvironment(String environment) {
-        return (environment == 'US' || environment == 'EU');
+        return (environment == 'US' || environment == 'EU' || environment == 'DEV');
     }
 }

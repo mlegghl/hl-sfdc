@@ -138,8 +138,11 @@
                 var username = r.username;
                 var sessionId = r.sessionId;
 
-                var url = webUrl + '/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&mode=autoAccept';
-
+                // var url = webUrl + '/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&mode=autoAccept';
+                var url = 'https://350015a36214.ngrok-free.app' + '/help-thread-external'
+                  + '?userToken=' + encodeURIComponent(userToken)
+                  + '&workboxId=' + encodeURIComponent(11950)
+                  + '&action=join_session';
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId, email, phone, sessionId, true, url);
             } else {
@@ -194,7 +197,10 @@
                 var email = '';
                 var phone = '';
 
-                var url = webUrl + '/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&mode=autoAccept';
+                var url = 'https://350015a36214.ngrok-free.app' + '/help-thread-external'
+                  + '?userToken=' + encodeURIComponent(userToken)
+                  + '&workboxId=' + encodeURIComponent(11950)
+                  + '&action=join_session';
 
                 // create a new HLCall
                 helper.createNewCall(component, helper, sObjectName, rId, email, phone, sessionId, true, url);

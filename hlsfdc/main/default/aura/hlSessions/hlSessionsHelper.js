@@ -146,24 +146,30 @@
      */
     messageHandler : function(component, helper, event) {
         var callWindow = component.get("v.callWindow");
+        console.log("HL::messageHandler received message:", event.data);
         if (event.source !== callWindow) {
             // This is not our message.
             //
             // Check if our callWindow is still valid and open. If
             // now, remove this handler, it isn't useful anymore
+            console.log("HL::messageHandler - message source does not match callWindow, ignoring");
             if (!callWindow || callWindow.closed) {
                 helper.removeMessageHandler(component);
             }
             return;
         } else {
             const message = event.data;
+            console.log("HL::messageHandler - message from callWindow:", JSON.stringify(message));
             var callId = message.callId;
             var hlCallId = message.state;
+            console.log("HL::messageHandler - type:", message.type, "callId:", callId, "hlCallId:", hlCallId);
             if (message.type === 'CALL_CONNECTED') {
+                console.log("HL::messageHandler - CALL_CONNECTED received");
                 if (callId && hlCallId) {
                     helper.updateCallId(component, callId, hlCallId);
                 }
             } else if (message.type === 'CALL_DISCONNECTED') {
+                console.log("HL::messageHandler - CALL_DISCONNECTED received");
                 // remove the event handler
                 helper.removeMessageHandler(component);
 
@@ -173,11 +179,14 @@
 
                 var callWindow = component.get("v.callWindow");
                 if (callWindow) {
+                    console.log("HL::messageHandler - closing callWindow in 2 seconds");
                     setTimeout(function () {
                         callWindow.close();
                         component.set("v.callWindow", null);
                     }, 2000);
                 }
+            } else {
+                console.log("HL::messageHandler - unrecognized message type:", message.type);
             }
         }
     },
@@ -270,18 +279,27 @@
         action.setParams({"call": newCall})
         action.setCallback(this, function(response) {
             var state = response.getState();
+            console.log("HL::createNewCall saveCall response state:", state);
             if (component.isValid() && state == "SUCCESS") {
                 var sessions = component.get("v.calls");
                 var newHLCall = response.getReturnValue();
+                console.log("HL::createNewCall newHLCall:", newHLCall);
 
                 // insert at the beginning
                 sessions.splice(0, 0, newHLCall);
                 component.set("v.calls", sessions);
 
                 url = url + '&callbackState=' + newHLCall.Id;
+                console.log("HL::createNewCall opening popup with URL:", url);
                 var w = window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900');
+                console.log("HL::createNewCall popup window:", w);
+                if (!w) {
+                    console.error("HL::createNewCall - POPUP BLOCKED! window.open returned null/undefined");
+                }
                 component.set("v.callWindow", w);
                 helper.addMessageHandler(component, helper);
+            } else {
+                console.error("HL::createNewCall saveCall failed:", state, response.getError());
             }
         });
 

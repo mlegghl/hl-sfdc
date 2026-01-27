@@ -681,7 +681,8 @@ public with sharing class HLSessionController {
         if (callId == null || callId.equals('')) {
             e.Description = 'Call was unanswered';
         } else {
-            e.Description = 'https://app.helplightning.net/calls/' + callId;
+            helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+            e.Description = environment.url + '/calls/' + callId;
         }
 
         upsert e;

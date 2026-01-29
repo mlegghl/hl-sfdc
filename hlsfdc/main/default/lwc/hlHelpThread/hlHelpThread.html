@@ -1,0 +1,209 @@
+<template>
+    <div class="help-thread-container">
+        <!-- Loading State -->
+        <template lwc:if={isLoading}>
+            <div class="slds-align_absolute-center slds-p-around_medium">
+                <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <!-- No Workbox State -->
+        <template lwc:if={showNoWorkbox}>
+            <div class="slds-text-align_center slds-p-around_medium">
+                <lightning-icon icon-name="utility:info" size="small" class="slds-m-right_x-small"></lightning-icon>
+                <span class="slds-text-color_weak">No Help Thread exists for this record yet. One will be created when you send an invite or copy a link.</span>
+            </div>
+        </template>
+
+        <!-- Workbox Details -->
+        <template lwc:if={hasWorkbox}>
+            <!-- Header -->
+            <div class="slds-p-around_small slds-border_bottom">
+                <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                    <h2 class="slds-text-heading_medium">{workboxTitle}</h2>
+                    <lightning-button 
+                        label="Open Chat" 
+                        variant="brand" 
+                        icon-name="utility:chat"
+                        onclick={handleOpenChat}>
+                    </lightning-button>
+                </div>
+                <div class="slds-grid slds-grid_align-spread slds-m-top_x-small">
+                    <lightning-combobox
+                        name="status"
+                        label=""
+                        value={workboxStatusValue}
+                        placeholder="Status"
+                        options={statusOptions}
+                        onchange={handleStatusChange}
+                        variant="label-hidden"
+                        class="status-dropdown">
+                    </lightning-combobox>
+                    <template lwc:if={assignedTo}>
+                        <span class="slds-text-body_small slds-text-color_weak slds-align-middle">Assigned to: {assignedTo}</span>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Participants Section (Registered Users) -->
+            <div class="slds-p-around_small">
+                <h3 class="slds-text-title_caps slds-m-bottom_x-small">Participants</h3>
+                
+                <template lwc:if={hasParticipants}>
+                    <template for:each={participants} for:item="participant">
+                        <div key={participant.id} class="slds-media slds-media_center slds-p-vertical_xx-small">
+                            <div class="slds-media__figure">
+                                <lightning-icon icon-name="standard:user" size="small"></lightning-icon>
+                            </div>
+                            <div class="slds-media__body">
+                                <p class="slds-text-body_regular">{participant.displayName}</p>
+                                <p class="slds-text-body_small slds-text-color_weak">{participant.roleLabel}</p>
+                            </div>
+                        </div>
+                    </template>
+                </template>
+            </div>
+
+            <!-- Guests Section (Invited Users) -->
+            <div class="slds-p-around_small slds-border_top">
+                <h3 class="slds-text-title_caps slds-m-bottom_x-small">Guests</h3>
+                
+                <template lwc:if={hasGuests}>
+                    <template for:each={guests} for:item="guest">
+                        <div key={guest.id} class="slds-grid slds-grid_vertical-align-center slds-p-vertical_xx-small guest-row">
+                            <span class="slds-avatar slds-avatar_circle slds-avatar_small slds-m-right_small">
+                                <lightning-icon icon-name="utility:user" size="x-small" alternative-text="Guest"></lightning-icon>
+                            </span>
+                            <div class="slds-grow">
+                                <p class="slds-text-body_regular">{guest.displayName}</p>
+                                <p class="slds-text-body_small slds-text-color_weak">
+                                    <template lwc:if={guest.has_joined}>
+                                        <span class="slds-text-color_success">Joined</span>
+                                    </template>
+                                    <template lwc:else>
+                                        Pending
+                                    </template>
+                                </p>
+                            </div>
+                            <div class="slds-col_bump-left guest-actions">
+                                <lightning-button-icon 
+                                    icon-name="utility:refresh"
+                                    alternative-text="Resend Invite"
+                                    title="Resend invite email/SMS to this guest"
+                                    variant="bare"
+                                    size="medium"
+                                    data-guest-uuid={guest.uuid}
+                                    onclick={handleResendInvite}>
+                                </lightning-button-icon>
+                                <lightning-button-icon 
+                                    icon-name="utility:delete"
+                                    alternative-text="Remove Guest"
+                                    title="Remove this guest from the Help Thread"
+                                    variant="bare"
+                                    size="medium"
+                                    class="slds-m-left_x-small"
+                                    data-guest-uuid={guest.uuid}
+                                    data-guest-name={guest.displayName}
+                                    onclick={handleRemoveGuest}>
+                                </lightning-button-icon>
+                            </div>
+                        </div>
+                    </template>
+                </template>
+
+                <template lwc:if={noGuests}>
+                    <p class="slds-text-body_small slds-text-color_weak slds-p-vertical_x-small">No guests invited yet.</p>
+                </template>
+            </div>
+
+            <!-- Custom Fields Section - matching hlCloseWorkbox pattern exactly -->
+            <template lwc:if={hasCustomFields}>
+                <div class="slds-p-around_small slds-border_top">
+                    <h3 class="slds-text-title_caps slds-m-bottom_x-small">Custom Fields</h3>
+                    
+                    <template for:each={customFields} for:item="cf" for:index="index">
+                        <div key={cf.id}>
+                            <template if:true={cf.isText}>
+                                <div class="slds-p-around_small lgc-bg">
+                                    <lightning-input 
+                                        data-index={index} 
+                                        type="text" 
+                                        label={cf.name} 
+                                        value={cf.value} 
+                                        onchange={handleInputChange} 
+                                        required={cf.required}>
+                                    </lightning-input>
+                                </div>
+                            </template>
+                            <template if:true={cf.isBoolean}>
+                                <div class="slds-p-around_small lgc-bg">
+                                    <lightning-input 
+                                        data-index={index} 
+                                        type="checkbox" 
+                                        label={cf.name}
+                                        name={cf.name}
+                                        checked={cf.value}
+                                        onchange={handleCheckChange} 
+                                        required={cf.required}>
+                                    </lightning-input>
+                                </div>
+                            </template>
+                            <template if:true={cf.isList}>
+                                <div class="slds-p-around_small lgc-bg">
+                                    <lightning-combobox
+                                        data-index={index}
+                                        name={cf.name}
+                                        label={cf.name}
+                                        value={cf.value}
+                                        placeholder={cf.hint}
+                                        options={cf.options}
+                                        onchange={handleSelectChange}
+                                        required={cf.required}>
+                                    </lightning-combobox>
+                                </div>
+                            </template>
+                            <template if:true={cf.isMultiList}>
+                                <div class="slds-p-around_small lgc-bg">
+                                    <c-multi-list 
+                                        cfindex={index} 
+                                        label={cf.name} 
+                                        name={cf.name} 
+                                        options={cf.options}
+                                        onchange={handleMultiSelectChange}>
+                                    </c-multi-list>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <div class="slds-m-top_small">
+                        <lightning-button 
+                            label="Save Changes" 
+                            variant="brand" 
+                            onclick={handleSaveFields}
+                            disabled={isSaving}>
+                        </lightning-button>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Refresh Button -->
+            <div class="slds-p-around_small slds-border_top slds-text-align_center">
+                <lightning-button 
+                    label="Refresh" 
+                    variant="neutral" 
+                    icon-name="utility:refresh"
+                    onclick={handleRefresh}>
+                </lightning-button>
+            </div>
+        </template>
+
+        <!-- Error State -->
+        <template lwc:if={hasError}>
+            <div class="slds-text-align_center slds-p-around_medium slds-text-color_error">
+                <lightning-icon icon-name="utility:error" size="small" variant="error" class="slds-m-right_x-small"></lightning-icon>
+                <span>{errorMessage}</span>
+            </div>
+        </template>
+    </div>
+</template>

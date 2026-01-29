@@ -26,6 +26,9 @@
                 return
             }
 
+            // Initialize workbox for this record (create if doesn't exist)
+            helper.initWorkbox(component, helper, sObjectName, rId);
+
             // get our record
             helper.getContactForRecord(component, helper, function(response) {
                 // show tabs after parent has checked for contact data
@@ -109,21 +112,27 @@
         var sObjectName = component.get("v.sObjectName");
         var rId = component.get("v.recordId");
 
-        var contact = component.get("v.contact");
+        var guestName = event.getParam("name");
         var sendToEmail = event.getParam("email");
         var phone = event.getParam("phone");
         var message = event.getParam("message");
-        var contactName = contact && contact.Name || '';
 
         var action = component.get("c.sendOneTimeUseLink");
-        action.setParams({"otherUsersName": contactName, "otherUsersEmail": sendToEmail, "otherUsersPhone": phone, message: message});
+        action.setParams({
+            "otherUsersName": guestName,
+            "otherUsersEmail": sendToEmail,
+            "otherUsersPhone": phone,
+            "message": message,
+            "sObjectName": sObjectName,
+            "recordId": rId
+        });
         action.setCallback(this, function(response) {
             var state = response.getState();
             var r = response.getReturnValue();
             if (component.isValid() && state == "SUCCESS" && r) {
-                console.log("successfully invited to personal room");
+                console.log("successfully created help thread invite");
 
-                // show notification to user when helpspace link is sent
+                // show notification to user when help thread invite is sent
                 var toastEvent = $A.get("e.force:showToast");
                 toastEvent.setParams({
                     "type": "success",
@@ -133,18 +142,17 @@
 
                 var webUrl = r.webUrl;
                 var userToken = r.token;
-                var name = r.name;
+                var workboxId = r.workboxId;
                 var email = sendToEmail;
-                var username = r.username;
-                var sessionId = r.sessionId;
 
-                // var url = webUrl + '/webCall?displayName=' + name + '&nameOrEmail=' + username + '&userToken=' + userToken + '&mode=autoAccept';
-                var url = 'https://350015a36214.ngrok-free.app' + '/help-thread-external'
+                // Build the help thread external URL with workbox id from response
+                var url = webUrl + '/help-thread-external'
                   + '?userToken=' + encodeURIComponent(userToken)
-                  + '&workboxId=' + encodeURIComponent(11950)
+                  + '&workboxId=' + encodeURIComponent(workboxId)
                   + '&action=join_session';
-                // create a new HLCall
-                helper.createNewCall(component, helper, sObjectName, rId, email, phone, sessionId, true, url);
+
+                // create a new HLCall using workboxId as the sessionId
+                helper.createNewCall(component, helper, sObjectName, rId, email, phone, String(workboxId), true, url);
             } else {
                 var toastEvent = $A.get("e.force:showToast");
                 toastEvent.setParams({
@@ -163,19 +171,28 @@
         var sObjectName = component.get("v.sObjectName");
         var rId = component.get("v.recordId");
         var action = component.get("c.createOneTimeUseLink");
+        action.setParams({
+            "sObjectName": sObjectName,
+            "recordId": rId
+        });
         action.setCallback(this, function(response) {
             var state = response.getState();
             var r = response.getReturnValue();
+            console.log("HL::createOneTimeUseLink response state:", state);
+            console.log("HL::createOneTimeUseLink response:", JSON.stringify(r));
             if (component.isValid() && state == "SUCCESS" && r) {
-                var link = r?.link;
-                var auth = r?.auth;
+                var link = r.link;
+                var webUrl = r.webUrl;
+                var userToken = r.token;
+                var workboxId = r.workboxId;
+                console.log("HL::createOneTimeUseLink - link:", link, "webUrl:", webUrl, "workboxId:", workboxId);
 
-                // Copy the mhs link to the clipboard
+                // Copy the link to the clipboard
                 // NOTE: navigator.clipboard is not available in Lightning Locker, but works with orgs that have Lightning Web Security enabled.
                 // LWS is enabled by default in new orgs (winter 2023+), but can be disabled in existing orgs. The recommended approach is to enable LWS.
                 // If LWS is disabled, we will fallback to using execCommand to copy the link to the clipboard. (SFDC-114)
                 if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(link.longLink).then(function() {
+                    navigator.clipboard.writeText(link).then(function() {
                         var toastEvent = $A.get("e.force:showToast");
                         toastEvent.setParams({
                             "type": "success",
@@ -194,7 +211,7 @@
                     // Fallback: try deprecated execCommand (for Lightning Locker)
                     try {
                         var textArea = document.createElement("textarea");
-                        textArea.value = link.longLink;
+                        textArea.value = link;
                         textArea.style.cssText = 'position:absolute;left:-9999px;opacity:0;';
                         textArea.setAttribute('readonly', '');
                         document.body.appendChild(textArea);
@@ -217,37 +234,93 @@
                         var toastEvent = $A.get("e.force:showToast");
                         toastEvent.setParams({
                             "type": "info",
-                            "message": "Invite link created: " + link.longLink
+                            "message": "Invite link created: " + link
                         });
                         toastEvent.fire();
                     }
                 }
 
-                var webUrl = auth.webUrl;
-                var userToken = auth.token;
-                var name = auth.name;
-                var username = auth.username;
-                var sessionId = auth.sessionId;
-
                 // we don't have an email or phone for the one time use link
                 var email = '';
                 var phone = '';
 
-                var url = 'https://350015a36214.ngrok-free.app' + '/help-thread-external'
+                // Build the help thread external URL with workbox id from response
+                var url = webUrl + '/help-thread-external'
                   + '?userToken=' + encodeURIComponent(userToken)
-                  + '&workboxId=' + encodeURIComponent(11950)
+                  + '&workboxId=' + encodeURIComponent(workboxId)
                   + '&action=join_session';
 
-                // create a new HLCall
-                helper.createNewCall(component, helper, sObjectName, rId, email, phone, sessionId, true, url);
+                // create a new HLCall using workboxId as the sessionId
+                helper.createNewCall(component, helper, sObjectName, rId, email, phone, String(workboxId), true, url);
+            } else {
+                var errors = response.getError();
+                var errorMessage = "Failed to create invite link.";
+                if (errors && errors[0] && errors[0].message) {
+                    errorMessage = errors[0].message;
+                }
+                console.error("HL::createOneTimeUseLink response failed - state:", state);
+                console.error("HL::createOneTimeUseLink errors:", JSON.stringify(errors));
+                var toastEvent = $A.get("e.force:showToast");
+                toastEvent.setParams({
+                    "type": "error",
+                    "message": errorMessage
+                });
+                toastEvent.fire();
+            }
+        });
+
+        $A.enqueueAction(action);
+    },
+
+    clickOpenChat : function(component, event, helper) {
+        var sObjectName = component.get("v.sObjectName");
+        var rId = component.get("v.recordId");
+        
+        console.log("HL::clickOpenChat - sObjectName:", sObjectName, "recordId:", rId);
+        
+        // Get the info needed to open the chat (user token, workbox ID, web URL)
+        var action = component.get("c.getOpenChatInfo");
+        action.setParams({
+            "sObjectName": sObjectName,
+            "recordId": rId
+        });
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            var r = response.getReturnValue();
+            console.log("HL::clickOpenChat response:", JSON.stringify(r));
+            
+            if (component.isValid() && state == "SUCCESS" && r) {
+                var userToken = r.userToken;
+                var workboxId = r.workboxId;
+                var webUrl = r.webUrl;
+                
+                // Build URL without action parameter (just opens chat, no call)
+                var url = webUrl + '/help-thread-external'
+                  + '?userToken=' + encodeURIComponent(userToken)
+                  + '&workboxId=' + encodeURIComponent(workboxId);
+                
+                console.log("HL::clickOpenChat opening URL:", url);
+                
+                // Open in new window
+                var callWindow = window.open(url, "hlPopupWindow", "width=800,height=600");
+                if (callWindow) {
+                    component.set("v.callWindow", callWindow);
+                    window.addEventListener("message", component.get("v.eventHandler"));
+                } else {
+                    var toastEvent = $A.get("e.force:showToast");
+                    toastEvent.setParams({
+                        "type": "error",
+                        "message": "Failed to open chat window. Please allow popups for this site."
+                    });
+                    toastEvent.fire();
+                }
             } else {
                 var toastEvent = $A.get("e.force:showToast");
                 toastEvent.setParams({
                     "type": "error",
-                    "message": "Failed to create invite link."
+                    "message": "Failed to get Help Thread details."
                 });
                 toastEvent.fire();
-                console.log("HL::createOneTimeUseLink response failed: " + state);
             }
         });
 

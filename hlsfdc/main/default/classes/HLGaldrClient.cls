@@ -159,10 +159,12 @@ public class HLGaldrClient {
       helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
       Map<String,Object> params = new Map<String,Object>();
       params.put('values', payload.values);
+      System.debug('saveCustomFields request body: ' + JSON.serialize(params));
       helplightning.HLRequest request = new helplightning.HLRequest(environment,
                                                                     workboxToken,
                                                                     '/v1r1/workbox/custom_fields');
       Object result = request.put(params);
+      System.debug('saveCustomFields result: ' + result);
       return (result != null);
     }
 
@@ -175,6 +177,19 @@ public class HLGaldrClient {
       helplightning.HLRequest request = new helplightning.HLRequest(environment,
                                                                     workboxToken,
                                                                     '/v1r1/workbox/close');
+      Object result = request.post(params);
+      return (result != null);
+    }
+
+    /**
+     * Reopen the workbox
+     */
+    public static Boolean reopenWorkbox(String workboxToken) {
+      helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+      Map<String,Object> params = new Map<String,Object>();
+      helplightning.HLRequest request = new helplightning.HLRequest(environment,
+                                                                    workboxToken,
+                                                                    '/v1r1/workbox/reopen');
       Object result = request.post(params);
       return (result != null);
     }
@@ -280,6 +295,100 @@ public class HLGaldrClient {
     }
 
     /**
+     * Send a workbox invite to a guest user via email or phone.
+     * Requires a workbox token (not user token).
+     * Returns the workbox response.
+     */
+    public static Map<String,Object> sendWorkboxInvite(String workboxToken, String email, String phone, String name) {
+        Map<String,String> params = new Map<String,String>();
+        params.put('action', 'join_session');
+        if (!String.isEmpty(email)) {
+            params.put('email', email);
+        }
+        if (!String.isEmpty(phone)) {
+            params.put('phone', phone);
+        }
+        if (!String.isEmpty(name)) {
+            params.put('name', name);
+        }
+
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
+                                                                      workboxToken,
+                                                                      '/v1r1/workbox/invite');
+        Object results = request.post(params);
+
+        if (results == null) {
+            return null;
+        }
+
+        return (Map<String,Object>)results;
+    }
+
+    /**
+     * Create a new workbox (help thread).
+     * Returns the workbox response containing the workbox id and token.
+     */
+    public static Map<String,Object> createWorkbox(String userToken, String title) {
+        Map<String,Object> params = new Map<String,Object>();
+        if (!String.isEmpty(title)) {
+            params.put('title', title);
+        }
+        params.put('participants', new List<String>());
+
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
+                                                                      userToken,
+                                                                      '/v1r1/workboxes');
+        Object results = request.post(params);
+
+        if (results == null) {
+            return null;
+        }
+
+        return (Map<String,Object>)results;
+    }
+
+    /**
+     * Create a workbox invite silently (without sending email/SMS).
+     * This invites a guest to an existing workbox and returns a link that can be copied and shared.
+     * Requires a workbox token (not user token).
+     * Returns the response containing the link and workbox info.
+     */
+    public static Map<String,Object> createWorkboxInviteSilent(String workboxToken, String name) {
+        Map<String,String> params = new Map<String,String>();
+        params.put('action', 'join_session');
+        params.put('name', name);
+
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
+                                                                      workboxToken,
+                                                                      '/v1r1/workbox/invite/silent');
+        Object results = request.post(params);
+
+        if (results == null) {
+            return null;
+        }
+
+        return (Map<String,Object>)results;
+    }
+
+    /**
+     * Get a workbox by its ID.
+     * Returns fresh workbox info including the token.
+     */
+    public static helplightning.HLModelWorkboxDetails getWorkboxById(String userToken, Integer workboxId) {
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
+                                                                      userToken,
+                                                                      '/v1r1/workboxes/' + workboxId);
+        Object result = request.get();
+
+        // Use buildDirect since this endpoint returns workbox data directly (no 'workbox' wrapper)
+        return HLModelWorkboxDetails.buildDirect(result);
+    }
+
+    /**
      * Create a one time use link
      */
     public static HLModelSessionLink createOneTimeUseLink(String userToken) {
@@ -306,5 +415,40 @@ public class HLGaldrClient {
 
         // deserialize
         return HLModelAttachment.buildMany(results);
+    }
+
+    /**
+     * Resend invite to a guest in a workbox.
+     * Requires a workbox token and the guest's UUID.
+     */
+    public static Map<String,Object> resendGuestInvite(String workboxToken, String guestUuid) {
+        Map<String,Object> params = new Map<String,Object>();
+        // Empty object for chat invite, or { action: 'join_session' } for video
+        
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
+                                                                      workboxToken,
+                                                                      '/v1r1/workbox/invite/' + guestUuid);
+        Object result = request.post(params);
+
+        if (result == null) {
+            return null;
+        }
+
+        return (Map<String,Object>)result;
+    }
+
+    /**
+     * Remove a guest from a workbox.
+     * Requires a workbox token and the guest's UUID.
+     */
+    public static Boolean removeGuestFromWorkbox(String workboxToken, String guestUuid) {
+        helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+        helplightning.HLRequest request = new helplightning.HLRequest(environment,
+                                                                      workboxToken,
+                                                                      '/v1r1/workbox/invite/' + guestUuid);
+        // DELETE request
+        Object result = request.del();
+        return true;
     }
 }

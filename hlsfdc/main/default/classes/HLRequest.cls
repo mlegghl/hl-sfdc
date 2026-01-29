@@ -37,6 +37,7 @@ public class HLRequest {
 
       // serialize the params
       String body = JSON.serialize(params);
+      System.debug('HLRequest PUT body: ' + body);
       req.setBody(body);
 
       return sendRequest(req);
@@ -63,6 +64,11 @@ public class HLRequest {
 
         HttpRequest req = createRequest('GET', route);
 
+        return sendRequest(req);
+    }
+
+    public Object del() {
+        HttpRequest req = createRequest('DELETE', this.route);
         return sendRequest(req);
     }
 

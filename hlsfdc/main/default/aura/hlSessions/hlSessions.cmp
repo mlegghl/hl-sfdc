@@ -18,6 +18,8 @@
     <aura:attribute name="workboxInfo" type="Object" default=""/>
     <!-- function handler for messages -->
     <aura:attribute name="eventHandler" type="Object" />
+    <!-- workbox ID for the persistent help thread -->
+    <aura:attribute name="workboxId" type="Integer" />
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
     <aura:handler name="destroy" action="{!c.doDestroy}" value="{!this}"/>
@@ -39,11 +41,13 @@
             <helplightning:hlTabs recordId="{!v.recordId}"
                                 sObjectName="{!v.sObjectName}"
                                 showButtons="{!v.hasErrors == false}"
+                                defaultName="{!v.contact.Name || ''}"
                                 defaultEmail="{!v.contact.Email || ''}"
                                 defaultPhone="{!not(empty(v.contact.MobilePhone)) ? v.contact.MobilePhone : v.contact.Phone}"
                                 onCallClick="{!c.clickCall}"
                                 onCopyLinkClick="{!c.clickCreateOneTimeUseLink}"
-                                onInviteClick="{!c.clickSendOneTimeUseLink}" />
+                                onInviteClick="{!c.clickSendOneTimeUseLink}"
+                                onOpenChatClick="{!c.clickOpenChat}" />
         </aura:if>
 
         <div class="slds-card__body slds-card__body_inner">

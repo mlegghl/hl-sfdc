@@ -54,6 +54,32 @@
     },
 
     /**
+     * Initialize the workbox for this Case/WorkOrder.
+     * Creates a new workbox if one doesn't already exist.
+     */
+    initWorkbox : function(component, helper, sObjectName, recordId) {
+        var action = component.get("c.initWorkbox");
+        action.setParams({
+            "sObjectName": sObjectName,
+            "recordId": recordId
+        });
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if (component.isValid() && state == "SUCCESS") {
+                var result = response.getReturnValue();
+                if (result) {
+                    console.log("HL::initWorkbox - workboxId:", result.workboxId, "isNew:", result.isNew);
+                    component.set("v.workboxId", result.workboxId);
+                }
+            } else if (component.isValid() && state == "ERROR") {
+                console.error("HL::initWorkbox failed:", response.getError());
+            }
+        });
+
+        $A.enqueueAction(action);
+    },
+
+    /**
      * Check to see if this record has a valid contact.
      *
      * Calls the callback with a return value of either:

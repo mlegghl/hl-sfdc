@@ -27,7 +27,7 @@ public class HLEnvironment {
     // Help Lightning Web Endpoints
     private static final String US_URL = 'https://helplightning.net';
     private static final String EU_URL = 'https://app.eu1.helplightning.net';
-    private static final String DEV_URL = 'https://app.dev.helplightning.net';
+    private static final String DEV_URL = 'https://new.dev.helplightning.net';
 
     private static final Map<String, Map<String,String>> ENVIRONMENTS;
 

@@ -1,8 +1,10 @@
 ({
     doInit : function(component, event, helper) {
-        // to prevent 2 way binding issues, set another attribute with the default phone and email if it exists
+        // to prevent 2 way binding issues, set another attribute with the default values if they exist
+        var name = component.get("v.defaultName");
         var phone = component.get("v.defaultPhone");
         var email = component.get("v.defaultEmail");
+        component.set("v.contactName", name);
         component.set("v.contactPhone", phone);
         component.set("v.contactEmail", email);
     },
@@ -18,9 +20,10 @@
 
     sendInvite : function(component, event, helper) {
         // call the parent handler
-        var event = component.getEvent('onInviteClick');
+        var inviteEvent = component.getEvent('onInviteClick');
+        var name = component.get("v.contactName") || '';
         var phone = component.get("v.contactPhone") || '';
-        var email = component.get("v.contactEmail");
+        var email = component.get("v.contactEmail") || '';
         var message = component.get('v.inviteMessage');
 
         if (email == '' && phone == '') {
@@ -31,10 +34,11 @@
             });
             toastEvent.fire();
         } else {
-            event.setParam("email", email);
-            event.setParam("phone", phone.replace(/[^+\d]/g, ''));
-            event.setParam("message", message);
-            event.fire();
+            inviteEvent.setParam("name", name.trim());
+            inviteEvent.setParam("email", email);
+            inviteEvent.setParam("phone", phone.replace(/[^+\d]/g, ''));
+            inviteEvent.setParam("message", message);
+            inviteEvent.fire();
         }
     },
 
@@ -42,5 +46,13 @@
         // call the parent handler
         var event = component.getEvent('onCopyLinkClick');
         event.fire();
+    },
+
+    handleOpenChat : function(component, event, helper) {
+        // Forward the LWC event to the parent Aura component
+        var workboxId = event.getParam('workboxId');
+        var auraEvent = component.getEvent('onOpenChatClick');
+        auraEvent.setParam("workboxId", workboxId);
+        auraEvent.fire();
     }
 })

@@ -576,4 +576,31 @@ private class HLCallUtilTest {
         helplightning.HLModelCall result = helplightning.HLModelCall.build(emptyCall);
         System.assertEquals(result, null);
     }
+
+    /**
+     * Test when call started recently (< 3 min) and no match found - returns null
+     */
+    @isTest
+    static void testFindCallMatchRecentNoMatch() {
+        // Call started just now - no callId yet
+        helplightning__HLCall__c call = new helplightning__HLCall__c(
+            helplightning__Contact_Email__c = 'contact@helplightning.com',
+            helplightning__Start_Time__c = DateTime.now()
+        );
+
+        // Empty list - no matches
+        List<helplightning.HLModelCall> hlCalls = new List<helplightning.HLModelCall>();
+
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u = new User(Alias = 'support', Email='support@helplightning.com',
+                          EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                          LocaleSidKey='en_US', ProfileId = p.Id,
+                          TimeZoneSidKey='GMT', UserName='support@helplightning.com');
+
+        System.runAs(u) {
+            helplightning__HLCall__c result = helplightning.HLCallUtil.findCallMatch(call, hlCalls);
+            // Should return null since call is recent and no match
+            System.assertEquals(null, result);
+        }
+    }
 }

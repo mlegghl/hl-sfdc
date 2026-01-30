@@ -1,3 +1,8 @@
+3.20-new-web
+==========
+2026-01-30  Micah Legg <micah.legg@helplightning.com>
+	* SFDC-118 - Support new web url
+
 3.20
 ==========
 2026-01-27  Micah Legg <micah.legg@helplightning.com>

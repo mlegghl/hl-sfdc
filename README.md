@@ -141,9 +141,8 @@ Manager` role!
 
 1. Update the ChangeLog
 2. Update the sfdx-project.json. Make sure the `versionName` matches
-   the ChangeLog. The `versionNumber` should be `$versionName.0.1`
-   (They last number can be incremented only if you need to make a new
-   build _without_ making any code changes!
+   the ChangeLog. The `versionNumber` should be `$versionName.NEXT`
+   (Salesforce auto-increments the build number for each package version created).
    
 Make sure this is committed and tagged!
 

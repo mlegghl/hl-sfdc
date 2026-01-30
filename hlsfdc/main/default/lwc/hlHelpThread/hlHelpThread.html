@@ -123,7 +123,7 @@
                     
                     <template for:each={customFields} for:item="cf" for:index="index">
                         <div key={cf.id}>
-                            <template if:true={cf.isText}>
+                            <template lwc:if={cf.isText}>
                                 <div class="slds-p-around_small lgc-bg">
                                     <lightning-input 
                                         data-index={index} 
@@ -135,7 +135,7 @@
                                     </lightning-input>
                                 </div>
                             </template>
-                            <template if:true={cf.isBoolean}>
+                            <template lwc:if={cf.isBoolean}>
                                 <div class="slds-p-around_small lgc-bg">
                                     <lightning-input 
                                         data-index={index} 
@@ -148,7 +148,7 @@
                                     </lightning-input>
                                 </div>
                             </template>
-                            <template if:true={cf.isList}>
+                            <template lwc:if={cf.isList}>
                                 <div class="slds-p-around_small lgc-bg">
                                     <lightning-combobox
                                         data-index={index}
@@ -162,7 +162,7 @@
                                     </lightning-combobox>
                                 </div>
                             </template>
-                            <template if:true={cf.isMultiList}>
+                            <template lwc:if={cf.isMultiList}>
                                 <div class="slds-p-around_small lgc-bg">
                                     <c-multi-list 
                                         cfindex={index} 

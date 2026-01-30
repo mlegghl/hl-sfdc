@@ -305,7 +305,7 @@ export default class HlHelpThread extends LightningElement {
 
     handleOpenChat() {
         // Fire event to open the Help Lightning chat window
-        const workboxId = this.workboxData?.id;
+        const workboxId = this.workboxData?.workboxId;
         console.log('Open Chat clicked for workbox:', workboxId);
         
         // Dispatch custom event to parent component

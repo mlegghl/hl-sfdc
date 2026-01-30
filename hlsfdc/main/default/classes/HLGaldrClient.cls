@@ -159,12 +159,10 @@ public class HLGaldrClient {
       helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
       Map<String,Object> params = new Map<String,Object>();
       params.put('values', payload.values);
-      System.debug('saveCustomFields request body: ' + JSON.serialize(params));
       helplightning.HLRequest request = new helplightning.HLRequest(environment,
                                                                     workboxToken,
                                                                     '/v1r1/workbox/custom_fields');
       Object result = request.put(params);
-      System.debug('saveCustomFields result: ' + result);
       return (result != null);
     }
 
@@ -447,8 +445,8 @@ public class HLGaldrClient {
         helplightning.HLRequest request = new helplightning.HLRequest(environment,
                                                                       workboxToken,
                                                                       '/v1r1/workbox/invite/' + guestUuid);
-        // DELETE request
-        Object result = request.del();
+        // DELETE request - returns null on success (204 No Content)
+        request.del();
         return true;
     }
 }

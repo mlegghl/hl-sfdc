@@ -37,7 +37,6 @@ public class HLRequest {
 
       // serialize the params
       String body = JSON.serialize(params);
-      System.debug('HLRequest PUT body: ' + body);
       req.setBody(body);
 
       return sendRequest(req);

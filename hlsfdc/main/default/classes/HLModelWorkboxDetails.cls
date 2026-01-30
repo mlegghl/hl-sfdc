@@ -25,6 +25,8 @@
 
       Map<String,Object> t = (Map<String,Object>)detailsObject;
       Map<String,Object> s = (Map<String,Object>)t.get('workbox');
+      if (s == null)
+          return null;
       return buildFromWorkboxMap(s);
   }
 
@@ -40,6 +42,8 @@
   }
 
   private static HLModelWorkboxDetails buildFromWorkboxMap(Map<String,Object> s) {
+      if (s == null)
+          return null;
       Integer workboxId = (Integer)s.get('id');
       String workboxToken = (String)s.get('token');
       String status = (String)s.get('status');

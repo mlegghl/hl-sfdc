@@ -739,6 +739,49 @@ private class HLSessionControllerTest {
 
                 response.setStatusCode(200);
                 response.setBody(JSON.serialize(result));
+            } else if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1r1/workboxes')) {
+                // Create workbox endpoint
+                Map<String,Object> result = new Map<String,Object>{
+                        'id' => 12345,
+                        'token' => 'workbox-token-123',
+                        'status' => 'REPORTED',
+                        'title' => 'Test Workbox'
+                    };
+                response.setStatusCode(200);
+                response.setBody(JSON.serialize(result));
+            } else if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1r1/workbox/invite')) {
+                // Send workbox invite endpoint
+                Map<String,Object> body = (Map<String,Object>)JSON.deserializeUntyped(req.getBody());
+                if (body.get('email') == 'invalid-user@helplightning.com') {
+                    response.setStatusCode(500);
+                } else {
+                    Map<String,Object> result = new Map<String,Object>{
+                            'guests' => new List<Object>{
+                                new Map<String,Object>{
+                                    'id' => 98765,
+                                    'name' => 'Guest User',
+                                    'uuid' => 'guest-uuid-123',
+                                    'has_joined' => false
+                                }
+                            }
+                        };
+                    response.setStatusCode(200);
+                    response.setBody(JSON.serialize(result));
+                }
+            } else if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1r1/workboxes/')) {
+                // Get workbox by ID endpoint
+                Map<String,Object> result = new Map<String,Object>{
+                        'id' => 12345,
+                        'token' => 'workbox-token-123',
+                        'status' => 'REPORTED',
+                        'title' => 'Test Workbox',
+                        'ticketFieldsFull' => new List<Object>(),
+                        'fields' => new List<Object>(),
+                        'participants' => new List<Object>(),
+                        'guests' => new List<Object>()
+                    };
+                response.setStatusCode(200);
+                response.setBody(JSON.serialize(result));
             } else {
                 response.setStatusCode(500);
             }
@@ -984,6 +1027,41 @@ private class HLSessionControllerTest {
 
               response.setStatusCode(200);
               response.setBody(JSON.serialize(accountResult));
+          } else if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1r1/workboxes')) {
+              // Create workbox endpoint
+              Map<String,Object> result = new Map<String,Object>{
+                      'id' => 12345,
+                      'token' => 'workbox-token-123',
+                      'status' => 'REPORTED',
+                      'title' => 'Test Workbox'
+                  };
+              response.setStatusCode(200);
+              response.setBody(JSON.serialize(result));
+          } else if (req.getMethod() == 'POST' && endpoint.getPath().startsWith('/api/v1r1/workbox/invite/silent')) {
+              // Silent invite endpoint for copy link
+              Map<String,Object> result = new Map<String,Object>{
+                      'link' => 'https://short.link/workbox12345',
+                      'workbox' => new Map<String,Object>{
+                          'id' => 12345,
+                          'token' => 'workbox-token-123'
+                      }
+                  };
+              response.setStatusCode(200);
+              response.setBody(JSON.serialize(result));
+          } else if (req.getMethod() == 'GET' && endpoint.getPath().startsWith('/api/v1r1/workboxes/')) {
+              // Get workbox by ID endpoint
+              Map<String,Object> result = new Map<String,Object>{
+                      'id' => 12345,
+                      'token' => 'workbox-token-123',
+                      'status' => 'REPORTED',
+                      'title' => 'Test Workbox',
+                      'ticketFieldsFull' => new List<Object>(),
+                      'fields' => new List<Object>(),
+                      'participants' => new List<Object>(),
+                      'guests' => new List<Object>()
+                  };
+              response.setStatusCode(200);
+              response.setBody(JSON.serialize(result));
           } else {
               response.setStatusCode(500);
           }
@@ -1772,6 +1850,9 @@ private class HLSessionControllerTest {
      */
     @isTest
     static void testSendOneTimeUseLink() {
+        // Get the case created in test setup
+        Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
+        
         // run as a support@helplightning.com user, since this
         //  looks up the current user to find a match.
         Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
@@ -1791,6 +1872,14 @@ private class HLSessionControllerTest {
                            TimeZoneSidKey='America/Chicago', UserName='support3@helplightning.com');
         insert u3;
 
+        // Pre-create the HLWorkbox__c record to avoid DML during callout
+        // This is needed because getOrCreateWorkbox would otherwise insert a record
+        helplightning__HLWorkbox__c workbox = new helplightning__HLWorkbox__c(
+            helplightning__Case__c = caseId,
+            helplightning__Workbox_Id__c = 12345
+        );
+        insert workbox;
+
         // We are not allowed to do an DML operations
         //  before doing a call-out. But, we need test data
         //  to be inserted first.
@@ -1804,16 +1893,16 @@ private class HLSessionControllerTest {
         System.RunAs(u1) {
             Map<String,Object> result;
 
-            // try a valid case
-            result = helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '');
+            // try a valid case - method now returns workbox info
+            result = helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '', 'Case', caseId);
 
-            System.assertEquals('my-token', result.get('token'));
-            System.assertEquals('Support', result.get('name'));
-            System.assertEquals('support', result.get('username'));
-            System.assertEquals('xxx-yyyy-zzz', result.get('sessionId'));
+            // Verify result is not null and contains expected keys
+            System.assertNotEquals(null, result, 'Result should not be null');
+            System.assert(result.containsKey('workboxId'), 'Result should contain workboxId');
+            System.assert(result.containsKey('workboxToken'), 'Result should contain workboxToken');
 
-            // try an invalid case
-            result = helplightning.HLSessionController.sendOneTimeUseLink('Invalid User', 'invalid-user@helplightning.com', '', '');
+            // try an invalid user email
+            result = helplightning.HLSessionController.sendOneTimeUseLink('Invalid User', 'invalid-user@helplightning.com', '', '', 'Case', caseId);
             System.assertEquals(null, result);
         }
 
@@ -1821,14 +1910,14 @@ private class HLSessionControllerTest {
             Map<String,Object> result;
 
             // try a other user, but we are not part of this enterprise
-            result = helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '');
+            result = helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '', 'Case', caseId);
             System.assertEquals(null, result);
         }
         System.RunAs(u3) {
             Map<String,Object> result;
 
             // simulate us not correctly returning a token
-            result = helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '');
+            result = helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '', 'Case', caseId);
             System.assertEquals(null, result);
         }
 
@@ -1840,6 +1929,9 @@ private class HLSessionControllerTest {
      */
     @isTest
     static void testSendOneTimeUseLinkMissingConfig() {
+        // Get the case created in test setup
+        Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
+        
         helplightning__Help_Lightning_Config__c config = helplightning__Help_Lightning_Config__c.getOrgDefaults();
         delete config;
 
@@ -1864,7 +1956,7 @@ private class HLSessionControllerTest {
 
         System.RunAs(u1) {
             try {
-                helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '');
+                helplightning.HLSessionController.sendOneTimeUseLink('Other User', 'other@helplightning.com', '', '', 'Case', caseId);
                 System.assert(false, 'Exception wasn\'t raised');
             } catch (AuraHandledException e) {
                 // expected path
@@ -2315,12 +2407,22 @@ private class HLSessionControllerTest {
 
     @isTest
     static void testCreateOneTimeUseLink() {
+        // Get the case created in test setup
+        Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
+        
         Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
         User u1 = new User(Alias = 'support', Email='support@helplightning.com',
                            EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
                            LocaleSidKey='en_US', ProfileId = p.Id,
                            TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
         insert u1;
+
+        // Pre-create the HLWorkbox__c record to avoid DML during callout
+        helplightning__HLWorkbox__c workbox = new helplightning__HLWorkbox__c(
+            helplightning__Case__c = caseId,
+            helplightning__Workbox_Id__c = 12345
+        );
+        insert workbox;
 
         // We are not allowed to do an DML operations
         //  before doing a call-out. But, we need test data
@@ -2333,14 +2435,131 @@ private class HLSessionControllerTest {
         Test.setMock(HttpCalloutMock.class, new CreateOneTimeUseLinkMocker());
 
         System.RunAs(u1) {
-            Map<String,Object> result = helplightning.HLSessionController.createOneTimeUseLink();
+            Map<String,Object> result = helplightning.HLSessionController.createOneTimeUseLink('Case', caseId);
 
             // Simplified assertions - just check that it's not null and has expected structure
             System.assertNotEquals(null, result, 'Result should not be null');
             System.assert(result.containsKey('link'), 'Result should contain link key');
-            System.assert(result.containsKey('auth'), 'Result should contain auth key');
+            System.assert(result.containsKey('workboxId'), 'Result should contain workboxId key');
         }
 
         Test.stopTest();
+    }
+
+    /**
+     * Tests for Help Thread methods
+     */
+    @isTest
+    static void testHelpThreadMethods() {
+        Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
+        
+        // Pre-create workbox
+        helplightning__HLWorkbox__c workbox = new helplightning__HLWorkbox__c(
+            helplightning__Case__c = caseId,
+            helplightning__Workbox_Id__c = 12345
+        );
+        insert workbox;
+
+        Test.startTest();
+        Test.setMock(HttpCalloutMock.class, new HelpThreadMocker());
+
+        // Test getWorkboxDetails
+        HLModelWorkboxDetails details = helplightning.HLSessionController.getWorkboxDetails('Case', caseId);
+        System.assertNotEquals(null, details);
+
+        // Test getOpenChatInfo
+        Map<String,Object> chatInfo = helplightning.HLSessionController.getOpenChatInfo('Case', caseId);
+        System.assertNotEquals(null, chatInfo);
+
+        // Test getEnvironmentUrl
+        String url = helplightning.HLSessionController.getEnvironmentUrl();
+        System.assertNotEquals(null, url);
+
+        // Test initWorkbox (workbox already exists)
+        Map<String,Object> initResult = helplightning.HLSessionController.initWorkbox('Case', caseId);
+        System.assertNotEquals(null, initResult);
+
+        // Test resendGuestInvite
+        helplightning.HLSessionController.resendGuestInvite('Case', caseId, 'guest-uuid-123');
+
+        // Test removeGuest
+        helplightning.HLSessionController.removeGuest('Case', caseId, 'guest-uuid-123');
+
+        // Test closeWorkbox
+        helplightning.HLSessionController.closeWorkbox('Case', caseId);
+
+        // Test reopenWorkbox
+        helplightning.HLSessionController.reopenWorkbox('Case', caseId);
+
+        // Test saveCustomFields
+        List<Map<String,Object>> fieldValues = new List<Map<String,Object>>();
+        fieldValues.add(new Map<String,Object>{'id' => 1, 'value' => 'test'});
+        helplightning.HLSessionController.saveCustomFields('Case', caseId, fieldValues);
+
+        Test.stopTest();
+    }
+
+    /**
+     * Mock for Help Thread methods
+     */
+    class HelpThreadMocker implements HttpCalloutMock {
+        public HTTPResponse respond(HTTPRequest req) {
+            URL endpoint = new URL(req.getEndpoint());
+            HttpResponse response = new HttpResponse();
+            response.setHeader('Content-Type', 'application/json');
+
+            if (endpoint.getPath().startsWith('/api/v1/enterprise/users')) {
+                Map<String, Object> result = new Map<String, Object>();
+                result.put('total_entries', 1);
+                result.put('entries', new List<Object> {
+                    new Map<String,Object>{
+                        'id' => 234,
+                        'name' => 'Support',
+                        'username' => 'support',
+                        'email' => 'support@test.com',
+                        'available' => true,
+                        'status' => 0,
+                        'active' => true,
+                        'token' => 'user-token-123',
+                        'avatar' => new Map<String,String>{
+                            'original' => '/path/to/avatar.jpg',
+                            'thumb' => '/path/to/avatar-thumb.jpg'
+                        }
+                    }
+                });
+                response.setStatusCode(200);
+                response.setBody(JSON.serialize(result));
+            } else if (endpoint.getPath().startsWith('/api/v1r1/workboxes/')) {
+                Map<String,Object> result = new Map<String,Object>{
+                    'id' => 12345,
+                    'token' => 'workbox-token-123',
+                    'status' => 'REPORTED',
+                    'title' => 'Test',
+                    'ticketFieldsFull' => new List<Object>(),
+                    'fields' => new List<Object>(),
+                    'participants' => new List<Object>(),
+                    'guests' => new List<Object>()
+                };
+                response.setStatusCode(200);
+                response.setBody(JSON.serialize(result));
+            } else if (endpoint.getPath().startsWith('/api/v1r1/workbox/invite/')) {
+                response.setStatusCode(200);
+                response.setBody('{}');
+            } else if (endpoint.getPath().startsWith('/api/v1r1/workbox/close')) {
+                response.setStatusCode(200);
+                response.setBody('{}');
+            } else if (endpoint.getPath().startsWith('/api/v1r1/workbox/reopen')) {
+                response.setStatusCode(200);
+                response.setBody('{}');
+            } else if (endpoint.getPath().startsWith('/api/v1r1/workbox/custom_fields')) {
+                response.setStatusCode(200);
+                response.setBody('{}');
+            } else {
+                response.setStatusCode(200);
+                response.setBody('{}');
+            }
+
+            return response;
+        }
     }
 }

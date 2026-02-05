@@ -1130,6 +1130,7 @@ public with sharing class HLSessionController {
                 Schema.sObjectType.WorkOrder.fields.ContactId.isAccessible());
     }
     private static boolean isHLCallAccessible() {
+        // Note: Workbox_Id__c is not included here as it's optional and may not exist in older orgs
         return (Schema.sObjectType.helplightning__HLCall__c.fields.Id.isAccessible() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Session_Id__c.isAccessible() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__HLCall_Id__c.isAccessible() &&
@@ -1150,6 +1151,7 @@ public with sharing class HLSessionController {
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Work_Order__c.isAccessible());
     }
     private static boolean isHLCallUpdateable() {
+        // Note: Workbox_Id__c is not included here as it's optional and may not exist in older orgs
         return (Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Session_Id__c.isUpdateable() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__HLCall_Id__c.isUpdateable() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Complete__c.isUpdateable() &&
@@ -1223,7 +1225,7 @@ public with sharing class HLSessionController {
                 }
             }
 
-            if (a.type == 'incall' && a.mimeType == 'image/jpeg' && !fileExists) {
+            if (a.type == 'incall' && (a.mimeType == 'image/jpeg' || a.mimeType == 'image/png') && !fileExists) {
               // Get the file from signed URL
               Http h = new Http();
               HttpRequest req = new HttpRequest();
@@ -1231,10 +1233,12 @@ public with sharing class HLSessionController {
               req.setMethod('GET');
               HttpResponse res = h.send(req);
               Blob bd = res.getBodyAsBlob();
+              // Determine file extension based on mime type
+              String fileExt = a.mimeType == 'image/png' ? '.png' : '.jpg';
               // Create a new ContentVersion object
               ContentVersion conVer = new ContentVersion();
               conVer.ContentLocation = 'S'; // to use S specify this document is in Salesforce, to use E for external files
-              conVer.PathOnClient = a.fileName + '.jpg';
+              conVer.PathOnClient = a.fileName + fileExt;
               conVer.Title = a.fileName; // Display name of the files
               conVer.VersionData = bd;
               toSave.add(conVer);

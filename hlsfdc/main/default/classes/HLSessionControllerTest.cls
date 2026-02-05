@@ -1388,16 +1388,16 @@ private class HLSessionControllerTest {
             Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
             Id invalidId = [SELECT Id from WorkOrder WHERE Subject = 'Work Order 1' LIMIT 1].Id;
 
-            List<helplightning__HLCall__c> calls = helplightning.HLSessionController.getCallsForRecord('case', caseId);
+            List<helplightning__HLCall__c> calls = helplightning.HLSessionController.getCallsForRecord('Case', caseId);
 
             System.assertEquals(2, calls.size());
 
             // test for an invalid Id
-            calls = helplightning.HLSessionController.getCallsForRecord('case', invalidId);
+            calls = helplightning.HLSessionController.getCallsForRecord('Case', invalidId);
             System.assertEquals(0, calls.size());
 
             // null Id
-            calls = helplightning.HLSessionController.getCallsForRecord('case', null);
+            calls = helplightning.HLSessionController.getCallsForRecord('Case', null);
             System.assertEquals(0, calls.size());
         }
 
@@ -1424,15 +1424,15 @@ private class HLSessionControllerTest {
 
             List<helplightning__HLCall__c> calls = helplightning.HLSessionController.getCallsForRecord('WorkOrder', workOrderId);
 
-            System.assertEquals(calls.size(), 2);
+            System.assertEquals(2, calls.size());
 
             // test for an invalid Id
             calls = helplightning.HLSessionController.getCallsForRecord('WorkOrder', invalidId);
-            System.assertEquals(calls.size(), 0);
+            System.assertEquals(0, calls.size());
 
             // null Id
             calls = helplightning.HLSessionController.getCallsForRecord('WorkOrder', null);
-            System.assertEquals(calls.size(), 0);
+            System.assertEquals(0, calls.size());
         }
 
         Test.stopTest();
@@ -1444,7 +1444,7 @@ private class HLSessionControllerTest {
     @isTest
     static void testGetCallsForRecordInvalid() {
         List<helplightning__HLCall__c> calls = helplightning.HLSessionController.getCallsForRecord('InvalidType', null);
-        System.assertEquals(calls.size(), 0);
+        System.assertEquals(0, calls.size());
     }
 
     /**
@@ -1537,7 +1537,7 @@ private class HLSessionControllerTest {
             List<helplightning__HLCall__c> calls = helplightning.HLSessionController.updateCalls('Case', caseId);
 
             // validate we have 2 calls
-            System.assertEquals(calls.size(), 2);
+            System.assertEquals(2, calls.size());
 
             // validate that call id 'wxyz'
             //  has been set to complete.
@@ -1547,9 +1547,9 @@ private class HLSessionControllerTest {
                     wxyz = c;
             }
 
-            System.assertNotEquals(wxyz, null);
-            System.assertEquals(wxyz.helplightning__Complete__c, true);
-            System.assertEquals(wxyz.helplightning__Duration__c, 360);
+            System.assertNotEquals(null, wxyz);
+            System.assertEquals(true, wxyz.helplightning__Complete__c);
+            System.assertEquals(360, wxyz.helplightning__Duration__c);
         }
 
         Test.stopTest();
@@ -1627,8 +1627,8 @@ private class HLSessionControllerTest {
         System.RunAs(u) {
             List<helplightning__HLCall__c> calls = helplightning.HLSessionController.updateCalls('WorkOrder', workOrderId);
 
-            // validate we have 1 calls
-            System.assertEquals(calls.size(), 2);
+            // validate we have 2 calls
+            System.assertEquals(2, calls.size());
         }
 
         Test.stopTest();
@@ -1643,10 +1643,10 @@ private class HLSessionControllerTest {
         List<helplightning__HLCall__c> calls;
 
         calls = helplightning.HLSessionController.updateCalls('Case', null);
-        System.assertEquals(calls.size(), 0);
+        System.assertEquals(0, calls.size());
 
         calls = helplightning.HLSessionController.updateCalls('Contacts', contactId);
-        System.assertEquals(calls.size(), 0);
+        System.assertEquals(0, calls.size());
     }
 
     @isTest
@@ -2317,7 +2317,7 @@ private class HLSessionControllerTest {
             List<helplightning__HLCall__c> calls = helplightning.HLSessionController.updateCalls('Case', caseId);
 
             // validate we have 2 calls
-            System.assertEquals(calls.size(), 2);
+            System.assertEquals(2, calls.size());
 
             // validate that call id 'wxyz'
             //  has been set to complete.
@@ -2327,9 +2327,9 @@ private class HLSessionControllerTest {
                     wxyz = c;
             }
 
-            System.assertNotEquals(wxyz, null);
-            System.assertEquals(wxyz.helplightning__Complete__c, true);
-            System.assertEquals(wxyz.helplightning__Duration__c, 360);
+            System.assertNotEquals(null, wxyz);
+            System.assertEquals(true, wxyz.helplightning__Complete__c);
+            System.assertEquals(360, wxyz.helplightning__Duration__c);
         }
 
         Test.stopTest();

@@ -20,6 +20,11 @@
     <aura:attribute name="eventHandler" type="Object" />
     <!-- workbox ID for the persistent help thread -->
     <aura:attribute name="workboxId" type="Integer" />
+    <!-- pending invite info for creating HLCall on CALL_CONNECTED -->
+    <aura:attribute name="pendingInviteEmail" type="String" default="" />
+    <aura:attribute name="pendingInvitePhone" type="String" default="" />
+    <aura:attribute name="pendingInviteType" type="String" default="" />
+    <aura:attribute name="pendingWorkboxId" type="String" default="" />
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
     <aura:handler name="destroy" action="{!c.doDestroy}" value="{!this}"/>

@@ -143,7 +143,12 @@
                 var webUrl = r.webUrl;
                 var userToken = r.token;
                 var workboxId = r.workboxId;
-                var email = sendToEmail;
+
+                // Store pending invite info for when CALL_CONNECTED fires
+                component.set("v.pendingInviteEmail", sendToEmail || '');
+                component.set("v.pendingInvitePhone", phone || '');
+                component.set("v.pendingInviteType", "Invitation");
+                component.set("v.pendingWorkboxId", String(workboxId));
 
                 // Build the help thread external URL with workbox id from response
                 var url = webUrl + '/help-thread-external'
@@ -151,8 +156,8 @@
                   + '&workboxId=' + encodeURIComponent(workboxId)
                   + '&action=join_session';
 
-                // create a new HLCall using workboxId as the sessionId
-                helper.createNewCall(component, helper, sObjectName, rId, email, phone, String(workboxId), true, url);
+                // Open popup and attach message handler (no HLCall created upfront)
+                helper.openHelpThreadPopup(component, helper, url);
             } else {
                 var toastEvent = $A.get("e.force:showToast");
                 toastEvent.setParams({
@@ -240,9 +245,11 @@
                     }
                 }
 
-                // we don't have an email or phone for the one time use link
-                var email = '';
-                var phone = '';
+                // Store pending invite info for when CALL_CONNECTED fires
+                component.set("v.pendingInviteEmail", '');
+                component.set("v.pendingInvitePhone", '');
+                component.set("v.pendingInviteType", "Invitation");
+                component.set("v.pendingWorkboxId", String(workboxId));
 
                 // Build the help thread external URL with workbox id from response
                 var url = webUrl + '/help-thread-external'
@@ -250,8 +257,8 @@
                   + '&workboxId=' + encodeURIComponent(workboxId)
                   + '&action=join_session';
 
-                // create a new HLCall using workboxId as the sessionId
-                helper.createNewCall(component, helper, sObjectName, rId, email, phone, String(workboxId), true, url);
+                // Open popup and attach message handler (no HLCall created upfront)
+                helper.openHelpThreadPopup(component, helper, url);
             } else {
                 var errors = response.getError();
                 var errorMessage = "Failed to create invite link.";
@@ -293,6 +300,12 @@
                 var userToken = r.userToken;
                 var workboxId = r.workboxId;
                 var webUrl = r.webUrl;
+
+                // Store pending invite info for when CALL_CONNECTED fires
+                component.set("v.pendingInviteEmail", '');
+                component.set("v.pendingInvitePhone", '');
+                component.set("v.pendingInviteType", "Direct");
+                component.set("v.pendingWorkboxId", String(workboxId));
                 
                 // Build URL without action parameter (just opens chat, no call)
                 var url = webUrl + '/help-thread-external'
@@ -301,19 +314,8 @@
                 
                 console.log("HL::clickOpenChat opening URL:", url);
                 
-                // Open in new window
-                var callWindow = window.open(url, "hlPopupWindow", "width=800,height=600");
-                if (callWindow) {
-                    component.set("v.callWindow", callWindow);
-                    window.addEventListener("message", component.get("v.eventHandler"));
-                } else {
-                    var toastEvent = $A.get("e.force:showToast");
-                    toastEvent.setParams({
-                        "type": "error",
-                        "message": "Failed to open chat window. Please allow popups for this site."
-                    });
-                    toastEvent.fire();
-                }
+                // Open popup and attach message handler
+                helper.openHelpThreadPopup(component, helper, url);
             } else {
                 var toastEvent = $A.get("e.force:showToast");
                 toastEvent.setParams({

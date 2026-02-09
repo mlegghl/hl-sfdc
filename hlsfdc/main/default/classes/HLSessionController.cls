@@ -500,6 +500,9 @@ public with sharing class HLSessionController {
     @AuraEnabled
     public static Map<String,Object> initWorkbox(String sObjectName, String recordId) {
         System.debug('initWorkbox: sObjectName=' + sObjectName + ' recordId=' + recordId);
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
 
         try {
             String myUserEmail = helplightning.HLUserHelper.getLogin();
@@ -544,6 +547,9 @@ public with sharing class HLSessionController {
     @AuraEnabled
     public static HLModelWorkboxDetails getWorkboxDetails(String sObjectName, String recordId) {
         System.debug('getWorkboxDetails: sObjectName=' + sObjectName + ' recordId=' + recordId);
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
 
         try {
             // Check if a workbox exists for this record
@@ -602,6 +608,9 @@ public with sharing class HLSessionController {
     @AuraEnabled
     public static Map<String,Object> getOpenChatInfo(String sObjectName, String recordId) {
         System.debug('getOpenChatInfo: sObjectName=' + sObjectName + ' recordId=' + recordId);
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
 
         try {
             // Check if a workbox exists for this record
@@ -645,6 +654,9 @@ public with sharing class HLSessionController {
     @AuraEnabled
     public static void resendGuestInvite(String sObjectName, String recordId, String guestUuid) {
         System.debug('resendGuestInvite: sObjectName=' + sObjectName + ' recordId=' + recordId + ' guestUuid=' + guestUuid);
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
 
         try {
             // Get the workbox token
@@ -685,6 +697,9 @@ public with sharing class HLSessionController {
     @AuraEnabled
     public static void removeGuest(String sObjectName, String recordId, String guestUuid) {
         System.debug('removeGuest: sObjectName=' + sObjectName + ' recordId=' + recordId + ' guestUuid=' + guestUuid);
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
 
         try {
             // Get the workbox token
@@ -721,6 +736,9 @@ public with sharing class HLSessionController {
     @AuraEnabled
     public static void closeWorkbox(String sObjectName, String recordId) {
         System.debug('closeWorkbox: sObjectName=' + sObjectName + ' recordId=' + recordId);
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
 
         try {
             // Get the workbox token
@@ -757,6 +775,9 @@ public with sharing class HLSessionController {
     @AuraEnabled
     public static void reopenWorkbox(String sObjectName, String recordId) {
         System.debug('reopenWorkbox: sObjectName=' + sObjectName + ' recordId=' + recordId);
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
 
         try {
             // Get the workbox token
@@ -794,6 +815,9 @@ public with sharing class HLSessionController {
     public static void saveCustomFields(String sObjectName, String recordId, List<Map<String,Object>> fieldValues) {
         System.debug('saveCustomFields: sObjectName=' + sObjectName + ' recordId=' + recordId);
         System.debug('fieldValues: ' + JSON.serialize(fieldValues));
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
 
         try {
             // Get the workbox token
@@ -841,6 +865,9 @@ public with sharing class HLSessionController {
     @AuraEnabled
     public static Map<String,Object> createOneTimeUseLink(String sObjectName, String recordId) {
         System.debug('createOneTimeUseLink: sObjectName=' + sObjectName + ' recordId=' + recordId);
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
 
         try {
             String myUserEmail = helplightning.HLUserHelper.getLogin();
@@ -910,6 +937,9 @@ public with sharing class HLSessionController {
     @AuraEnabled
     public static Map<String,Object> sendOneTimeUseLink(String otherUsersName, String otherUsersEmail, String otherUsersPhone, String message, String sObjectName, String recordId) {
         System.debug('sendOneTimeUseLink: ' + otherUsersName + ' email: ' + otherUsersEmail + ' phone: ' + otherUsersPhone + ' sObjectName: ' + sObjectName + ' recordId: ' + recordId);
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
 
         try {
             String myUserEmail = helplightning.HLUserHelper.getLogin();
@@ -971,6 +1001,37 @@ public with sharing class HLSessionController {
     /** Private Helper Functions **/
 
     /**
+     * Validate sObjectName input to prevent injection attacks.
+     * Only 'Case' and 'WorkOrder' are allowed values.
+     * Throws AuraHandledException if invalid.
+     */
+    private static void validateSObjectName(String sObjectName) {
+        if (sObjectName != 'Case' && sObjectName != 'WorkOrder') {
+            throw new AuraHandledException('Invalid object type. Only Case and WorkOrder are supported.');
+        }
+    }
+
+    /**
+     * Check if HLWorkbox__c fields are accessible for reading.
+     */
+    private static boolean isHLWorkboxAccessible() {
+        return (Schema.sObjectType.helplightning__HLWorkbox__c.fields.Id.isAccessible() &&
+                Schema.sObjectType.helplightning__HLWorkbox__c.fields.helplightning__Workbox_Id__c.isAccessible() &&
+                Schema.sObjectType.helplightning__HLWorkbox__c.fields.helplightning__Case__c.isAccessible() &&
+                Schema.sObjectType.helplightning__HLWorkbox__c.fields.helplightning__Work_Order__c.isAccessible());
+    }
+
+    /**
+     * Check if HLWorkbox__c is createable with required fields.
+     */
+    private static boolean isHLWorkboxCreatable() {
+        return (Schema.sObjectType.helplightning__HLWorkbox__c.isCreateable() &&
+                Schema.sObjectType.helplightning__HLWorkbox__c.fields.helplightning__Workbox_Id__c.isCreateable() &&
+                Schema.sObjectType.helplightning__HLWorkbox__c.fields.helplightning__Case__c.isCreateable() &&
+                Schema.sObjectType.helplightning__HLWorkbox__c.fields.helplightning__Work_Order__c.isCreateable());
+    }
+
+    /**
      * Get a formatted title for the workbox based on the Case or WorkOrder.
      * Returns format like 'Case - 00001234' or 'Work Order - 00005678'
      */
@@ -1003,6 +1064,12 @@ public with sharing class HLSessionController {
      */
     private static helplightning__HLWorkbox__c getExistingWorkbox(String sObjectName, String recordId) {
         if (String.isEmpty(sObjectName) || String.isEmpty(recordId)) {
+            return null;
+        }
+
+        // Check FLS before querying
+        if (!isHLWorkboxAccessible()) {
+            System.debug('Insufficient access to HLWorkbox__c fields');
             return null;
         }
 
@@ -1039,6 +1106,12 @@ public with sharing class HLSessionController {
      */
     private static helplightning__HLWorkbox__c saveWorkboxRecord(String sObjectName, String recordId, Integer workboxId) {
         if (String.isEmpty(sObjectName) || String.isEmpty(recordId) || workboxId == null) {
+            return null;
+        }
+
+        // Check FLS before creating record
+        if (!isHLWorkboxCreatable()) {
+            System.debug('Insufficient access to create HLWorkbox__c');
             return null;
         }
 

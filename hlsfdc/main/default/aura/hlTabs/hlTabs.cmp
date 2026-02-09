@@ -4,6 +4,8 @@
         https://salesforce.stackexchange.com/questions/144087/how-do-i-pass-a-function-as-a-lightning-component-attribute
     -->
     <aura:attribute name="showButtons" type="Boolean" default="true" />
+    <aura:attribute name="contactName" type="String" default="" />
+    <aura:attribute name="defaultName" type="String" default="" />
     <aura:attribute name="contactEmail" type="String" default="" />
     <aura:attribute name="defaultEmail" type="String" default="" />
     <aura:attribute name="contactPhone" type="String" default="" />
@@ -16,6 +18,7 @@
     <aura:registerEvent name="onCallClick" type="helplightning:hlCallContactEvent" />
     <aura:registerEvent name="onInviteClick" type="helplightning:hlInviteContactEvent" />
     <aura:registerEvent name="onCopyLinkClick" type="helplightning:hlCopyLinkEvent" />
+    <aura:registerEvent name="onOpenChatClick" type="helplightning:hlOpenChatEvent" />
 
     <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
 
@@ -32,11 +35,9 @@
                         <div class="slds-form-element__control">
                             <div class="slds-form-element__row">
                                 <div class="slds-form-element slds-size_1-of-1">
-                                    <label class="slds-form-element__label" for="inviteMessage">Message</label>
+                                    <label class="slds-form-element__label" for="contactName">Name</label>
                                     <div class="slds-form-element__control">
-                                        <ui:inputTextArea aura:id="inviteMessage" class="slds-textarea" value="{!v.inviteMessage}"
-                                            placeholder="Custom message (optional; added to email only)">
-                                        </ui:inputTextArea>
+                                        <ui:inputText class="slds-input" aura:id="contactName" value="{!v.contactName}" placeholder="Optional - Defaults to 'Guest'" />
                                     </div>
                                 </div>
                             </div>
@@ -51,6 +52,16 @@
                                     <label class="slds-form-element__label" for="contactPhone">Phone </label>
                                     <div class="slds-form-element__control">
                                         <ui:inputText class="slds-input" aura:id="contactPhone" value="{!v.contactPhone}"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="slds-form-element__row">
+                                <div class="slds-form-element slds-size_1-of-1">
+                                    <label class="slds-form-element__label" for="inviteMessage">Message</label>
+                                    <div class="slds-form-element__control">
+                                        <ui:inputTextArea aura:id="inviteMessage" class="slds-textarea" value="{!v.inviteMessage}"
+                                            placeholder="Custom message (optional; added to email only)">
+                                        </ui:inputTextArea>
                                     </div>
                                 </div>
                             </div>
@@ -70,8 +81,8 @@
         <lightning:tab label="Directory">
             <c:hlContacts recordId="{!v.recordId}" sObjectName="{!v.sObjectName}" style="width:20px" oncallcontact="{!c.clickCall}"></c:hlContacts>
         </lightning:tab>
-        <lightning:tab label="Help">
-            <c:hlHelp></c:hlHelp>
+        <lightning:tab label="Help Thread">
+            <c:hlHelpThread recordId="{!v.recordId}" sObjectName="{!v.sObjectName}" onopenchat="{!c.handleOpenChat}"></c:hlHelpThread>
         </lightning:tab>
     </lightning:tabset>
 

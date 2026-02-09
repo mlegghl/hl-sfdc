@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Session_Id__c</fullName>
+    <fullName>Workbox_Id__c</fullName>
+    <description>The Help Lightning workbox/help thread ID associated with this call. Used for Help Thread integration.</description>
     <externalId>false</externalId>
-    <label>Session Id</label>
+    <label>Workbox Id</label>
     <length>255</length>
     <required>false</required>
     <trackTrending>false</trackTrending>

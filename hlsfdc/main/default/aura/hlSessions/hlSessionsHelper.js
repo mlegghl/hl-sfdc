@@ -54,6 +54,32 @@
     },
 
     /**
+     * Initialize the workbox for this Case/WorkOrder.
+     * Creates a new workbox if one doesn't already exist.
+     */
+    initWorkbox : function(component, helper, sObjectName, recordId) {
+        var action = component.get("c.initWorkbox");
+        action.setParams({
+            "sObjectName": sObjectName,
+            "recordId": recordId
+        });
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if (component.isValid() && state == "SUCCESS") {
+                var result = response.getReturnValue();
+                if (result) {
+                    console.log("HL::initWorkbox - workboxId:", result.workboxId, "isNew:", result.isNew);
+                    component.set("v.workboxId", result.workboxId);
+                }
+            } else if (component.isValid() && state == "ERROR") {
+                console.error("HL::initWorkbox failed:", response.getError());
+            }
+        });
+
+        $A.enqueueAction(action);
+    },
+
+    /**
      * Check to see if this record has a valid contact.
      *
      * Calls the callback with a return value of either:
@@ -142,28 +168,55 @@
     },
 
     /**
+     * Open a Help Thread popup window and attach message handler.
+     * No HLCall is created upfront - it will be created on CALL_CONNECTED.
+     */
+    openHelpThreadPopup : function(component, helper, url) {
+        console.log("HL::openHelpThreadPopup opening URL:", url);
+        var callWindow = window.open(url, "hlPopupWindow", "width=800,height=600");
+        if (callWindow) {
+            component.set("v.callWindow", callWindow);
+            helper.addMessageHandler(component, helper);
+        } else {
+            console.error("HL::openHelpThreadPopup - POPUP BLOCKED!");
+            var toastEvent = $A.get("e.force:showToast");
+            toastEvent.setParams({
+                "type": "error",
+                "message": "Failed to open window. Please allow popups for this site."
+            });
+            toastEvent.fire();
+        }
+    },
+
+    /**
      * Handler for messages from Help Lightning
      */
     messageHandler : function(component, helper, event) {
         var callWindow = component.get("v.callWindow");
+        console.log("HL::messageHandler received message:", event.data);
         if (event.source !== callWindow) {
             // This is not our message.
             //
             // Check if our callWindow is still valid and open. If
             // now, remove this handler, it isn't useful anymore
+            console.log("HL::messageHandler - message source does not match callWindow, ignoring");
             if (!callWindow || callWindow.closed) {
                 helper.removeMessageHandler(component);
             }
             return;
         } else {
             const message = event.data;
+            console.log("HL::messageHandler - message from callWindow:", JSON.stringify(message));
             var callId = message.callId;
-            var hlCallId = message.state;
+            console.log("HL::messageHandler - type:", message.type, "callId:", callId);
             if (message.type === 'CALL_CONNECTED') {
-                if (callId && hlCallId) {
-                    helper.updateCallId(component, callId, hlCallId);
+                console.log("HL::messageHandler - CALL_CONNECTED received");
+                if (callId) {
+                    // Create HLCall record now that a call has actually started
+                    helper.createCallRecord(component, helper, callId);
                 }
             } else if (message.type === 'CALL_DISCONNECTED') {
+                console.log("HL::messageHandler - CALL_DISCONNECTED received");
                 // remove the event handler
                 helper.removeMessageHandler(component);
 
@@ -173,13 +226,73 @@
 
                 var callWindow = component.get("v.callWindow");
                 if (callWindow) {
+                    console.log("HL::messageHandler - closing callWindow in 2 seconds");
                     setTimeout(function () {
                         callWindow.close();
                         component.set("v.callWindow", null);
                     }, 2000);
                 }
+            } else {
+                console.log("HL::messageHandler - unrecognized message type:", message.type);
             }
         }
+    },
+
+    /**
+     * Create an HLCall record when a call actually connects.
+     * Uses the pending invite info stored in the component.
+     */
+    createCallRecord : function(component, helper, callId) {
+        var sObjectName = component.get("v.sObjectName");
+        var recordId = component.get("v.recordId");
+        var email = component.get("v.pendingInviteEmail") || '';
+        var phone = component.get("v.pendingInvitePhone") || '';
+        var callType = component.get("v.pendingInviteType") || 'Direct';
+
+        var startTime = new Date().toISOString();
+        
+        var newCall;
+        if (sObjectName === "Case") {
+            newCall = {'sobjectType': 'helplightning__HLCall__c',
+                       'helplightning__Case__c': recordId,
+                       'helplightning__Contact_Email__c': email,
+                       'helplightning__Contact_Phone__c': phone,
+                       'helplightning__HLCall_Id__c': callId,
+                       'helplightning__Start_Time__c': startTime,
+                       'helplightning__Type__c': callType};
+        } else if (sObjectName === "WorkOrder") {
+            newCall = {'sobjectType': 'helplightning__HLCall__c',
+                       'helplightning__Work_Order__c': recordId,
+                       'helplightning__Contact_Email__c': email,
+                       'helplightning__Contact_Phone__c': phone,
+                       'helplightning__HLCall_Id__c': callId,
+                       'helplightning__Start_Time__c': startTime,
+                       'helplightning__Type__c': callType};
+        } else {
+            console.error("HL::createCallRecord - unsupported sObjectName:", sObjectName);
+            return;
+        }
+
+        var action = component.get("c.saveCall");
+        action.setParams({"call": newCall});
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if (component.isValid() && state == "SUCCESS") {
+                var savedCall = response.getReturnValue();
+
+                // Add to the calls list
+                var sessions = component.get("v.calls") || [];
+                sessions.splice(0, 0, savedCall);
+                component.set("v.calls", sessions);
+
+                // Begin polling for call updates
+                helper.beginPolling(component, helper);
+            } else {
+                console.error("HL::createCallRecord saveCall failed:", state, response.getError());
+            }
+        });
+
+        $A.enqueueAction(action);
     },
 
     /**
@@ -270,18 +383,27 @@
         action.setParams({"call": newCall})
         action.setCallback(this, function(response) {
             var state = response.getState();
+            console.log("HL::createNewCall saveCall response state:", state);
             if (component.isValid() && state == "SUCCESS") {
                 var sessions = component.get("v.calls");
                 var newHLCall = response.getReturnValue();
+                console.log("HL::createNewCall newHLCall:", newHLCall);
 
                 // insert at the beginning
                 sessions.splice(0, 0, newHLCall);
                 component.set("v.calls", sessions);
 
                 url = url + '&callbackState=' + newHLCall.Id;
+                console.log("HL::createNewCall opening popup with URL:", url);
                 var w = window.open(url, 'webcall', 'toolbar=0,status=0,width=1500,height=900');
+                console.log("HL::createNewCall popup window:", w);
+                if (!w) {
+                    console.error("HL::createNewCall - POPUP BLOCKED! window.open returned null/undefined");
+                }
                 component.set("v.callWindow", w);
                 helper.addMessageHandler(component, helper);
+            } else {
+                console.error("HL::createNewCall saveCall failed:", state, response.getError());
             }
         });
 

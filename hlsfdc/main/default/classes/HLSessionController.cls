@@ -493,19 +493,21 @@ public with sharing class HLSessionController {
     }
 
     /**
-     * Invite a user to a personal room.
-     *  This will send out an email to them.
+     * Get or create a workbox for a Case/WorkOrder.
+     * Called on page init to ensure a workbox exists for this record.
+     * Returns the workbox ID and whether it was newly created.
      */
     @AuraEnabled
-    public static Map<String,Object> createOneTimeUseLink() {
-        System.debug('createOneTimeUseLink');
+    public static Map<String,Object> initWorkbox(String sObjectName, String recordId) {
+        System.debug('initWorkbox: sObjectName=' + sObjectName + ' recordId=' + recordId);
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
 
         try {
             String myUserEmail = helplightning.HLUserHelper.getLogin();
             System.debug('myUserId=' + myUserEmail);
 
-            // first get a list of users to find us, since
-            //  we have to make this request as a specific user
             String token = HLTokenHelper.getToken();
             List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(token, myUserEmail);
             if (users == null || users.size() == 0) {
@@ -513,32 +515,25 @@ public with sharing class HLSessionController {
                 return null;
             }
 
-            // use the first user.
-            String name = users.get(0).name;
-            String username = users.get(0).username;
             String userToken = users.get(0).authToken;
             if (userToken == null) {
                 System.debug('Invalid user token');
                 return null;
             }
 
-            // Now create the invite. We use the user
-            //  token we retrieved so that this acts
-            //  on behalf of that user.
-            helplightning.HLModelSessionLink link = helplightning.HLGaldrClient.createOneTimeUseLink(userToken);
-            if (link == null) {
-                System.debug('Failed to create link');
+            // Get or create a persistent workbox for this Case/WorkOrder
+            Map<String,Object> workboxInfo = getOrCreateWorkbox(userToken, sObjectName, recordId);
+            if (workboxInfo == null) {
+                System.debug('Failed to get or create workbox');
                 return null;
             }
 
-            // get our user info, which will give us our personal room session
-            helplightning.HLModelAccount account = helplightning.HLGaldrClient.getInfo(userToken);
-            helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+            Integer workboxId = (Integer)workboxInfo.get('workboxId');
+            Boolean isNew = (Boolean)workboxInfo.get('isNew');
 
-            // return both the link and the auth info
             Map<String,Object> result = new Map<String,Object>();
-            result.put('link', link);
-            result.put('auth', (new helplightning.HLMeetingRoomAuth(environment.url, userToken, username, name, account.personalRoomSessionId)).serialize());
+            result.put('workboxId', workboxId);
+            result.put('isNew', isNew);
             return result;
         } catch (helplightning.HLConfigurationException e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');
@@ -546,12 +541,333 @@ public with sharing class HLSessionController {
     }
 
     /**
-     * Invite a user to a personal room.
-     *  This will send out an email to them.
+     * Get workbox details including participants and custom fields.
+     * Returns the full workbox info from the Help Lightning API.
      */
     @AuraEnabled
-    public static Map<String,Object> sendOneTimeUseLink(String otherUsersName, String otherUsersEmail, String otherUsersPhone, String message) {
-        System.debug('sendOneTimeUseLink: ' + otherUsersName + ' email: ' + otherUsersEmail + ' phone: ' + otherUsersPhone);
+    public static HLModelWorkboxDetails getWorkboxDetails(String sObjectName, String recordId) {
+        System.debug('getWorkboxDetails: sObjectName=' + sObjectName + ' recordId=' + recordId);
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
+
+        try {
+            // Check if a workbox exists for this record
+            helplightning__HLWorkbox__c existingRecord = getExistingWorkbox(sObjectName, recordId);
+            if (existingRecord == null) {
+                System.debug('No workbox found for this record');
+                return null;
+            }
+
+            String myUserEmail = helplightning.HLUserHelper.getLogin();
+            String token = HLTokenHelper.getToken();
+            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(token, myUserEmail);
+            if (users == null || users.size() == 0) {
+                System.debug('Error finding our user.');
+                return null;
+            }
+
+            String userToken = users.get(0).authToken;
+            if (userToken == null) {
+                System.debug('Invalid user token');
+                return null;
+            }
+
+            // Fetch workbox details from API - now returns properly structured model
+            Integer workboxId = Integer.valueOf(existingRecord.helplightning__Workbox_Id__c);
+            helplightning.HLModelWorkboxDetails workboxDetails = helplightning.HLGaldrClient.getWorkboxById(userToken, workboxId);
+
+            if (workboxDetails == null) {
+                System.debug('Failed to fetch workbox details');
+                return null;
+            }
+
+            return workboxDetails;
+        } catch (helplightning.HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
+        }
+    }
+
+    /**
+     * Get the Help Lightning environment URL.
+     */
+    @AuraEnabled
+    public static String getEnvironmentUrl() {
+        try {
+            helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+            return environment.url;
+        } catch (helplightning.HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
+        }
+    }
+
+    /**
+     * Get the info needed to open the chat window.
+     * Returns the user token (not workbox token), workbox ID, and web URL.
+     */
+    @AuraEnabled
+    public static Map<String,Object> getOpenChatInfo(String sObjectName, String recordId) {
+        System.debug('getOpenChatInfo: sObjectName=' + sObjectName + ' recordId=' + recordId);
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
+
+        try {
+            // Check if a workbox exists for this record
+            helplightning__HLWorkbox__c existingRecord = getExistingWorkbox(sObjectName, recordId);
+            if (existingRecord == null) {
+                System.debug('No workbox found for this record');
+                return null;
+            }
+
+            String myUserEmail = helplightning.HLUserHelper.getLogin();
+            String token = HLTokenHelper.getToken();
+            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(token, myUserEmail);
+            if (users == null || users.size() == 0) {
+                System.debug('Error finding our user.');
+                return null;
+            }
+
+            String userToken = users.get(0).authToken;
+            if (userToken == null) {
+                System.debug('Invalid user token');
+                return null;
+            }
+
+            Integer workboxId = Integer.valueOf(existingRecord.helplightning__Workbox_Id__c);
+            helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+
+            Map<String,Object> result = new Map<String,Object>();
+            result.put('userToken', userToken);
+            result.put('workboxId', workboxId);
+            result.put('webUrl', environment.url);
+            return result;
+        } catch (helplightning.HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
+        }
+    }
+
+    /**
+     * Resend an invite to a guest in the workbox.
+     * Uses the guest's UUID (not ID) as required by the API.
+     */
+    @AuraEnabled
+    public static void resendGuestInvite(String sObjectName, String recordId, String guestUuid) {
+        System.debug('resendGuestInvite: sObjectName=' + sObjectName + ' recordId=' + recordId + ' guestUuid=' + guestUuid);
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
+
+        try {
+            // Get the workbox token
+            String myUserEmail = helplightning.HLUserHelper.getLogin();
+            String token = HLTokenHelper.getToken();
+            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(token, myUserEmail);
+            if (users == null || users.size() == 0) {
+                throw new AuraHandledException('Error finding user.');
+            }
+
+            String userToken = users.get(0).authToken;
+            if (userToken == null) {
+                throw new AuraHandledException('Invalid user token.');
+            }
+
+            // Get the workbox info to get the token
+            Map<String,Object> workboxInfo = getOrCreateWorkbox(userToken, sObjectName, recordId);
+            if (workboxInfo == null) {
+                throw new AuraHandledException('Failed to get workbox.');
+            }
+
+            String workboxToken = (String)workboxInfo.get('workboxToken');
+
+            // Resend the invite
+            Map<String,Object> result = helplightning.HLGaldrClient.resendGuestInvite(workboxToken, guestUuid);
+            if (result == null) {
+                throw new AuraHandledException('Failed to resend invite.');
+            }
+        } catch (helplightning.HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
+        }
+    }
+
+    /**
+     * Remove a guest from the workbox.
+     * Uses the guest's UUID (not ID) as required by the API.
+     */
+    @AuraEnabled
+    public static void removeGuest(String sObjectName, String recordId, String guestUuid) {
+        System.debug('removeGuest: sObjectName=' + sObjectName + ' recordId=' + recordId + ' guestUuid=' + guestUuid);
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
+
+        try {
+            // Get the workbox token
+            String myUserEmail = helplightning.HLUserHelper.getLogin();
+            String token = HLTokenHelper.getToken();
+            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(token, myUserEmail);
+            if (users == null || users.size() == 0) {
+                throw new AuraHandledException('Error finding user.');
+            }
+
+            String userToken = users.get(0).authToken;
+            if (userToken == null) {
+                throw new AuraHandledException('Invalid user token.');
+            }
+
+            // Get the workbox info to get the token
+            Map<String,Object> workboxInfo = getOrCreateWorkbox(userToken, sObjectName, recordId);
+            if (workboxInfo == null) {
+                throw new AuraHandledException('Failed to get workbox.');
+            }
+
+            String workboxToken = (String)workboxInfo.get('workboxToken');
+
+            // Remove the guest
+            helplightning.HLGaldrClient.removeGuestFromWorkbox(workboxToken, guestUuid);
+        } catch (helplightning.HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
+        }
+    }
+
+    /**
+     * Close a workbox (change status to CLOSED).
+     */
+    @AuraEnabled
+    public static void closeWorkbox(String sObjectName, String recordId) {
+        System.debug('closeWorkbox: sObjectName=' + sObjectName + ' recordId=' + recordId);
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
+
+        try {
+            // Get the workbox token
+            String myUserEmail = helplightning.HLUserHelper.getLogin();
+            String token = HLTokenHelper.getToken();
+            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(token, myUserEmail);
+            if (users == null || users.size() == 0) {
+                throw new AuraHandledException('Error finding user.');
+            }
+
+            String userToken = users.get(0).authToken;
+            if (userToken == null) {
+                throw new AuraHandledException('Invalid user token.');
+            }
+
+            // Get the workbox info to get the token
+            Map<String,Object> workboxInfo = getOrCreateWorkbox(userToken, sObjectName, recordId);
+            if (workboxInfo == null) {
+                throw new AuraHandledException('Failed to get workbox.');
+            }
+
+            String workboxToken = (String)workboxInfo.get('workboxToken');
+
+            // Close the workbox
+            helplightning.HLGaldrClient.closeWorkbox(workboxToken);
+        } catch (helplightning.HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
+        }
+    }
+
+    /**
+     * Reopen a closed workbox
+     */
+    @AuraEnabled
+    public static void reopenWorkbox(String sObjectName, String recordId) {
+        System.debug('reopenWorkbox: sObjectName=' + sObjectName + ' recordId=' + recordId);
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
+
+        try {
+            // Get the workbox token
+            String myUserEmail = helplightning.HLUserHelper.getLogin();
+            String token = HLTokenHelper.getToken();
+            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(token, myUserEmail);
+            if (users == null || users.size() == 0) {
+                throw new AuraHandledException('Error finding user.');
+            }
+
+            String userToken = users.get(0).authToken;
+            if (userToken == null) {
+                throw new AuraHandledException('Invalid user token.');
+            }
+
+            // Get the workbox info to get the token
+            Map<String,Object> workboxInfo = getOrCreateWorkbox(userToken, sObjectName, recordId);
+            if (workboxInfo == null) {
+                throw new AuraHandledException('Failed to get workbox.');
+            }
+
+            String workboxToken = (String)workboxInfo.get('workboxToken');
+
+            // Reopen the workbox
+            helplightning.HLGaldrClient.reopenWorkbox(workboxToken);
+        } catch (helplightning.HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
+        }
+    }
+
+    /**
+     * Save custom field values to a workbox
+     */
+    @AuraEnabled
+    public static void saveCustomFields(String sObjectName, String recordId, List<Map<String,Object>> fieldValues) {
+        System.debug('saveCustomFields: sObjectName=' + sObjectName + ' recordId=' + recordId);
+        System.debug('fieldValues: ' + JSON.serialize(fieldValues));
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
+
+        try {
+            // Get the workbox token
+            String myUserEmail = helplightning.HLUserHelper.getLogin();
+            String token = HLTokenHelper.getToken();
+            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(token, myUserEmail);
+            if (users == null || users.size() == 0) {
+                throw new AuraHandledException('Error finding user.');
+            }
+
+            String userToken = users.get(0).authToken;
+            if (userToken == null) {
+                throw new AuraHandledException('Invalid user token.');
+            }
+
+            // Get the workbox info to get the token
+            Map<String,Object> workboxInfo = getOrCreateWorkbox(userToken, sObjectName, recordId);
+            if (workboxInfo == null) {
+                throw new AuraHandledException('Failed to get workbox.');
+            }
+
+            String workboxToken = (String)workboxInfo.get('workboxToken');
+
+            // Build the payload
+            helplightning.HLModelUpdateWorkbox payload = new helplightning.HLModelUpdateWorkbox();
+            payload.values = fieldValues;
+
+            System.debug('Saving custom fields with workboxToken: ' + workboxToken);
+            System.debug('Payload values: ' + JSON.serialize(payload.values));
+
+            // Save the custom fields
+            Boolean success = helplightning.HLGaldrClient.saveCustomFields(workboxToken, payload);
+            if (!success) {
+                throw new AuraHandledException('Failed to save custom fields to Help Lightning.');
+            }
+        } catch (helplightning.HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
+        }
+    }
+
+    /**
+     * Create a help thread (workbox) for copy link flow.
+     *  This uses the persistent workbox and returns the link for copying.
+     */
+    @AuraEnabled
+    public static Map<String,Object> createOneTimeUseLink(String sObjectName, String recordId) {
+        System.debug('createOneTimeUseLink: sObjectName=' + sObjectName + ' recordId=' + recordId);
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
 
         try {
             String myUserEmail = helplightning.HLUserHelper.getLogin();
@@ -575,25 +891,295 @@ public with sharing class HLSessionController {
                 return null;
             }
 
-            // Now send out the invite. We use the user
-            //  token we retrieved so that this acts
-            //  on behalf of that user.
-            Boolean result = helplightning.HLGaldrClient.sendOneTimeUseLink(userToken, otherUsersName, otherUsersEmail, otherUsersPhone, message);
-            if (result == false) {
-                System.debug('Failed to invite');
+            // Get or create a persistent workbox for this Case/WorkOrder
+            Map<String,Object> workboxInfo = getOrCreateWorkbox(userToken, sObjectName, recordId);
+            if (workboxInfo == null) {
+                System.debug('Failed to get or create workbox');
                 return null;
             }
 
-            // get our user info, which will give us our personal room session
-            helplightning.HLModelAccount account = helplightning.HLGaldrClient.getInfo(userToken);
+            Integer workboxId = (Integer)workboxInfo.get('workboxId');
+            String workboxToken = (String)workboxInfo.get('workboxToken');
+            Boolean isNew = (Boolean)workboxInfo.get('isNew');
+            System.debug('Using workbox id=' + workboxId + ' (isNew=' + isNew + ')');
+
+            // Call silent invite with the workbox token to get the guest link
+            Map<String,Object> inviteResponse = helplightning.HLGaldrClient.createWorkboxInviteSilent(workboxToken, 'Guest');
+            if (inviteResponse == null) {
+                System.debug('Failed to create silent invite');
+                return null;
+            }
+
+            // Get the link from the invite response
+            String link = (String)inviteResponse.get('link');
+
             helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
-            return (new helplightning.HLMeetingRoomAuth(environment.url, userToken, username, name, account.personalRoomSessionId)).serialize();
+
+            // Return the workbox info along with auth info and the link from the API
+            Map<String,Object> result = new Map<String,Object>();
+            result.put('workboxId', workboxId);
+            result.put('workboxToken', workboxToken);
+            result.put('link', link);
+            result.put('webUrl', environment.url);
+            result.put('token', userToken);
+            result.put('name', name);
+            result.put('username', username);
+            return result;
+        } catch (helplightning.HLConfigurationException e) {
+            throw new AuraHandledException('The Help Lightning component must be configured first.');
+        }
+    }
+
+    /**
+     * Invite a user to a help thread (workbox).
+     *  This will create a workbox and send out an email/SMS invite to them.
+     */
+    @AuraEnabled
+    public static Map<String,Object> sendOneTimeUseLink(String otherUsersName, String otherUsersEmail, String otherUsersPhone, String message, String sObjectName, String recordId) {
+        System.debug('sendOneTimeUseLink: ' + otherUsersName + ' email: ' + otherUsersEmail + ' phone: ' + otherUsersPhone + ' sObjectName: ' + sObjectName + ' recordId: ' + recordId);
+        
+        // Validate sObjectName input
+        validateSObjectName(sObjectName);
+
+        try {
+            String myUserEmail = helplightning.HLUserHelper.getLogin();
+            System.debug('myUserId=' + myUserEmail);
+
+            // first get a list of users to find us, since
+            //  we have to make this request as a specific user
+            String token = HLTokenHelper.getToken();
+            List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(token, myUserEmail);
+            if (users == null || users.size() == 0) {
+                System.debug('Error finding our user.');
+                return null;
+            }
+
+            // use the first user.
+            String name = users.get(0).name;
+            String username = users.get(0).username;
+            String userToken = users.get(0).authToken;
+            if (userToken == null) {
+                System.debug('Invalid user token');
+                return null;
+            }
+
+            // Get or create a persistent workbox for this Case/WorkOrder
+            Map<String,Object> workboxInfo = getOrCreateWorkbox(userToken, sObjectName, recordId);
+            if (workboxInfo == null) {
+                System.debug('Failed to get or create workbox');
+                return null;
+            }
+
+            Integer workboxId = (Integer)workboxInfo.get('workboxId');
+            String workboxToken = (String)workboxInfo.get('workboxToken');
+            Boolean isNew = (Boolean)workboxInfo.get('isNew');
+            System.debug('Using workbox id=' + workboxId + ' (isNew=' + isNew + ')');
+
+            // Send the invite using the workbox token
+            Map<String,Object> inviteResult = helplightning.HLGaldrClient.sendWorkboxInvite(workboxToken, otherUsersEmail, otherUsersPhone, otherUsersName);
+            if (inviteResult == null) {
+                System.debug('Failed to send workbox invite');
+                return null;
+            }
+
+            helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
+
+            // Return the workbox info along with auth info
+            Map<String,Object> result = new Map<String,Object>();
+            result.put('workboxId', workboxId);
+            result.put('workboxToken', workboxToken);
+            result.put('webUrl', environment.url);
+            result.put('token', userToken);
+            result.put('name', name);
+            result.put('username', username);
+            return result;
         } catch (helplightning.HLConfigurationException e) {
             throw new AuraHandledException('The Help Lightning component must be configured first.');
         }
     }
 
     /** Private Helper Functions **/
+
+    /**
+     * Validate sObjectName input to prevent injection attacks.
+     * Only 'Case' and 'WorkOrder' are allowed values.
+     * Throws AuraHandledException if invalid.
+     */
+    private static void validateSObjectName(String sObjectName) {
+        if (sObjectName != 'Case' && sObjectName != 'WorkOrder') {
+            throw new AuraHandledException('Invalid object type. Only Case and WorkOrder are supported.');
+        }
+    }
+
+    /**
+     * Check if HLWorkbox__c fields are accessible for reading.
+     */
+    private static boolean isHLWorkboxAccessible() {
+        return (Schema.sObjectType.helplightning__HLWorkbox__c.fields.Id.isAccessible() &&
+                Schema.sObjectType.helplightning__HLWorkbox__c.fields.helplightning__Workbox_Id__c.isAccessible() &&
+                Schema.sObjectType.helplightning__HLWorkbox__c.fields.helplightning__Case__c.isAccessible() &&
+                Schema.sObjectType.helplightning__HLWorkbox__c.fields.helplightning__Work_Order__c.isAccessible());
+    }
+
+    /**
+     * Check if HLWorkbox__c is createable with required fields.
+     */
+    private static boolean isHLWorkboxCreatable() {
+        return (Schema.sObjectType.helplightning__HLWorkbox__c.isCreateable() &&
+                Schema.sObjectType.helplightning__HLWorkbox__c.fields.helplightning__Workbox_Id__c.isCreateable() &&
+                Schema.sObjectType.helplightning__HLWorkbox__c.fields.helplightning__Case__c.isCreateable() &&
+                Schema.sObjectType.helplightning__HLWorkbox__c.fields.helplightning__Work_Order__c.isCreateable());
+    }
+
+    /**
+     * Get a formatted title for the workbox based on the Case or WorkOrder.
+     * Returns format like 'Case - 00001234' or 'Work Order - 00005678'
+     */
+    private static String getRecordNumber(String sObjectName, String recordId) {
+        if (String.isEmpty(sObjectName) || String.isEmpty(recordId)) {
+            return null;
+        }
+
+        try {
+            if (sObjectName == 'Case') {
+                List<Case> cases = [SELECT CaseNumber FROM Case WHERE Id = :recordId LIMIT 1];
+                if (cases.size() > 0) {
+                    return 'Case - ' + cases[0].CaseNumber;
+                }
+            } else if (sObjectName == 'WorkOrder') {
+                List<WorkOrder> workOrders = [SELECT WorkOrderNumber FROM WorkOrder WHERE Id = :recordId LIMIT 1];
+                if (workOrders.size() > 0) {
+                    return 'Work Order - ' + workOrders[0].WorkOrderNumber;
+                }
+            }
+        } catch (Exception e) {
+            System.debug('Error getting record number: ' + e.getMessage());
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the existing HLWorkbox record for a Case/WorkOrder, or null if none exists.
+     */
+    private static helplightning__HLWorkbox__c getExistingWorkbox(String sObjectName, String recordId) {
+        if (String.isEmpty(sObjectName) || String.isEmpty(recordId)) {
+            return null;
+        }
+
+        // Check FLS before querying
+        if (!isHLWorkboxAccessible()) {
+            System.debug('Insufficient access to HLWorkbox__c fields');
+            return null;
+        }
+
+        try {
+            List<helplightning__HLWorkbox__c> workboxes;
+            if (sObjectName == 'Case') {
+                workboxes = [SELECT Id, helplightning__Workbox_Id__c 
+                            FROM helplightning__HLWorkbox__c 
+                            WHERE helplightning__Case__c = :recordId 
+                            ORDER BY CreatedDate DESC 
+                            LIMIT 1];
+            } else if (sObjectName == 'WorkOrder') {
+                workboxes = [SELECT Id, helplightning__Workbox_Id__c 
+                            FROM helplightning__HLWorkbox__c 
+                            WHERE helplightning__Work_Order__c = :recordId 
+                            ORDER BY CreatedDate DESC 
+                            LIMIT 1];
+            } else {
+                return null;
+            }
+
+            if (workboxes != null && workboxes.size() > 0) {
+                return workboxes[0];
+            }
+        } catch (Exception e) {
+            System.debug('Error getting existing workbox: ' + e.getMessage());
+        }
+
+        return null;
+    }
+
+    /**
+     * Save a new HLWorkbox record linking a Case/WorkOrder to a workbox ID.
+     */
+    private static helplightning__HLWorkbox__c saveWorkboxRecord(String sObjectName, String recordId, Integer workboxId) {
+        if (String.isEmpty(sObjectName) || String.isEmpty(recordId) || workboxId == null) {
+            return null;
+        }
+
+        // Check FLS before creating record
+        if (!isHLWorkboxCreatable()) {
+            System.debug('Insufficient access to create HLWorkbox__c');
+            return null;
+        }
+
+        try {
+            helplightning__HLWorkbox__c workbox = new helplightning__HLWorkbox__c();
+            workbox.helplightning__Workbox_Id__c = workboxId;
+
+            if (sObjectName == 'Case') {
+                workbox.helplightning__Case__c = recordId;
+            } else if (sObjectName == 'WorkOrder') {
+                workbox.helplightning__Work_Order__c = recordId;
+            }
+
+            insert workbox;
+            return workbox;
+        } catch (Exception e) {
+            System.debug('Error saving workbox record: ' + e.getMessage());
+        }
+
+        return null;
+    }
+
+    /**
+     * Get or create a workbox for a Case/WorkOrder.
+     * Returns a map with workboxId, workboxToken, and isNew flag.
+     */
+    private static Map<String,Object> getOrCreateWorkbox(String userToken, String sObjectName, String recordId) {
+        Map<String,Object> result = new Map<String,Object>();
+
+        // Check if a workbox already exists for this record
+        helplightning__HLWorkbox__c existingRecord = getExistingWorkbox(sObjectName, recordId);
+
+        if (existingRecord != null) {
+            // Workbox exists, fetch fresh info from API
+            Integer workboxId = Integer.valueOf(existingRecord.helplightning__Workbox_Id__c);
+            helplightning.HLModelWorkboxDetails workboxDetails = helplightning.HLGaldrClient.getWorkboxById(userToken, workboxId);
+
+            if (workboxDetails != null) {
+                result.put('workboxId', workboxId);
+                result.put('workboxToken', workboxDetails.workboxToken);
+                result.put('isNew', false);
+                return result;
+            }
+            // If we couldn't fetch the workbox, it may have been deleted. Create a new one.
+            System.debug('Could not fetch existing workbox ' + workboxId + ', creating new one');
+        }
+
+        // Create a new workbox
+        String workboxTitle = getRecordNumber(sObjectName, recordId);
+        Map<String,Object> workbox = helplightning.HLGaldrClient.createWorkbox(userToken, workboxTitle);
+
+        if (workbox == null) {
+            System.debug('Failed to create workbox');
+            return null;
+        }
+
+        Integer workboxId = (Integer)workbox.get('id');
+        String workboxToken = (String)workbox.get('token');
+
+        // Save the workbox record to link it to the Case/WorkOrder
+        saveWorkboxRecord(sObjectName, recordId, workboxId);
+
+        result.put('workboxId', workboxId);
+        result.put('workboxToken', workboxToken);
+        result.put('isNew', true);
+        return result;
+    }
+
     private static boolean isContactFromCaseAccessible() {
         return (Schema.sObjectType.Contact.fields.Id.isAccessible() &&
                 Schema.sObjectType.Contact.fields.Email.isAccessible() &&
@@ -617,6 +1203,7 @@ public with sharing class HLSessionController {
                 Schema.sObjectType.WorkOrder.fields.ContactId.isAccessible());
     }
     private static boolean isHLCallAccessible() {
+        // Note: Workbox_Id__c is not included here as it's optional and may not exist in older orgs
         return (Schema.sObjectType.helplightning__HLCall__c.fields.Id.isAccessible() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Session_Id__c.isAccessible() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__HLCall_Id__c.isAccessible() &&
@@ -637,6 +1224,7 @@ public with sharing class HLSessionController {
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Work_Order__c.isAccessible());
     }
     private static boolean isHLCallUpdateable() {
+        // Note: Workbox_Id__c is not included here as it's optional and may not exist in older orgs
         return (Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Session_Id__c.isUpdateable() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__HLCall_Id__c.isUpdateable() &&
                 Schema.sObjectType.helplightning__HLCall__c.fields.helplightning__Complete__c.isUpdateable() &&
@@ -710,7 +1298,7 @@ public with sharing class HLSessionController {
                 }
             }
 
-            if (a.type == 'incall' && a.mimeType == 'image/jpeg' && !fileExists) {
+            if (a.type == 'incall' && (a.mimeType == 'image/jpeg' || a.mimeType == 'image/png') && !fileExists) {
               // Get the file from signed URL
               Http h = new Http();
               HttpRequest req = new HttpRequest();
@@ -718,10 +1306,12 @@ public with sharing class HLSessionController {
               req.setMethod('GET');
               HttpResponse res = h.send(req);
               Blob bd = res.getBodyAsBlob();
+              // Determine file extension based on mime type
+              String fileExt = a.mimeType == 'image/png' ? '.png' : '.jpg';
               // Create a new ContentVersion object
               ContentVersion conVer = new ContentVersion();
               conVer.ContentLocation = 'S'; // to use S specify this document is in Salesforce, to use E for external files
-              conVer.PathOnClient = a.fileName + '.jpg';
+              conVer.PathOnClient = a.fileName + fileExt;
               conVer.Title = a.fileName; // Display name of the files
               conVer.VersionData = bd;
               toSave.add(conVer);

@@ -66,6 +66,11 @@ public class HLRequest {
         return sendRequest(req);
     }
 
+    public Object del() {
+        HttpRequest req = createRequest('DELETE', this.route);
+        return sendRequest(req);
+    }
+
     private HttpRequest createRequest(String method, String route) {
         HttpRequest req = new HttpRequest();
 

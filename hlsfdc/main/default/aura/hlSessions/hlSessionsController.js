@@ -26,9 +26,6 @@
                 return
             }
 
-            // Initialize workbox for this record (create if doesn't exist)
-            helper.initWorkbox(component, helper, sObjectName, rId);
-
             // get our record
             helper.getContactForRecord(component, helper, function(response) {
                 // show tabs after parent has checked for contact data
@@ -66,10 +63,6 @@
         //  if the user navigated away, while a Help Lightning call
         //  was in progress, this may linger.
         helper.removeMessageHandler(component);
-    },
-
-    closeModal: function(component, event, helper) {
-      component.set("v.isModalOpen", false);
     },
 
     clickCall : function(component, event, helper) {
@@ -282,8 +275,9 @@
     clickOpenChat : function(component, event, helper) {
         var sObjectName = component.get("v.sObjectName");
         var rId = component.get("v.recordId");
+        var actionType = event.getParam("actionType");
         
-        console.log("HL::clickOpenChat - sObjectName:", sObjectName, "recordId:", rId);
+        console.log("HL::clickOpenChat - sObjectName:", sObjectName, "recordId:", rId, "actionType:", actionType);
         
         // Get the info needed to open the chat (user token, workbox ID, web URL)
         var action = component.get("c.getOpenChatInfo");
@@ -300,17 +294,50 @@
                 var userToken = r.userToken;
                 var workboxId = r.workboxId;
                 var webUrl = r.webUrl;
+                var normalizedActionType = (actionType || '').toLowerCase();
+                var allowedActionTypes = ['chat', 'video', 'add_contact'];
+                var shouldIncludeActionType = allowedActionTypes.indexOf(normalizedActionType) !== -1;
 
-                // Store pending invite info for when CALL_CONNECTED fires
+                // Store pending invite info for when CALL_CONNECTED fires.
+                // Invite flows happen inside popup, so email/phone are unknown here.
                 component.set("v.pendingInviteEmail", '');
                 component.set("v.pendingInvitePhone", '');
-                component.set("v.pendingInviteType", "Direct");
+                component.set("v.pendingInviteType", (normalizedActionType === 'chat' || normalizedActionType === 'video') ? "Invitation" : "Direct");
                 component.set("v.pendingWorkboxId", String(workboxId));
                 
                 // Build URL without action parameter (just opens chat, no call)
                 var url = webUrl + '/help-thread-external'
                   + '?userToken=' + encodeURIComponent(userToken)
                   + '&workboxId=' + encodeURIComponent(workboxId);
+
+                if (shouldIncludeActionType) {
+                    url += '&action_type=' + encodeURIComponent(normalizedActionType);
+                }
+
+                // Optionally include prefill payload for invite actions.
+                if (normalizedActionType === 'chat' || normalizedActionType === 'video') {
+                    var contact = component.get("v.contact") || {};
+                    var prefillPayload = {};
+                    var fullName = (contact.Name || '').trim();
+                    var email = (contact.Email || '').trim();
+                    var phone = (contact.MobilePhone || contact.Phone || '').trim();
+
+                    if (fullName) {
+                        prefillPayload.name = fullName;
+                    }
+                    if (email) {
+                        prefillPayload.email = email;
+                    }
+                    if (phone) {
+                        prefillPayload.phone = phone;
+                    }
+
+                    if (Object.keys(prefillPayload).length > 0) {
+                        var prefillJson = JSON.stringify(prefillPayload);
+                        var prefillBase64 = btoa(unescape(encodeURIComponent(prefillJson)));
+                        url += '&contact_data=' + encodeURIComponent(prefillBase64);
+                    }
+                }
                 
                 console.log("HL::clickOpenChat opening URL:", url);
                 
@@ -320,7 +347,7 @@
                 var toastEvent = $A.get("e.force:showToast");
                 toastEvent.setParams({
                     "type": "error",
-                    "message": "Failed to get Help Thread details."
+                    "message": "Help Thread is not ready yet. Start a Help Thread first."
                 });
                 toastEvent.fire();
             }

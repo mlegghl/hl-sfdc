@@ -1,25 +1,27 @@
 import { LightningElement, api, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getWorkboxDetails from '@salesforce/apex/HLSessionController.getWorkboxDetails';
+import initWorkbox from '@salesforce/apex/HLSessionController.initWorkbox';
 import resendGuestInvite from '@salesforce/apex/HLSessionController.resendGuestInvite';
 import removeGuest from '@salesforce/apex/HLSessionController.removeGuest';
 import closeWorkbox from '@salesforce/apex/HLSessionController.closeWorkbox';
 import reopenWorkbox from '@salesforce/apex/HLSessionController.reopenWorkbox';
-import updateWorkbox from '@salesforce/apex/HLWorkboxDetailsController.updateWorkbox';
 
 export default class HlHelpThread extends LightningElement {
     @api recordId;
     @api sObjectName;
+    @api contactName;
+    @api contactEmail;
+    @api contactPhone;
 
     @track workboxData = null;
     @track isLoading = true;
     @track hasError = false;
     @track errorMessage = '';
-    @track isSaving = false;
+    @track isStartingThread = false;
 
     _observer = null;
     _isVisible = false;
-    _customFieldsInfo = null; // Mutable custom fields data (like hlCloseWorkbox pattern)
 
     connectedCallback() {
         this.loadWorkboxDetails();
@@ -70,9 +72,6 @@ export default class HlHelpThread extends LightningElement {
 
             console.log('HLHelpThread::loadWorkboxDetails result:', JSON.stringify(result));
             this.workboxData = result;
-            
-            // Transform custom fields to match hlCloseWorkbox pattern exactly
-            this._customFieldsInfo = this.buildCustomFieldsInfo(result);
         } catch (error) {
             console.error('HLHelpThread::loadWorkboxDetails error:', error);
             this.hasError = true;
@@ -94,14 +93,6 @@ export default class HlHelpThread extends LightningElement {
         return this.workboxData?.title || 'Help Thread';
     }
 
-    // Map API status values to user-friendly labels
-    get statusOptions() {
-        return [
-            { label: 'Active', value: 'REPORTED' },
-            { label: 'Closed', value: 'CLOSED' }
-        ];
-    }
-
     get workboxStatusValue() {
         return this.workboxData?.status || 'REPORTED';
     }
@@ -115,6 +106,16 @@ export default class HlHelpThread extends LightningElement {
             return 'Closed';
         }
         return status || 'Unknown';
+    }
+
+    get isWorkboxClosed() {
+        return this.workboxStatusValue === 'CLOSED';
+    }
+
+    get statusBadgeClass() {
+        return this.isWorkboxClosed
+            ? 'slds-badge slds-theme_error'
+            : 'slds-badge slds-theme_success';
     }
 
     get assignedTo() {
@@ -158,166 +159,65 @@ export default class HlHelpThread extends LightningElement {
         return !this.hasGuests;
     }
 
-    // Build custom fields info matching hlCloseWorkbox pattern exactly
-    // Now uses the properly structured Apex model (HLModelWorkboxDetails)
-    buildCustomFieldsInfo(data) {
-        if (!data) return null;
-        
-        // Model returns customFields (field definitions) and fieldValues (current values)
-        const fieldDefs = data.customFields || [];
-        const fieldValues = data.fieldValues || [];
-        
-        // hlCloseWorkbox reverses the array, we'll keep them in order
-        const orderedFields = [...fieldDefs].reverse();
-        
-        return {
-            workboxId: data.workboxId,      // Model uses workboxId
-            workboxToken: data.workboxToken, // Model uses workboxToken
-            customFields: orderedFields
-                .filter(cf => !cf.hidden)
-                .map((cf) => {
-                    // Get current value from fieldValues array
-                    const fieldValue = fieldValues.find(f => f.id === cf.id);
-                    let value = null;
-                    
-                    if (cf.type === 'TEXT') {
-                        value = fieldValue?.value || '';
-                    } else if (cf.type === 'BOOLEAN') {
-                        value = fieldValue?.value === true;
-                    } else if (cf.type === 'LIST' && !cf.multiSelect) {
-                        // Single-select: API returns array of objects, extract first ID
-                        const listVal = fieldValue?.value;
-                        if (Array.isArray(listVal) && listVal.length > 0) {
-                            value = listVal[0].id;  // Integer ID
-                        }
-                    } else if (cf.type === 'LIST' && cf.multiSelect) {
-                        // Multi-select: extract IDs from array of objects
-                        const listVal = fieldValue?.value;
-                        if (Array.isArray(listVal)) {
-                            value = listVal.map(v => v.id);  // Array of integer IDs
-                        } else {
-                            value = [];
-                        }
-                    }
-                    
-                    // Options already come from model with label/value format
-                    // Add 'selected' state for multi-select
-                    const options = cf.options?.map(opt => ({
-                        ...opt,
-                        selected: cf.multiSelect && Array.isArray(value) && value.includes(opt.value)
-                    })) || [];
-                    
-                    return {
-                        ...cf,
-                        value: value,  // Mutable value property (like hlCloseWorkbox)
-                        required: cf.mandatory === "MANDATORY_ON_CREATION" || cf.mandatory === "MANDATORY_ON_CLOSE",
-                        isText: cf.type === "TEXT",
-                        isBoolean: cf.type === "BOOLEAN",
-                        isList: cf.type === "LIST" && cf.multiSelect === false,
-                        isMultiList: cf.type === "LIST" && cf.multiSelect === true,
-                        options: options
-                    };
-                })
-        };
-    }
-
-    get customFields() {
-        return this._customFieldsInfo?.customFields || [];
-    }
-
-    get hasCustomFields() {
-        return this.customFields.length > 0;
-    }
-
-    // Change handlers matching hlCloseWorkbox exactly (using data-index)
-    handleInputChange(event) {
-        let clone = [...this._customFieldsInfo.customFields];
-        clone[event.target.dataset.index].value = event.detail.value;
-        this._customFieldsInfo = { ...this._customFieldsInfo, customFields: clone };
-    }
-
-    handleCheckChange(event) {
-        let clone = [...this._customFieldsInfo.customFields];
-        clone[event.target.dataset.index].value = event.target.checked;
-        this._customFieldsInfo = { ...this._customFieldsInfo, customFields: clone };
-    }
-
-    handleSelectChange(event) {
-        let clone = [...this._customFieldsInfo.customFields];
-        clone[event.target.dataset.index].value = parseInt(event.detail.value);
-        this._customFieldsInfo = { ...this._customFieldsInfo, customFields: clone };
-    }
-
-    handleMultiSelectChange(event) {
-        // Exact same pattern as hlCloseWorkbox
-        const selectedOptions = [];
-        event.detail.data.forEach((i) => {
-            if (i.selected) {
-                selectedOptions.push(i.value);
-            }
-        });
-        let clone = [...this._customFieldsInfo.customFields];
-        clone[event.detail.index].value = selectedOptions;
-        this._customFieldsInfo = { ...this._customFieldsInfo, customFields: clone };
-    }
-
-    async handleSaveFields() {
-        console.log('Save fields clicked');
-        
-        // Build payload matching buttonWrapper exactly
-        const payload = {
-            workboxId: this._customFieldsInfo.workboxId,
-            workboxToken: this._customFieldsInfo.workboxToken,
-            values: this._customFieldsInfo.customFields.map((cf) => ({
-                id: cf.id,
-                value: cf.value
-            })),
-            close: false
-        };
-
-        console.log('Save payload:', JSON.stringify(payload));
-
-        this.isSaving = true;
+    async handleStartHelpThread() {
+        this.isStartingThread = true;
         try {
-            await updateWorkbox({ payload: payload });
+            await initWorkbox({
+                sObjectName: this.sObjectName,
+                recordId: this.recordId
+            });
 
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Success',
-                message: 'Custom fields saved successfully.',
-                variant: 'success',
-                mode: 'dismissable'
-            }));
-
-            // Refresh to show updated values
-            this.loadWorkboxDetails();
+            await this.loadWorkboxDetails();
         } catch (error) {
-            console.error('Error saving custom fields:', error);
+            console.error('Error starting help thread:', error);
             this.dispatchEvent(new ShowToastEvent({
                 title: 'Error',
-                message: error.body?.message || 'Failed to save custom fields.',
+                message: error.body?.message || 'Failed to start Help Thread.',
                 variant: 'error',
                 mode: 'dismissable'
             }));
         } finally {
-            this.isSaving = false;
+            this.isStartingThread = false;
         }
     }
 
     handleOpenChat() {
-        // Fire event to open the Help Lightning chat window
+        this.dispatchOpenChatEvent();
+    }
+
+    handleVideoInvite() {
+        this.dispatchOpenChatEvent('video');
+    }
+
+    handleChatInvite() {
+        this.dispatchOpenChatEvent('chat');
+    }
+
+    handleAddContact() {
+        this.dispatchOpenChatEvent('add_contact');
+    }
+
+    dispatchOpenChatEvent(actionType = null) {
         const workboxId = this.workboxData?.workboxId;
-        console.log('Open Chat clicked for workbox:', workboxId);
-        
-        // Dispatch custom event to parent component
         this.dispatchEvent(new CustomEvent('openchat', {
-            detail: { workboxId: workboxId },
+            detail: {
+                workboxId: workboxId,
+                actionType: actionType
+            },
             bubbles: true,
             composed: true
         }));
     }
 
-    async handleStatusChange(event) {
-        const newStatus = event.detail.value;
+    async handleCloseHelpThread() {
+        await this.updateWorkboxStatus('CLOSED');
+    }
+
+    async handleReopenHelpThread() {
+        await this.updateWorkboxStatus('REPORTED');
+    }
+
+    async updateWorkboxStatus(newStatus) {
         console.log('Status change requested:', newStatus);
         
         if (newStatus === 'CLOSED') {

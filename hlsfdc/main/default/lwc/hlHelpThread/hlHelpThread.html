@@ -1,5 +1,5 @@
 <template>
-    <div class="help-thread-container">
+    <div class="help-thread-container slds-p-horizontal_small slds-p-bottom_small slds-p-top_x-small">
         <!-- Loading State -->
         <template lwc:if={isLoading}>
             <div class="slds-align_absolute-center slds-p-around_medium">
@@ -11,7 +11,15 @@
         <template lwc:if={showNoWorkbox}>
             <div class="slds-text-align_center slds-p-around_medium">
                 <lightning-icon icon-name="utility:info" size="small" class="slds-m-right_x-small"></lightning-icon>
-                <span class="slds-text-color_weak">No Help Thread exists for this record yet. One will be created when you send an invite or copy a link.</span>
+                <span class="slds-text-color_weak">No Help Thread is linked to this record yet.</span>
+                <div class="slds-m-top_medium">
+                    <lightning-button
+                        label="Start Help Thread"
+                        variant="brand"
+                        onclick={handleStartHelpThread}
+                        disabled={isStartingThread}>
+                    </lightning-button>
+                </div>
             </div>
         </template>
 
@@ -19,26 +27,46 @@
         <template lwc:if={hasWorkbox}>
             <!-- Header -->
             <div class="slds-p-around_small slds-border_bottom">
-                <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
-                    <h2 class="slds-text-heading_medium">{workboxTitle}</h2>
-                    <lightning-button 
-                        label="Open Chat" 
-                        variant="brand" 
-                        icon-name="utility:chat"
-                        onclick={handleOpenChat}>
-                    </lightning-button>
+                <div class="slds-grid slds-wrap slds-grid_vertical-align-start">
+                    <div class="slds-col slds-size_1-of-1 header-title-col">
+                        <div class="slds-grid slds-grid_vertical-align-center">
+                            <h2 class="slds-text-heading_medium slds-m-right_small thread-title">{workboxTitle}</h2>
+                            <span class={statusBadgeClass}>{workboxStatus}</span>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-m-top_small header-actions-col">
+                        <div class="slds-grid slds-wrap slds-gutters_x-small">
+                            <div class="slds-col slds-size_1-of-2 header-action-col slds-m-bottom_x-small">
+                            <lightning-button
+                                label="Go to Help Thread"
+                                variant="brand"
+                                icon-name="utility:chat"
+                                onclick={handleOpenChat}
+                                stretch>
+                            </lightning-button>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2 header-action-col slds-m-bottom_x-small">
+                                <template lwc:if={isWorkboxClosed}>
+                                    <lightning-button
+                                        label="Reopen Help Thread"
+                                        variant="neutral"
+                                        onclick={handleReopenHelpThread}
+                                        stretch>
+                                    </lightning-button>
+                                </template>
+                                <template lwc:else>
+                                    <lightning-button
+                                        label="Close Help Thread"
+                                        variant="destructive-text"
+                                        onclick={handleCloseHelpThread}
+                                        stretch>
+                                    </lightning-button>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="slds-grid slds-grid_align-spread slds-m-top_x-small">
-                    <lightning-combobox
-                        name="status"
-                        label=""
-                        value={workboxStatusValue}
-                        placeholder="Status"
-                        options={statusOptions}
-                        onchange={handleStatusChange}
-                        variant="label-hidden"
-                        class="status-dropdown">
-                    </lightning-combobox>
+                <div class="slds-grid slds-grid_align-end slds-m-top_x-small">
                     <template lwc:if={assignedTo}>
                         <span class="slds-text-body_small slds-text-color_weak slds-align-middle">Assigned to: {assignedTo}</span>
                     </template>
@@ -52,7 +80,7 @@
                 <template lwc:if={hasParticipants}>
                     <template for:each={participants} for:item="participant">
                         <div key={participant.id} class="slds-media slds-media_center slds-p-vertical_xx-small">
-                            <div class="slds-media__figure">
+                            <div class="slds-media__figure slds-m-right_x-small">
                                 <lightning-icon icon-name="standard:user" size="small"></lightning-icon>
                             </div>
                             <div class="slds-media__body">
@@ -116,76 +144,38 @@
                 </template>
             </div>
 
-            <!-- Custom Fields Section - matching hlCloseWorkbox pattern exactly -->
-            <template lwc:if={hasCustomFields}>
-                <div class="slds-p-around_small slds-border_top">
-                    <h3 class="slds-text-title_caps slds-m-bottom_x-small">Custom Fields</h3>
-                    
-                    <template for:each={customFields} for:item="cf" for:index="index">
-                        <div key={cf.id}>
-                            <template lwc:if={cf.isText}>
-                                <div class="slds-p-around_small lgc-bg">
-                                    <lightning-input 
-                                        data-index={index} 
-                                        type="text" 
-                                        label={cf.name} 
-                                        value={cf.value} 
-                                        onchange={handleInputChange} 
-                                        required={cf.required}>
-                                    </lightning-input>
-                                </div>
-                            </template>
-                            <template lwc:if={cf.isBoolean}>
-                                <div class="slds-p-around_small lgc-bg">
-                                    <lightning-input 
-                                        data-index={index} 
-                                        type="checkbox" 
-                                        label={cf.name}
-                                        name={cf.name}
-                                        checked={cf.value}
-                                        onchange={handleCheckChange} 
-                                        required={cf.required}>
-                                    </lightning-input>
-                                </div>
-                            </template>
-                            <template lwc:if={cf.isList}>
-                                <div class="slds-p-around_small lgc-bg">
-                                    <lightning-combobox
-                                        data-index={index}
-                                        name={cf.name}
-                                        label={cf.name}
-                                        value={cf.value}
-                                        placeholder={cf.hint}
-                                        options={cf.options}
-                                        onchange={handleSelectChange}
-                                        required={cf.required}>
-                                    </lightning-combobox>
-                                </div>
-                            </template>
-                            <template lwc:if={cf.isMultiList}>
-                                <div class="slds-p-around_small lgc-bg">
-                                    <c-multi-list 
-                                        cfindex={index} 
-                                        label={cf.name} 
-                                        name={cf.name} 
-                                        options={cf.options}
-                                        onchange={handleMultiSelectChange}>
-                                    </c-multi-list>
-                                </div>
-                            </template>
-                        </div>
-                    </template>
-
-                    <div class="slds-m-top_small">
-                        <lightning-button 
-                            label="Save Changes" 
-                            variant="brand" 
-                            onclick={handleSaveFields}
-                            disabled={isSaving}>
+            <div class="slds-p-around_small slds-border_top">
+                <h3 class="slds-text-title_caps slds-m-bottom_x-small">Invite someone new</h3>
+                <div class="slds-grid slds-wrap slds-gutters_x-small invite-actions-grid">
+                    <div class="slds-col slds-size_1-of-1 invite-action-col slds-m-bottom_x-small">
+                        <lightning-button
+                            label="Instant Video Call Invitation"
+                            variant="neutral"
+                            icon-name="utility:video"
+                            onclick={handleVideoInvite}
+                            stretch>
+                        </lightning-button>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 invite-action-col slds-m-bottom_x-small">
+                        <lightning-button
+                            label="Instant Chat Invitation"
+                            variant="neutral"
+                            icon-name="utility:chat"
+                            onclick={handleChatInvite}
+                            stretch>
+                        </lightning-button>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 invite-action-col slds-m-bottom_x-small">
+                        <lightning-button
+                            label="Add Internal Contacts"
+                            variant="neutral"
+                            icon-name="utility:adduser"
+                            onclick={handleAddContact}
+                            stretch>
                         </lightning-button>
                     </div>
                 </div>
-            </template>
+            </div>
 
             <!-- Refresh Button -->
             <div class="slds-p-around_small slds-border_top slds-text-align_center">

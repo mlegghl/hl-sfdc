@@ -112,6 +112,10 @@ export default class HlHelpThread extends LightningElement {
         return this.workboxStatusValue === 'CLOSED';
     }
 
+    get showInviteActions() {
+        return !this.isWorkboxClosed;
+    }
+
     get statusBadgeClass() {
         return this.isWorkboxClosed
             ? 'slds-badge slds-theme_error'

@@ -145,50 +145,52 @@
                 </template>
             </div>
 
-            <div class="slds-p-around_small slds-border_top">
-                <h3 class="slds-text-heading_small slds-m-bottom_small">Get Started with Your Help Thread</h3>
-                <div class="slds-grid slds-wrap slds-gutters_x-small invite-actions-grid">
-                    <div class="slds-col slds-size_1-of-1 invite-action-col slds-m-bottom_x-small">
-                        <button class="slds-button slds-size_full slds-text-align_left invite-card-button" type="button" onclick={handleVideoInvite} aria-label="Instant Video Call Invitation">
-                            <span class="slds-grid slds-grid_vertical-align-center slds-size_full">
-                                <span class="invite-icon-wrap slds-m-right_small slds-grid slds-grid_vertical-align-center slds-grid_align-center slds-shrink-none">
-                                    <lightning-icon icon-name="utility:video" size="x-small" alternative-text="" class="invite-icon"></lightning-icon>
+            <template lwc:if={showInviteActions}>
+                <div class="slds-p-around_small slds-border_top">
+                    <h3 class="slds-text-heading_small slds-m-bottom_small">Get Started with Your Help Thread</h3>
+                    <div class="slds-grid slds-wrap slds-gutters_x-small invite-actions-grid">
+                        <div class="slds-col slds-size_1-of-1 invite-action-col slds-m-bottom_x-small">
+                            <button class="slds-button slds-size_full slds-text-align_left invite-card-button" type="button" onclick={handleVideoInvite} aria-label="Instant Video Call Invitation">
+                                <span class="slds-grid slds-grid_vertical-align-center slds-size_full">
+                                    <span class="invite-icon-wrap slds-m-right_small slds-grid slds-grid_vertical-align-center slds-grid_align-center slds-shrink-none">
+                                        <lightning-icon icon-name="utility:video" size="x-small" alternative-text="" class="invite-icon"></lightning-icon>
+                                    </span>
+                                    <span class="slds-grid slds-grid_vertical slds-truncate invite-text-block">
+                                        <span class="slds-truncate invite-title">Instant Video Call Invitation</span>
+                                        <span class="slds-text-color_weak slds-truncate invite-subtitle">Invite a guest - no app download required.</span>
+                                    </span>
                                 </span>
-                                <span class="slds-grid slds-grid_vertical slds-truncate invite-text-block">
-                                    <span class="slds-truncate invite-title">Instant Video Call Invitation</span>
-                                    <span class="slds-text-color_weak slds-truncate invite-subtitle">Invite a guest - no app download required.</span>
+                            </button>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 invite-action-col slds-m-bottom_x-small">
+                            <button class="slds-button slds-size_full slds-text-align_left invite-card-button" type="button" onclick={handleChatInvite} aria-label="Instant Chat Invitation">
+                                <span class="slds-grid slds-grid_vertical-align-center slds-size_full">
+                                    <span class="invite-icon-wrap slds-m-right_small slds-grid slds-grid_vertical-align-center slds-grid_align-center slds-shrink-none">
+                                        <lightning-icon icon-name="utility:chat" size="x-small" alternative-text="" class="invite-icon"></lightning-icon>
+                                    </span>
+                                    <span class="slds-grid slds-grid_vertical slds-truncate invite-text-block">
+                                        <span class="slds-truncate invite-title">Instant Chat Invitation</span>
+                                        <span class="slds-text-color_weak slds-truncate invite-subtitle">Invite a guest - no app download required.</span>
+                                    </span>
                                 </span>
-                            </span>
-                        </button>
-                    </div>
-                    <div class="slds-col slds-size_1-of-1 invite-action-col slds-m-bottom_x-small">
-                        <button class="slds-button slds-size_full slds-text-align_left invite-card-button" type="button" onclick={handleChatInvite} aria-label="Instant Chat Invitation">
-                            <span class="slds-grid slds-grid_vertical-align-center slds-size_full">
-                                <span class="invite-icon-wrap slds-m-right_small slds-grid slds-grid_vertical-align-center slds-grid_align-center slds-shrink-none">
-                                    <lightning-icon icon-name="utility:chat" size="x-small" alternative-text="" class="invite-icon"></lightning-icon>
+                            </button>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 invite-action-col slds-m-bottom_x-small">
+                            <button class="slds-button slds-size_full slds-text-align_left invite-card-button" type="button" onclick={handleAddContact} aria-label="Add Internal Contacts">
+                                <span class="slds-grid slds-grid_vertical-align-center slds-size_full">
+                                    <span class="invite-icon-wrap slds-m-right_small slds-grid slds-grid_vertical-align-center slds-grid_align-center slds-shrink-none">
+                                        <lightning-icon icon-name="utility:adduser" size="x-small" alternative-text="" class="invite-icon"></lightning-icon>
+                                    </span>
+                                    <span class="slds-grid slds-grid_vertical slds-truncate invite-text-block">
+                                        <span class="slds-truncate invite-title">Add Internal Contacts</span>
+                                        <span class="slds-text-color_weak slds-truncate invite-subtitle">Add participants to this Help Thread.</span>
+                                    </span>
                                 </span>
-                                <span class="slds-grid slds-grid_vertical slds-truncate invite-text-block">
-                                    <span class="slds-truncate invite-title">Instant Chat Invitation</span>
-                                    <span class="slds-text-color_weak slds-truncate invite-subtitle">Invite a guest - no app download required.</span>
-                                </span>
-                            </span>
-                        </button>
-                    </div>
-                    <div class="slds-col slds-size_1-of-1 invite-action-col slds-m-bottom_x-small">
-                        <button class="slds-button slds-size_full slds-text-align_left invite-card-button" type="button" onclick={handleAddContact} aria-label="Add Internal Contacts">
-                            <span class="slds-grid slds-grid_vertical-align-center slds-size_full">
-                                <span class="invite-icon-wrap slds-m-right_small slds-grid slds-grid_vertical-align-center slds-grid_align-center slds-shrink-none">
-                                    <lightning-icon icon-name="utility:adduser" size="x-small" alternative-text="" class="invite-icon"></lightning-icon>
-                                </span>
-                                <span class="slds-grid slds-grid_vertical slds-truncate invite-text-block">
-                                    <span class="slds-truncate invite-title">Add Internal Contacts</span>
-                                    <span class="slds-text-color_weak slds-truncate invite-subtitle">Add participants to this Help Thread.</span>
-                                </span>
-                            </span>
-                        </button>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </template>
 
             <!-- Refresh Button -->
             <div class="slds-p-around_small slds-border_top slds-text-align_center">

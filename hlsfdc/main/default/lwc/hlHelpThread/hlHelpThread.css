@@ -6,6 +6,47 @@
     font-size: 1.35rem;
 }
 
+.invite-card-button {
+    border: 1px solid #d8dde6;
+    border-radius: 0.625rem;
+    background-color: #fff;
+    padding: 0.45rem 0.6rem;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.invite-card-button:hover,
+.invite-card-button:focus-visible {
+    background-color: #fafbfd;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+    transform: translateY(-1px);
+}
+
+.invite-icon-wrap {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.45rem;
+    background: #eef4fb;
+}
+
+.invite-icon {
+    --slds-c-icon-color-foreground-default: #4f9bee;
+}
+
+.invite-text-block {
+    line-height: 1.15;
+}
+
+.invite-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0b4cc1;
+}
+
+.invite-subtitle {
+    margin-top: 0.03rem;
+    font-size: 0.76rem;
+}
+
 /* Guest row styling */
 .guest-row {
     padding: 0.5rem 0.25rem;

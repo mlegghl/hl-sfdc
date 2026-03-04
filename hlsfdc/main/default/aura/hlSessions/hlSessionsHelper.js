@@ -118,30 +118,6 @@
     },
 
     /**
-     * Check if a call has an associated workbox
-     */
-    getWorkboxFromCall : function(component, callId) {
-        var action = component.get("c.getWorkboxByCallId");
-        action.setParams({"callId": callId});
-        action.setCallback(this, function(response) {
-            var result = false;
-            var state = response.getState();
-            if (component.isValid() && state == "SUCCESS") {
-                result = response.getReturnValue();
-                if (result !== null && result !== undefined && result !== '') {
-                    component.set("v.workboxInfo", result);
-                    component.set("v.isModalOpen", true);
-                }
-            } else if (component.isValid && state == "ERROR") {
-                console.log('getWorkboxFromCall error: ' + JSON.stringify(response));
-                helper.setErrors(component, "getWorkboxFromCall", response);
-            }
-        });
-
-        $A.enqueueAction(action);
-    },
-
-    /**
      * Check if an email of a contact is a registered
      *  help lightning user.
      */
@@ -173,7 +149,7 @@
      */
     openHelpThreadPopup : function(component, helper, url) {
         console.log("HL::openHelpThreadPopup opening URL:", url);
-        var callWindow = window.open(url, "hlPopupWindow", "width=800,height=600");
+        var callWindow = window.open(url, "hlPopupWindow", "width=1050,height=700");
         if (callWindow) {
             component.set("v.callWindow", callWindow);
             helper.addMessageHandler(component, helper);
@@ -217,21 +193,8 @@
                 }
             } else if (message.type === 'CALL_DISCONNECTED') {
                 console.log("HL::messageHandler - CALL_DISCONNECTED received");
-                // remove the event handler
-                helper.removeMessageHandler(component);
-
-                if (callId) {
-                    helper.getWorkboxFromCall(component, callId);
-                }
-
-                var callWindow = component.get("v.callWindow");
-                if (callWindow) {
-                    console.log("HL::messageHandler - closing callWindow in 2 seconds");
-                    setTimeout(function () {
-                        callWindow.close();
-                        component.set("v.callWindow", null);
-                    }, 2000);
-                }
+                // Keep popup open and skip Salesforce call-end modal flow.
+                // Help Thread close/custom-field handling now lives in the HL popup.
             } else {
                 console.log("HL::messageHandler - unrecognized message type:", message.type);
             }

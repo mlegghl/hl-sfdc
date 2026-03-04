@@ -3,87 +3,26 @@
         Information on how to pass functions as events came from:
         https://salesforce.stackexchange.com/questions/144087/how-do-i-pass-a-function-as-a-lightning-component-attribute
     -->
-    <aura:attribute name="showButtons" type="Boolean" default="true" />
-    <aura:attribute name="contactName" type="String" default="" />
     <aura:attribute name="defaultName" type="String" default="" />
-    <aura:attribute name="contactEmail" type="String" default="" />
     <aura:attribute name="defaultEmail" type="String" default="" />
-    <aura:attribute name="contactPhone" type="String" default="" />
     <aura:attribute name="defaultPhone" type="String" default="" />
-    <aura:attribute name="inviteMessage" type="String" default="" />
     <aura:attribute name="recordId" type="String" default="" />
     <aura:attribute name="sObjectName" type="String" default="" />
 
     <!-- register our callback event to use as callbacks for presses on buttons -->
-    <aura:registerEvent name="onCallClick" type="helplightning:hlCallContactEvent" />
-    <aura:registerEvent name="onInviteClick" type="helplightning:hlInviteContactEvent" />
-    <aura:registerEvent name="onCopyLinkClick" type="helplightning:hlCopyLinkEvent" />
     <aura:registerEvent name="onOpenChatClick" type="helplightning:hlOpenChatEvent" />
-
-    <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
 
     <div class="slds-card__header slds-grid">
         <header class="slds-media slds-media_center slds-has-flexi-truncate">
             <c:hlLogo></c:hlLogo>
         </header>
     </div>
-    <lightning:tabset variant="scoped" class="tabs">
-        <lightning:tab label="Send Invite">
-            <div class="">
-                <fieldset class="slds-form-element slds-form_compound">
-                    <div class="slds-box slds-clearfix" style="background: rgb(243, 242, 242);">
-                        <div class="slds-form-element__control">
-                            <div class="slds-form-element__row">
-                                <div class="slds-form-element slds-size_1-of-1">
-                                    <label class="slds-form-element__label" for="contactName">Name</label>
-                                    <div class="slds-form-element__control">
-                                        <ui:inputText class="slds-input" aura:id="contactName" value="{!v.contactName}" placeholder="Optional - Defaults to 'Guest'" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="slds-form-element__row">
-                                <div class="slds-form-element slds-size_1-of-2">
-                                    <label class="slds-form-element__label" for="contactEmail">Email </label>
-                                    <div class="slds-form-element__control">
-                                        <ui:inputText class="slds-input" aura:id="contactEmail" value="{!v.contactEmail}" />
-                                    </div>
-                                </div>
-                                <div class="slds-form-element slds-size_1-of-2">
-                                    <label class="slds-form-element__label" for="contactPhone">Phone </label>
-                                    <div class="slds-form-element__control">
-                                        <ui:inputText class="slds-input" aura:id="contactPhone" value="{!v.contactPhone}"/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="slds-form-element__row">
-                                <div class="slds-form-element slds-size_1-of-1">
-                                    <label class="slds-form-element__label" for="inviteMessage">Message</label>
-                                    <div class="slds-form-element__control">
-                                        <ui:inputTextArea aura:id="inviteMessage" class="slds-textarea" value="{!v.inviteMessage}"
-                                            placeholder="Custom message (optional; added to email only)">
-                                        </ui:inputTextArea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="slds-float_right" style="margin-top: 15px;">
-                            <ui:button class="slds-button slds-button_brand" press="{!c.sendInvite}">
-                                    Send
-                            </ui:button>
-                            <ui:button class="slds-button slds-button_brand" press="{!c.copyLink}">
-                                    Copy Link
-                            </ui:button>
-                        </div>
-                    </div>
-                </fieldset>
-            </div>
-        </lightning:tab>
-        <lightning:tab label="Directory">
-            <c:hlContacts recordId="{!v.recordId}" sObjectName="{!v.sObjectName}" style="width:20px" oncallcontact="{!c.clickCall}"></c:hlContacts>
-        </lightning:tab>
-        <lightning:tab label="Help Thread">
-            <c:hlHelpThread recordId="{!v.recordId}" sObjectName="{!v.sObjectName}" onopenchat="{!c.handleOpenChat}"></c:hlHelpThread>
-        </lightning:tab>
-    </lightning:tabset>
+    <c:hlHelpThread
+        recordId="{!v.recordId}"
+        sObjectName="{!v.sObjectName}"
+        contactName="{!v.defaultName}"
+        contactEmail="{!v.defaultEmail}"
+        contactPhone="{!v.defaultPhone}"
+        onopenchat="{!c.handleOpenChat}" />
 
 </aura:component>

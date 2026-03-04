@@ -1,3 +1,4 @@
 <aura:event type="COMPONENT" description="Event fired when the open chat button is clicked">
     <aura:attribute name="workboxId" type="Integer" />
+    <aura:attribute name="actionType" type="String" />
 </aura:event>

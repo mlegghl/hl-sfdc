@@ -1333,29 +1333,33 @@ public with sharing class HLSessionController {
             }
 
             System.debug('HL::saveAttachment - Downloading attachment[' + i + '] from signedUrl');
-            Http h = new Http();
-            HttpRequest req = new HttpRequest();
-            req.setEndpoint(a.signedUrl);
-            req.setMethod('GET');
-            HttpResponse res = h.send(req);
-            System.debug('HL::saveAttachment - Download response for attachment[' + i + ']: ' +
-                         'statusCode=' + res.getStatusCode() +
-                         ', contentLength=' + res.getHeader('Content-Length'));
+            try {
+                Http h = new Http();
+                HttpRequest req = new HttpRequest();
+                req.setEndpoint(a.signedUrl);
+                req.setMethod('GET');
+                HttpResponse res = h.send(req);
+                System.debug('HL::saveAttachment - Download response for attachment[' + i + ']: ' +
+                             'statusCode=' + res.getStatusCode() +
+                             ', contentLength=' + res.getHeader('Content-Length'));
 
-            if (res.getStatusCode() != 200) {
-                System.debug('HL::saveAttachment - ERROR downloading attachment[' + i + ']: HTTP ' + res.getStatusCode() + ' - ' + res.getStatus());
-                continue;
+                if (res.getStatusCode() != 200) {
+                    System.debug('HL::saveAttachment - ERROR downloading attachment[' + i + ']: HTTP ' + res.getStatusCode() + ' - ' + res.getStatus());
+                    continue;
+                }
+
+                Blob bd = res.getBodyAsBlob();
+                String fileExt = a.mimeType == 'image/png' ? '.png' : '.jpg';
+                ContentVersion conVer = new ContentVersion();
+                conVer.ContentLocation = 'S';
+                conVer.PathOnClient = a.fileName + fileExt;
+                conVer.Title = a.fileName;
+                conVer.VersionData = bd;
+                toSave.add(conVer);
+                System.debug('HL::saveAttachment - Queued attachment[' + i + '] for save: ' + a.fileName + fileExt + ' (' + bd.size() + ' bytes)');
+            } catch (Exception e) {
+                System.debug('HL::saveAttachment - ERROR downloading attachment[' + i + ']: ' + e.getMessage() + ' | Stack: ' + e.getStackTraceString());
             }
-
-            Blob bd = res.getBodyAsBlob();
-            String fileExt = a.mimeType == 'image/png' ? '.png' : '.jpg';
-            ContentVersion conVer = new ContentVersion();
-            conVer.ContentLocation = 'S';
-            conVer.PathOnClient = a.fileName + fileExt;
-            conVer.Title = a.fileName;
-            conVer.VersionData = bd;
-            toSave.add(conVer);
-            System.debug('HL::saveAttachment - Queued attachment[' + i + '] for save: ' + a.fileName + fileExt + ' (' + bd.size() + ' bytes)');
         }
 
         System.debug('HL::saveAttachment - Total attachments to save as ContentVersion: ' + toSave.size());
@@ -1363,17 +1367,14 @@ public with sharing class HLSessionController {
         for (Integer j = 0; j < toSave.size(); j++) {
             ContentVersion a = toSave[j];
             try {
-            insert a;
-            Id conDoc = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:a.Id].ContentDocumentId;
-            ContentDocumentLink conDocLink = New ContentDocumentLink();
-            conDocLink.LinkedEntityId = recordId;
-            conDocLink.ContentDocumentId = conDoc;
-            // Specify the share type
-            // V = Viewer permission. The user can explicitly view but not edit the shared file.
-            // C = Collaborator permission. The user can explicitly view and edit the shared file.
-            // I = Inferred permission. The user’s permission is determined by the related record.
-            conDocLink.shareType = 'I';
-            insert conDocLink;
+                insert a;
+                Id conDoc = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:a.Id].ContentDocumentId;
+                ContentDocumentLink conDocLink = New ContentDocumentLink();
+                conDocLink.LinkedEntityId = recordId;
+                conDocLink.ContentDocumentId = conDoc;
+                // I = Inferred permission. The user’s permission is determined by the related record.
+                conDocLink.shareType = 'I';
+                insert conDocLink;
                 System.debug('HL::saveAttachment - Saved ContentVersion[' + j + '] and linked to record ' + recordId +
                              ' (ContentDocumentId: ' + conDoc + ')');
             } catch (Exception e) {

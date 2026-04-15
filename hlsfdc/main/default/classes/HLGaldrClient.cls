@@ -406,13 +406,15 @@ public class HLGaldrClient {
      */
     public static List<helplightning.HLModelAttachment> getAttachments(String token, String callId) {
         helplightning.HLEnvironment environment = new helplightning.HLEnvironment(helplightning.HLConfiguration.getEnvironment());
-        helplightning.HLRequest request = new helplightning.HLRequest(environment,
-                                                                      token,
-                                                                      '/v1r1/enterprise/calls/' + callId + '/attachments');
+        String endpoint = '/v1r1/enterprise/calls/' + callId + '/attachments';
+        System.debug('HL::getAttachments - Requesting: ' + endpoint);
+        helplightning.HLRequest request = new helplightning.HLRequest(environment, token, endpoint);
         Object results = request.get();
+        System.debug('HL::getAttachments - Raw response type: ' + (results != null ? String.valueOf(results).substring(0, Math.min(500, String.valueOf(results).length())) : 'NULL'));
 
-        // deserialize
-        return HLModelAttachment.buildMany(results);
+        List<helplightning.HLModelAttachment> attachments = HLModelAttachment.buildMany(results);
+        System.debug('HL::getAttachments - Deserialized ' + attachments.size() + ' attachments for callId: ' + callId);
+        return attachments;
     }
 
     /**

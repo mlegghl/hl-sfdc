@@ -275,14 +275,18 @@ public with sharing class HLSessionController {
                                           matchedCall.helplightning__HLCall_Id__c);
                             }
 
-                            if (HLConfiguration.getSaveAttachments() && matchedCall.helplightning__Complete__c) {
+                            Boolean saveAttachmentsEnabled = HLConfiguration.getSaveAttachments();
+                            System.debug('HL::updateCalls - Save attachments enabled: ' + saveAttachmentsEnabled +
+                                         ', Call complete: ' + matchedCall.helplightning__Complete__c +
+                                         ', Call Id: ' + matchedCall.helplightning__HLCall_Id__c +
+                                         ', Record Id: ' + recordId);
+                            if (saveAttachmentsEnabled && matchedCall.helplightning__Complete__c) {
                                 String callId = matchedCall.helplightning__HLCall_Id__c;
 
                                 if (callId == null || callId.equals('')) {
-                                    // No matching call ID
+                                    System.debug('HL::updateCalls - Skipping attachment save: callId is null or empty');
                                 } else {
-                                    // Save call attachments.
-                                    // Need to wrap this in a future call method to prevent race conditions and DML errors
+                                    System.debug('HL::updateCalls - Queueing saveAttachment for callId: ' + callId + ', recordId: ' + recordId);
                                     saveAttachment(callId, recordId);
                                 }
                             }
@@ -1278,13 +1282,30 @@ public with sharing class HLSessionController {
 
     @future(callout = true)
     private static void saveAttachment(String callId, String recordId) {
+        System.debug('HL::saveAttachment - START - callId: ' + callId + ', recordId: ' + recordId);
+
         String token = HLTokenHelper.getToken();
+        System.debug('HL::saveAttachment - Token retrieved: ' + (token != null ? 'yes (' + token.length() + ' chars)' : 'NULL'));
+
         List<HLModelAttachment> attachments = helplightning.HLGaldrClient.getAttachments(token, callId);
+        System.debug('HL::saveAttachment - Attachments returned from API: ' + (attachments != null ? attachments.size() : 0));
+
+        if (attachments == null || attachments.isEmpty()) {
+            System.debug('HL::saveAttachment - No attachments found for callId: ' + callId + '. Exiting.');
+            return;
+        }
 
         List<ContentVersion> toSave = new List<ContentVersion>();
 
         // We can't save attachments while making call-outs
-        for (HLModelAttachment a: attachments) {
+        for (Integer i = 0; i < attachments.size(); i++) {
+            HLModelAttachment a = attachments[i];
+            System.debug('HL::saveAttachment - Attachment[' + i + ']: ' +
+                         'type=' + a.type +
+                         ', mimeType=' + a.mimeType +
+                         ', fileName=' + a.fileName +
+                         ', status=' + a.status +
+                         ', signedUrl=' + (String.isNotBlank(a.signedUrl) ? a.signedUrl.substring(0, Math.min(80, a.signedUrl.length())) + '...' : 'NULL'));
             // Only save screencaps for now
             // In order to avoid duplicates, we need to check if the file already exists in the toSave list
             // This code might need to be removed when we change how thumbnails are saved
@@ -1298,27 +1319,50 @@ public with sharing class HLSessionController {
                 }
             }
 
-            if (a.type == 'incall' && (a.mimeType == 'image/jpeg' || a.mimeType == 'image/png') && !fileExists) {
-              // Get the file from signed URL
-              Http h = new Http();
-              HttpRequest req = new HttpRequest();
-              req.setEndpoint(a.signedUrl);
-              req.setMethod('GET');
-              HttpResponse res = h.send(req);
-              Blob bd = res.getBodyAsBlob();
-              // Determine file extension based on mime type
-              String fileExt = a.mimeType == 'image/png' ? '.png' : '.jpg';
-              // Create a new ContentVersion object
-              ContentVersion conVer = new ContentVersion();
-              conVer.ContentLocation = 'S'; // to use S specify this document is in Salesforce, to use E for external files
-              conVer.PathOnClient = a.fileName + fileExt;
-              conVer.Title = a.fileName; // Display name of the files
-              conVer.VersionData = bd;
-              toSave.add(conVer);
+            if (a.type != 'incall') {
+                System.debug('HL::saveAttachment - Skipping attachment[' + i + ']: type is "' + a.type + '" (expected "incall")');
+                continue;
             }
+            if (a.mimeType != 'image/jpeg' && a.mimeType != 'image/png') {
+                System.debug('HL::saveAttachment - Skipping attachment[' + i + ']: mimeType is "' + a.mimeType + '" (expected image/jpeg or image/png)');
+                continue;
+            }
+            if (fileExists) {
+                System.debug('HL::saveAttachment - Skipping attachment[' + i + ']: duplicate fileName "' + a.fileName + '"');
+                continue;
+            }
+
+            System.debug('HL::saveAttachment - Downloading attachment[' + i + '] from signedUrl');
+            Http h = new Http();
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint(a.signedUrl);
+            req.setMethod('GET');
+            HttpResponse res = h.send(req);
+            System.debug('HL::saveAttachment - Download response for attachment[' + i + ']: ' +
+                         'statusCode=' + res.getStatusCode() +
+                         ', contentLength=' + res.getHeader('Content-Length'));
+
+            if (res.getStatusCode() != 200) {
+                System.debug('HL::saveAttachment - ERROR downloading attachment[' + i + ']: HTTP ' + res.getStatusCode() + ' - ' + res.getStatus());
+                continue;
+            }
+
+            Blob bd = res.getBodyAsBlob();
+            String fileExt = a.mimeType == 'image/png' ? '.png' : '.jpg';
+            ContentVersion conVer = new ContentVersion();
+            conVer.ContentLocation = 'S';
+            conVer.PathOnClient = a.fileName + fileExt;
+            conVer.Title = a.fileName;
+            conVer.VersionData = bd;
+            toSave.add(conVer);
+            System.debug('HL::saveAttachment - Queued attachment[' + i + '] for save: ' + a.fileName + fileExt + ' (' + bd.size() + ' bytes)');
         }
 
-        for (ContentVersion a: toSave) {
+        System.debug('HL::saveAttachment - Total attachments to save as ContentVersion: ' + toSave.size());
+
+        for (Integer j = 0; j < toSave.size(); j++) {
+            ContentVersion a = toSave[j];
+            try {
             insert a;
             Id conDoc = [SELECT ContentDocumentId FROM ContentVersion WHERE Id =:a.Id].ContentDocumentId;
             ContentDocumentLink conDocLink = New ContentDocumentLink();
@@ -1330,6 +1374,13 @@ public with sharing class HLSessionController {
             // I = Inferred permission. The user’s permission is determined by the related record.
             conDocLink.shareType = 'I';
             insert conDocLink;
+                System.debug('HL::saveAttachment - Saved ContentVersion[' + j + '] and linked to record ' + recordId +
+                             ' (ContentDocumentId: ' + conDoc + ')');
+            } catch (Exception e) {
+                System.debug('HL::saveAttachment - ERROR saving ContentVersion[' + j + ']: ' + e.getMessage() + ' | Stack: ' + e.getStackTraceString());
+            }
         }
+
+        System.debug('HL::saveAttachment - END - callId: ' + callId + ', saved ' + toSave.size() + ' attachments');
     }
 }

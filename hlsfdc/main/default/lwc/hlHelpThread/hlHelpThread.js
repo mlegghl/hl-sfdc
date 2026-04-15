@@ -2,8 +2,6 @@ import { LightningElement, api, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getWorkboxDetails from '@salesforce/apex/HLSessionController.getWorkboxDetails';
 import initWorkbox from '@salesforce/apex/HLSessionController.initWorkbox';
-import resendGuestInvite from '@salesforce/apex/HLSessionController.resendGuestInvite';
-import removeGuest from '@salesforce/apex/HLSessionController.removeGuest';
 import closeWorkbox from '@salesforce/apex/HLSessionController.closeWorkbox';
 import reopenWorkbox from '@salesforce/apex/HLSessionController.reopenWorkbox';
 
@@ -128,39 +126,6 @@ export default class HlHelpThread extends LightningElement {
             return assigned.name;
         }
         return null;
-    }
-
-    // Participants are registered Help Lightning users
-    get participants() {
-        const participants = this.workboxData?.participants || [];
-        return participants.map(p => ({
-            ...p,
-            displayName: p.name,
-            roleLabel: p.owner ? 'Owner' : 'Participant',
-            isOwner: p.owner === true
-        }));
-    }
-
-    get hasParticipants() {
-        return this.participants.length > 0;
-    }
-
-    // Guests are invited users (not registered)
-    get guests() {
-        const guests = this.workboxData?.guests || [];
-        return guests.map(g => ({
-            ...g,
-            displayName: g.name ? `${g.name} (${g.id})` : `Guest (${g.id})`,
-            statusLabel: g.has_joined ? 'Joined' : 'Pending'
-        }));
-    }
-
-    get hasGuests() {
-        return this.guests.length > 0;
-    }
-
-    get noGuests() {
-        return !this.hasGuests;
     }
 
     async handleStartHelpThread() {
@@ -288,68 +253,4 @@ export default class HlHelpThread extends LightningElement {
         this.loadWorkboxDetails();
     }
 
-    async handleResendInvite(event) {
-        const guestUuid = event.target.dataset.guestUuid;
-        console.log('Resend invite for guest uuid:', guestUuid);
-
-        try {
-            await resendGuestInvite({
-                sObjectName: this.sObjectName,
-                recordId: this.recordId,
-                guestUuid: guestUuid
-            });
-
-            const toastEvent = new ShowToastEvent({
-                title: 'Success',
-                message: 'Invite resent successfully.',
-                variant: 'success',
-                mode: 'dismissable'
-            });
-            this.dispatchEvent(toastEvent);
-        } catch (error) {
-            console.error('Error resending invite:', error);
-            const errorToast = new ShowToastEvent({
-                title: 'Error',
-                message: error.body?.message || 'Failed to resend invite.',
-                variant: 'error',
-                mode: 'dismissable'
-            });
-            this.dispatchEvent(errorToast);
-        }
-    }
-
-    async handleRemoveGuest(event) {
-        const guestUuid = event.target.dataset.guestUuid;
-        const guestName = event.target.dataset.guestName;
-        console.log('Remove guest uuid:', guestUuid, guestName);
-
-        // Confirm before removing
-        if (!confirm(`Are you sure you want to remove ${guestName}?`)) {
-            return;
-        }
-
-        try {
-            await removeGuest({
-                sObjectName: this.sObjectName,
-                recordId: this.recordId,
-                guestUuid: guestUuid
-            });
-
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Success',
-                message: 'Guest removed successfully.',
-                variant: 'success'
-            }));
-
-            // Refresh the data
-            this.loadWorkboxDetails();
-        } catch (error) {
-            console.error('Error removing guest:', error);
-            this.dispatchEvent(new ShowToastEvent({
-                title: 'Error',
-                message: error.body?.message || 'Failed to remove guest.',
-                variant: 'error'
-            }));
-        }
-    }
 }

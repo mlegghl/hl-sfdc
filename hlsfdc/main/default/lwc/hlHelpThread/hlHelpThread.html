@@ -10,17 +10,19 @@
         <!-- No Workbox State -->
         <template lwc:if={showNoWorkbox}>
             <div class="slds-text-align_center slds-p-around_medium">
-                <lightning-icon icon-name="utility:info" size="small" class="slds-m-right_x-small"></lightning-icon>
-                <h3 class="slds-text-heading_medium">Get Started with Your Help Thread</h3>
-                <p class="slds-text-color_weak slds-m-top_x-small">No Help Thread is linked to this record yet.</p>
-                <div class="slds-m-top_medium">
+                <template lwc:if={isStartingThread}>
+                    <lightning-spinner alternative-text="Creating Help Thread" size="small"></lightning-spinner>
+                    <p class="slds-text-color_weak slds-m-top_medium">Creating Help Thread…</p>
+                </template>
+                <template lwc:else>
+                    <p class="slds-text-color_weak slds-m-bottom_medium">Create a Help Thread to collaborate with teammates or connect with external guests through video calls, chat, and shared photos and documents — all in one place.</p>
                     <lightning-button
-                        label="Start Help Thread"
+                        label="Create Help Thread"
                         variant="brand"
-                        onclick={handleStartHelpThread}
-                        disabled={isStartingThread}>
+                        icon-name="utility:add"
+                        onclick={handleStartHelpThread}>
                     </lightning-button>
-                </div>
+                </template>
             </div>
         </template>
 
@@ -28,6 +30,16 @@
         <template lwc:if={hasWorkbox}>
             <!-- Header -->
             <div class="slds-p-around_small slds-border_bottom">
+                <div class="slds-grid slds-grid_vertical-align-center">
+                    <span class="slds-form-element__label slds-grow thread-label">Help Thread Title</span>
+                    <lightning-button-icon
+                        icon-name="utility:refresh"
+                        alternative-text="Refresh"
+                        title="Refresh"
+                        variant="bare"
+                        onclick={handleRefresh}>
+                    </lightning-button-icon>
+                </div>
                 <div class="slds-grid slds-wrap slds-grid_vertical-align-start">
                     <div class="slds-col slds-size_1-of-1 header-title-col">
                         <div class="slds-grid slds-grid_vertical-align-center">
@@ -74,80 +86,9 @@
                 </div>
             </div>
 
-            <!-- Participants Section (Registered Users) -->
-            <div class="slds-p-around_small">
-                <h3 class="slds-text-title_caps slds-m-bottom_x-small">Participants</h3>
-                
-                <template lwc:if={hasParticipants}>
-                    <template for:each={participants} for:item="participant">
-                        <div key={participant.id} class="slds-media slds-media_center slds-p-vertical_xx-small">
-                            <div class="slds-media__figure slds-m-right_x-small">
-                                <lightning-icon icon-name="standard:user" size="small"></lightning-icon>
-                            </div>
-                            <div class="slds-media__body">
-                                <p class="slds-text-body_regular">{participant.displayName}</p>
-                                <p class="slds-text-body_small slds-text-color_weak">{participant.roleLabel}</p>
-                            </div>
-                        </div>
-                    </template>
-                </template>
-            </div>
-
-            <!-- Guests Section (Invited Users) -->
-            <div class="slds-p-around_small slds-border_top">
-                <h3 class="slds-text-title_caps slds-m-bottom_x-small">Guests</h3>
-                
-                <template lwc:if={hasGuests}>
-                    <template for:each={guests} for:item="guest">
-                        <div key={guest.id} class="slds-grid slds-grid_vertical-align-center slds-p-vertical_xx-small guest-row">
-                            <span class="slds-avatar slds-avatar_circle slds-avatar_small slds-m-right_small">
-                                <lightning-icon icon-name="utility:user" size="x-small" alternative-text="Guest"></lightning-icon>
-                            </span>
-                            <div class="slds-grow">
-                                <p class="slds-text-body_regular">{guest.displayName}</p>
-                                <p class="slds-text-body_small slds-text-color_weak">
-                                    <template lwc:if={guest.has_joined}>
-                                        <span class="slds-text-color_success">Joined</span>
-                                    </template>
-                                    <template lwc:else>
-                                        Pending
-                                    </template>
-                                </p>
-                            </div>
-                            <div class="slds-col_bump-left guest-actions">
-                                <lightning-button-icon 
-                                    icon-name="utility:refresh"
-                                    alternative-text="Resend Invite"
-                                    title="Resend invite email/SMS to this guest"
-                                    variant="bare"
-                                    size="medium"
-                                    data-guest-uuid={guest.uuid}
-                                    onclick={handleResendInvite}>
-                                </lightning-button-icon>
-                                <lightning-button-icon 
-                                    icon-name="utility:delete"
-                                    alternative-text="Remove Guest"
-                                    title="Remove this guest from the Help Thread"
-                                    variant="bare"
-                                    size="medium"
-                                    class="slds-m-left_x-small"
-                                    data-guest-uuid={guest.uuid}
-                                    data-guest-name={guest.displayName}
-                                    onclick={handleRemoveGuest}>
-                                </lightning-button-icon>
-                            </div>
-                        </div>
-                    </template>
-                </template>
-
-                <template lwc:if={noGuests}>
-                    <p class="slds-text-body_small slds-text-color_weak slds-p-vertical_x-small">No guests invited yet.</p>
-                </template>
-            </div>
-
             <template lwc:if={showInviteActions}>
                 <div class="slds-p-around_small slds-border_top">
-                    <h3 class="slds-text-heading_small slds-m-bottom_small">Get Started with Your Help Thread</h3>
+                    <span class="slds-form-element__label thread-label">Select an invitation type</span>
                     <div class="slds-grid slds-wrap slds-gutters_x-small invite-actions-grid">
                         <div class="slds-col slds-size_1-of-1 invite-action-col slds-m-bottom_x-small">
                             <button class="slds-button slds-size_full slds-text-align_left invite-card-button" type="button" onclick={handleVideoInvite} aria-label="Instant Video Call Invitation">
@@ -192,15 +133,6 @@
                 </div>
             </template>
 
-            <!-- Refresh Button -->
-            <div class="slds-p-around_small slds-border_top slds-text-align_center">
-                <lightning-button 
-                    label="Refresh" 
-                    variant="neutral" 
-                    icon-name="utility:refresh"
-                    onclick={handleRefresh}>
-                </lightning-button>
-            </div>
         </template>
 
         <!-- Error State -->

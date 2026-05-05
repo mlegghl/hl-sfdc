@@ -4,8 +4,8 @@
       "path": "hlsfdc",
       "default": true,
       "package": "Help Lightning",
-      "versionName": "3.22",
-      "versionNumber": "3.22.0.1",
+      "versionName": "3.23",
+      "versionNumber": "3.23.0.1",
       "ancestorVersion": "HIGHEST"
     }
   ],

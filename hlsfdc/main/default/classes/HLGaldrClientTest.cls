@@ -208,4 +208,168 @@ private class HLGaldrClientTest {
 
         Test.stopTest();
     }
+
+    class GaldrMethodsMocker implements HttpCalloutMock {
+        public HTTPResponse respond(HTTPRequest req) {
+            URL endpoint = new URL(req.getEndpoint());
+            HttpResponse response = new HttpResponse();
+            response.setHeader('Content-Type', 'application/json');
+
+            String path = endpoint.getPath();
+
+            if (path == '/api/v1/info') {
+                Map<String,Object> result = new Map<String,Object>{
+                    'id' => 1,
+                    'name' => 'Test User',
+                    'username' => 'testuser',
+                    'email' => 'test@helplightning.com',
+                    'available' => true,
+                    'active' => true,
+                    'status' => 0,
+                    'personal_room_url' => 'https://example.com/room',
+                    'personal_room_session_id' => 'session-123',
+                    'avatar' => new Map<String,String>{
+                        'original' => '/avatar.jpg',
+                        'thumb' => '/avatar-thumb.jpg'
+                    }
+                };
+                response.setStatusCode(200);
+                response.setBody(JSON.serialize(result));
+            } else if (path.startsWith('/api/v1r1/enterprise/users')) {
+                Map<String,Object> result = new Map<String,Object>{
+                    'total_entries' => 1,
+                    'entries' => new List<Object>{
+                        new Map<String,Object>{
+                            'id' => 100,
+                            'name' => 'Contact User',
+                            'username' => 'contactuser',
+                            'email' => 'contact@helplightning.com',
+                            'available' => true,
+                            'status' => 0,
+                            'active' => true,
+                            'token' => 'contact-token',
+                            'avatar' => new Map<String,String>{
+                                'original' => '/avatar.jpg',
+                                'thumb' => '/avatar-thumb.jpg'
+                            }
+                        }
+                    }
+                };
+                response.setStatusCode(200);
+                response.setBody(JSON.serialize(result));
+            } else if (path.startsWith('/api/v1r1/workbox/invite/silent')) {
+                response.setStatusCode(200);
+                response.setBody(JSON.serialize(new Map<String,Object>{
+                    'link' => 'https://example.com/invite',
+                    'workboxId' => 123
+                }));
+            } else if (path.startsWith('/api/v1r1/workbox/invite')) {
+                if (req.getMethod() == 'DELETE') {
+                    response.setStatusCode(204);
+                    response.setBody('');
+                } else {
+                    response.setStatusCode(200);
+                    response.setBody(JSON.serialize(new Map<String,Object>{
+                        'link' => 'https://example.com/invite',
+                        'workboxId' => 123
+                    }));
+                }
+            } else if (path.startsWith('/api/v1r1/workboxes')) {
+                response.setStatusCode(200);
+                response.setBody(JSON.serialize(new Map<String,Object>{
+                    'id' => 999,
+                    'token' => 'new-workbox-token'
+                }));
+            } else if (path.startsWith('/api/v1/sessions/link')) {
+                response.setStatusCode(200);
+                response.setBody(JSON.serialize(new Map<String,Object>{
+                    'link' => 'https://example.com/otu',
+                    'long_link' => 'https://example.com/otu/long',
+                    'signature' => 'sig123'
+                }));
+            } else {
+                response.setStatusCode(200);
+                response.setBody('{}');
+            }
+
+            return response;
+        }
+    }
+
+    @isTest
+    static void testGetInfo() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u = new User(Alias = 'info', Email='info-test@helplightning.com',
+                          EmailEncodingKey='UTF-8', LastName='Info', LanguageLocaleKey='en_US',
+                          LocaleSidKey='en_US', ProfileId = p.Id,
+                          TimeZoneSidKey='America/Chicago', UserName='info-test@helplightning.com');
+        insert u;
+
+        Test.startTest();
+        Test.setMock(HttpCalloutMock.class, new GaldrMethodsMocker());
+
+        System.RunAs(u) {
+            HLModelAccount account = HLGaldrClient.getInfo('fake-user-token');
+            System.assertNotEquals(null, account, 'Account should not be null');
+            System.assertEquals('Test User', account.name);
+            System.assertEquals('test@helplightning.com', account.email);
+        }
+
+        Test.stopTest();
+    }
+
+    @isTest
+    static void testSearchContacts() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u = new User(Alias = 'search', Email='search-test@helplightning.com',
+                          EmailEncodingKey='UTF-8', LastName='Search', LanguageLocaleKey='en_US',
+                          LocaleSidKey='en_US', ProfileId = p.Id,
+                          TimeZoneSidKey='America/Chicago', UserName='search-test@helplightning.com');
+        insert u;
+
+        Test.startTest();
+        Test.setMock(HttpCalloutMock.class, new GaldrMethodsMocker());
+
+        System.RunAs(u) {
+            List<helplightning.HLModelEnterpriseUser> results = HLGaldrClient.searchContacts('fake-token', 'contact');
+            System.assertNotEquals(null, results);
+
+            List<helplightning.HLModelEnterpriseUser> allResults = HLGaldrClient.searchContacts('fake-token', '');
+            System.assertNotEquals(null, allResults);
+        }
+
+        Test.stopTest();
+    }
+
+    @isTest
+    static void testWorkboxMethods() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u = new User(Alias = 'wbox', Email='wbox-test@helplightning.com',
+                          EmailEncodingKey='UTF-8', LastName='Wbox', LanguageLocaleKey='en_US',
+                          LocaleSidKey='en_US', ProfileId = p.Id,
+                          TimeZoneSidKey='America/Chicago', UserName='wbox-test@helplightning.com');
+        insert u;
+
+        Test.startTest();
+        Test.setMock(HttpCalloutMock.class, new GaldrMethodsMocker());
+
+        System.RunAs(u) {
+            Map<String,Object> created = HLGaldrClient.createWorkbox('fake-token', 'Test Workbox');
+            System.assertNotEquals(null, created);
+
+            Map<String,Object> invite = HLGaldrClient.sendWorkboxInvite('wbox-token', 'guest@test.com', '555-1234', 'Guest');
+            System.assertNotEquals(null, invite);
+
+            Map<String,Object> silentInvite = HLGaldrClient.createWorkboxInviteSilent('wbox-token', 'Silent Guest');
+            System.assertNotEquals(null, silentInvite);
+
+            Map<String,Object> resent = HLGaldrClient.resendGuestInvite('wbox-token', 'guest-uuid');
+            System.assertNotEquals(null, resent);
+
+            Boolean removed = HLGaldrClient.removeGuestFromWorkbox('wbox-token', 'guest-uuid');
+            System.assertEquals(true, removed);
+        }
+
+        Test.stopTest();
+    }
 }

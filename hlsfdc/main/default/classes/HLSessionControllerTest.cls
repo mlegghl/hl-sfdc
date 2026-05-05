@@ -2452,7 +2452,8 @@ private class HLSessionControllerTest {
     @isTest
     static void testHelpThreadMethods() {
         Id caseId = [SELECT Id from Case WHERE Subject = 'Case 1' LIMIT 1].Id;
-        
+        User u = [SELECT Id from User WHERE UserName='test-user@helplightning.com' LIMIT 1];
+
         // Pre-create workbox
         helplightning__HLWorkbox__c workbox = new helplightning__HLWorkbox__c(
             helplightning__Case__c = caseId,
@@ -2463,38 +2464,40 @@ private class HLSessionControllerTest {
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new HelpThreadMocker());
 
-        // Test getWorkboxDetails
-        HLModelWorkboxDetails details = helplightning.HLSessionController.getWorkboxDetails('Case', caseId);
-        System.assertNotEquals(null, details);
+        System.RunAs(u) {
+            // Test getWorkboxDetails
+            HLModelWorkboxDetails details = helplightning.HLSessionController.getWorkboxDetails('Case', caseId);
+            System.assertNotEquals(null, details);
 
-        // Test getOpenChatInfo
-        Map<String,Object> chatInfo = helplightning.HLSessionController.getOpenChatInfo('Case', caseId);
-        System.assertNotEquals(null, chatInfo);
+            // Test getOpenChatInfo
+            Map<String,Object> chatInfo = helplightning.HLSessionController.getOpenChatInfo('Case', caseId);
+            System.assertNotEquals(null, chatInfo);
 
-        // Test getEnvironmentUrl
-        String url = helplightning.HLSessionController.getEnvironmentUrl();
-        System.assertNotEquals(null, url);
+            // Test getEnvironmentUrl
+            String url = helplightning.HLSessionController.getEnvironmentUrl();
+            System.assertNotEquals(null, url);
 
-        // Test initWorkbox (workbox already exists)
-        Map<String,Object> initResult = helplightning.HLSessionController.initWorkbox('Case', caseId);
-        System.assertNotEquals(null, initResult);
+            // Test initWorkbox (workbox already exists)
+            Map<String,Object> initResult = helplightning.HLSessionController.initWorkbox('Case', caseId);
+            System.assertNotEquals(null, initResult);
 
-        // Test resendGuestInvite
-        helplightning.HLSessionController.resendGuestInvite('Case', caseId, 'guest-uuid-123');
+            // Test resendGuestInvite
+            helplightning.HLSessionController.resendGuestInvite('Case', caseId, 'guest-uuid-123');
 
-        // Test removeGuest
-        helplightning.HLSessionController.removeGuest('Case', caseId, 'guest-uuid-123');
+            // Test removeGuest
+            helplightning.HLSessionController.removeGuest('Case', caseId, 'guest-uuid-123');
 
-        // Test closeWorkbox
-        helplightning.HLSessionController.closeWorkbox('Case', caseId);
+            // Test closeWorkbox
+            helplightning.HLSessionController.closeWorkbox('Case', caseId);
 
-        // Test reopenWorkbox
-        helplightning.HLSessionController.reopenWorkbox('Case', caseId);
+            // Test reopenWorkbox
+            helplightning.HLSessionController.reopenWorkbox('Case', caseId);
 
-        // Test saveCustomFields
-        List<Map<String,Object>> fieldValues = new List<Map<String,Object>>();
-        fieldValues.add(new Map<String,Object>{'id' => 1, 'value' => 'test'});
-        helplightning.HLSessionController.saveCustomFields('Case', caseId, fieldValues);
+            // Test saveCustomFields
+            List<Map<String,Object>> fieldValues = new List<Map<String,Object>>();
+            fieldValues.add(new Map<String,Object>{'id' => 1, 'value' => 'test'});
+            helplightning.HLSessionController.saveCustomFields('Case', caseId, fieldValues);
+        }
 
         Test.stopTest();
     }

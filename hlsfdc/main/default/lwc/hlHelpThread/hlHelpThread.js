@@ -2,7 +2,6 @@ import { LightningElement, api, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getWorkboxDetails from '@salesforce/apex/HLSessionController.getWorkboxDetails';
 import initWorkbox from '@salesforce/apex/HLSessionController.initWorkbox';
-import closeWorkbox from '@salesforce/apex/HLSessionController.closeWorkbox';
 import reopenWorkbox from '@salesforce/apex/HLSessionController.reopenWorkbox';
 
 export default class HlHelpThread extends LightningElement {
@@ -178,74 +177,33 @@ export default class HlHelpThread extends LightningElement {
         }));
     }
 
-    async handleCloseHelpThread() {
-        await this.updateWorkboxStatus('CLOSED');
+    handleCloseHelpThread() {
+        this.dispatchOpenChatEvent('close');
     }
 
     async handleReopenHelpThread() {
-        await this.updateWorkboxStatus('REPORTED');
-    }
+        try {
+            await reopenWorkbox({
+                sObjectName: this.sObjectName,
+                recordId: this.recordId
+            });
 
-    async updateWorkboxStatus(newStatus) {
-        console.log('Status change requested:', newStatus);
-        
-        if (newStatus === 'CLOSED') {
-            // Confirm before closing
-            if (!confirm('Are you sure you want to close this Help Thread?')) {
-                // Reset the dropdown to current value
-                return;
-            }
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Success',
+                message: 'Help Thread reopened successfully.',
+                variant: 'success',
+                mode: 'dismissable'
+            }));
 
-            try {
-                await closeWorkbox({
-                    sObjectName: this.sObjectName,
-                    recordId: this.recordId
-                });
-
-                this.dispatchEvent(new ShowToastEvent({
-                    title: 'Success',
-                    message: 'Help Thread closed successfully.',
-                    variant: 'success',
-                    mode: 'dismissable'
-                }));
-
-                // Refresh to show updated status
-                this.loadWorkboxDetails();
-            } catch (error) {
-                console.error('Error closing workbox:', error);
-                this.dispatchEvent(new ShowToastEvent({
-                    title: 'Error',
-                    message: error.body?.message || 'Failed to close Help Thread.',
-                    variant: 'error',
-                    mode: 'dismissable'
-                }));
-            }
-        } else if (newStatus === 'REPORTED') {
-            // Reopen the workbox
-            try {
-                await reopenWorkbox({
-                    sObjectName: this.sObjectName,
-                    recordId: this.recordId
-                });
-
-                this.dispatchEvent(new ShowToastEvent({
-                    title: 'Success',
-                    message: 'Help Thread reopened successfully.',
-                    variant: 'success',
-                    mode: 'dismissable'
-                }));
-
-                // Refresh to show updated status
-                this.loadWorkboxDetails();
-            } catch (error) {
-                console.error('Error reopening workbox:', error);
-                this.dispatchEvent(new ShowToastEvent({
-                    title: 'Error',
-                    message: error.body?.message || 'Failed to reopen Help Thread.',
-                    variant: 'error',
-                    mode: 'dismissable'
-                }));
-            }
+            this.loadWorkboxDetails();
+        } catch (error) {
+            console.error('Error reopening workbox:', error);
+            this.dispatchEvent(new ShowToastEvent({
+                title: 'Error',
+                message: error.body?.message || 'Failed to reopen Help Thread.',
+                variant: 'error',
+                mode: 'dismissable'
+            }));
         }
     }
 

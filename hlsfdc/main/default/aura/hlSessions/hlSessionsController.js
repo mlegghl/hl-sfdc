@@ -295,7 +295,7 @@
                 var workboxId = r.workboxId;
                 var webUrl = r.webUrl;
                 var normalizedActionType = (actionType || '').toLowerCase();
-                var allowedActionTypes = ['chat', 'video', 'add_contact'];
+                var allowedActionTypes = ['chat', 'video', 'add_contact', 'close'];
                 var shouldIncludeActionType = allowedActionTypes.indexOf(normalizedActionType) !== -1;
 
                 // Store pending invite info for when CALL_CONNECTED fires.

@@ -16,7 +16,7 @@ public with sharing class HLConfiguration {
 
         if (config.helplightning__Enterprise_Id__c == null ||
             config.helplightning__Enterprise_Id__c == '') {
-            throw new helplightning.HLConfigurationException('Help Lightning Enterprise Id hasn\'t been configured.');
+            throw new helplightning.HLConfigurationException('Help Lightning Site ID hasn\'t been configured.');
         }
 
         return config.helplightning__Enterprise_Id__c;

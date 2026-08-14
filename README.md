@@ -60,14 +60,14 @@ automatically log you in.
 ### Configuring the new Scratch Environment
 
 Once you are in your scratch environment, you need to configure it. There are two things we need to configure:
-1. The Help Lightning enterprise and partner key
+1. The Help Lightning Site ID and partner key
 1. Adding the Help Lightning component to Cases and WorkOrders
 
-First to configure the Help Lightning Enterprise and Partner Key:
+First to configure the Help Lightning Site ID and Partner Key:
 
 1. Go to `Setup` > `Custom Code` > `Visualforce Pages`
 1. Find `HelpLightingSetup` and click on the icon of two squares with an arrow, just to the right of Security. This will open a preview of the page in a new tab.
-1. For `Enterprise Id`, you will need the Help Lightning Id of your enterprise in production. This can be found in crunch.
+1. For `Site ID`, you will need the Help Lightning Site ID of your enterprise in production (Workspace Settings → Developer, `enterprise.id`). This can be found in crunch.
 1. For `Private Key`, you will need a private key for your enterprise. If you don't have one, you can manually create one using the Galdr admin api. *Be careful doing this, as creating a new key removes any existing keys!*
 1. Press `Save` and close the tab.
 
@@ -95,7 +95,7 @@ Assuming you configured everything correctly in Step 1, you should be
 able to Call Contact or Invite Contact. If the component is giving you
 an error, please validate the following:
 
-1. Your enterprise id was configured correctly
+1. Your Site ID was configured correctly
 1. Your partner key is valid
 1. Your Salesforce user's email address matches an email address in your Help Lightning enterprise. If not, go to `Setup` > `Custom Code` > `Visualforce Pages` > `HelpLightning_UserSetup`. You can verify your login and override it if necessary.
 

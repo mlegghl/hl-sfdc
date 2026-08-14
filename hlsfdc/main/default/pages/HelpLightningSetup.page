@@ -17,7 +17,7 @@
           <apex:selectOption itemValue="DEV" itemLabel="Development" />
         </apex:selectList>
         
-        <apex:outputText value="Enterprise Id" />
+        <apex:outputText value="Site ID" />
         <apex:inputText value="{!config['enterpriseId']}" />
 
         <apex:outputText value="Private Key" />

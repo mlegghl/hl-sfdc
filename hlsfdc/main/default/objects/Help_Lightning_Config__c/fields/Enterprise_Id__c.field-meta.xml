@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Enterprise_Id__c</fullName>
     <externalId>false</externalId>
-    <label>Enterprise Id</label>
+    <label>Site ID</label>
     <length>32</length>
     <required>false</required>
     <trackTrending>false</trackTrending>

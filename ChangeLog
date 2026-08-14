@@ -1,6 +1,10 @@
+3.26
+==========
 2026-08-14  Micah Legg <micah.legg@helplightning.com>
 	* SFDC-128 - Rename Enterprise Id setup label to Site ID
 
+3.25
+==========
 2026-06-09  Micah Legg <micah.legg@helplightning.com>
 	* SFDC-127 - Restore removed classes so that the package can build
 

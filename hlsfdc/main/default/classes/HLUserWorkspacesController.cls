@@ -62,7 +62,7 @@ public with sharing class HLUserWorkspacesController {
         ctx.workspaces = new List<WorkspaceOption>();
 
         if (!ctx.canEdit) {
-            ctx.statusMessage = 'You do not have permission to manage Help Lightning configuration.';
+            ctx.statusMessage = 'You don\'t have permission to manage Help Lightning settings.';
             return ctx;
         }
 
@@ -70,15 +70,15 @@ public with sharing class HLUserWorkspacesController {
         try {
             workspaces = helplightning.HLGaldrClient.getWorkspaces();
         } catch (helplightning.HLConfigurationException e) {
-            ctx.statusMessage = 'Configure your Help Lightning Site ID and Private Key before managing user workspaces.';
+            ctx.statusMessage = 'Save your Site ID and Private Key on the setup page first.';
             return ctx;
         } catch (Exception e) {
-            ctx.statusMessage = 'Your Help Lightning site key could not be verified: ' + e.getMessage();
+            ctx.statusMessage = 'Couldn\'t verify your site key: ' + e.getMessage();
             return ctx;
         }
 
         if (workspaces == null || workspaces.isEmpty()) {
-            ctx.statusMessage = 'User workspace assignment requires a site-level key.';
+            ctx.statusMessage = 'Requires a site-level key.';
             return ctx;
         }
 
@@ -156,12 +156,12 @@ public with sharing class HLUserWorkspacesController {
 
             String login = String.isBlank(u.login) ? null : u.login.trim();
             if (login != null && !Pattern.matches(EMAIL_REGEX, login)) {
-                throw newError('Invalid email address: ' + login);
+                throw newError('Invalid email: ' + login);
             }
 
             String workspaceId = String.isBlank(u.workspaceId) ? null : u.workspaceId.trim();
             if (workspaceId != null && !activeIds.contains(workspaceId)) {
-                throw newError('Workspace ' + workspaceId + ' is not an active workspace.');
+                throw newError('Workspace ' + workspaceId + ' isn\'t active.');
             }
 
             records.add(new helplightning__Help_Lightning_Config__c(
@@ -186,15 +186,15 @@ public with sharing class HLUserWorkspacesController {
 
         Set<String> activeIds = loadActiveWorkspaceIds();
         if (activeIds.isEmpty()) {
-            throw newError('No active workspaces were found for this site.');
+            throw newError('No active workspaces found.');
         }
 
         String target = String.isBlank(workspaceId) ? null : workspaceId.trim();
         if (target == null) {
-            throw newError('Select a workspace to assign.');
+            throw newError('Choose a workspace.');
         }
         if (!activeIds.contains(target)) {
-            throw newError('Workspace ' + target + ' is not an active workspace.');
+            throw newError('Workspace ' + target + ' isn\'t active.');
         }
 
         List<helplightning__Help_Lightning_Config__c> records = new List<helplightning__Help_Lightning_Config__c>();
@@ -254,7 +254,7 @@ public with sharing class HLUserWorkspacesController {
         try {
             workspaces = helplightning.HLGaldrClient.getWorkspaces();
         } catch (Exception e) {
-            throw newError('Unable to load workspaces from Help Lightning: ' + e.getMessage());
+            throw newError('Couldn\'t load workspaces: ' + e.getMessage());
         }
 
         Set<String> activeIds = new Set<String>();

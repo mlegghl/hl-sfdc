@@ -249,7 +249,7 @@ export default class HlUserWorkspaces extends LightningElement {
     get pendingFlaggedLabel() {
         return this.pendingFlaggedTarget === null
             ? null
-            : `All ${this.totalCount} flagged users will be set to ${this.workspaceLabel(this.pendingFlaggedTarget)}`;
+            : `All ${this.totalCount} flagged users will move to ${this.workspaceLabel(this.pendingFlaggedTarget)} on save.`;
     }
 
     get bulkDisabled() {
@@ -279,8 +279,8 @@ export default class HlUserWorkspaces extends LightningElement {
 
     get emptyMessage() {
         return this.flaggedOnly
-            ? 'No users have a deactivated or unknown default workspace.'
-            : 'No users have a Help Lightning email or default workspace saved yet. Users appear here after they open the Help Lightning component.';
+            ? 'No users have a deactivated or missing workspace.'
+            : 'No users yet. Users appear after they open the Help Lightning component.';
     }
 
     get messageClass() {
@@ -370,7 +370,7 @@ export default class HlUserWorkspaces extends LightningElement {
         }
         this.rows = [...this.rows];
         this.showMessage(
-            `${count} user${count === 1 ? '' : 's'} set to ${this.workspaceLabel(target)}. Click Save changes to apply.`,
+            `${count} user${count === 1 ? '' : 's'} set to ${this.workspaceLabel(target)}. Save to apply.`,
             'info');
     }
 
@@ -386,7 +386,7 @@ export default class HlUserWorkspaces extends LightningElement {
 
     confirmDiscard() {
         // eslint-disable-next-line no-alert
-        return !this.hasChanges || window.confirm('You have unsaved changes that will be discarded. Continue?');
+        return !this.hasChanges || window.confirm('Discard unsaved changes?');
     }
 
     handleFlaggedToggle(event) {
@@ -406,7 +406,7 @@ export default class HlUserWorkspaces extends LightningElement {
         const rowEdits = this.dirtyRows.filter((r) => !this.isCoveredByPendingFlagged(r));
         const invalid = rowEdits.find((r) => r.login !== '' && !EMAIL_REGEX.test(r.login));
         if (invalid) {
-            this.showMessage(`Invalid email address for ${invalid.userName}: ${invalid.login}`, 'error');
+            this.showMessage(`Invalid email for ${invalid.userName}.`, 'error');
             return;
         }
 

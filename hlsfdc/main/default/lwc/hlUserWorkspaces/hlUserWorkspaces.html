@@ -1,18 +1,10 @@
 <template>
     <div class="slds-card slds-p-around_medium">
         <h1 class="slds-text-heading_medium slds-m-bottom_small">Help Lightning User Workspaces</h1>
-        <div class="slds-text-color_weak slds-m-bottom_medium">
-            <p class="slds-m-bottom_x-small">
-                This list shows Salesforce users who have a Help Lightning email or default workspace saved.
-                A default workspace is saved the first time a user opens the Help Lightning component and is
-                found in one of your workspaces. Users can also have one saved from their Help Lightning user settings page.
-            </p>
-            <p class="slds-m-bottom_x-small">
-                Users who have never opened the component, or who aren't in any active workspace, won't appear here.
-                Their workspace is detected automatically the next time they open the component.
-            </p>
-            <p>Rows highlighted in red point to a workspace that is deactivated or no longer exists.</p>
-        </div>
+        <p class="slds-text-color_weak slds-m-bottom_medium">
+            Users appear here once they've opened the Help Lightning component and been matched to a workspace,
+            or have an email or workspace saved in their settings. Red rows point to a deactivated or missing workspace.
+        </p>
 
         <template lwc:if={message}>
             <div class={messageClass} role="alert">
@@ -70,7 +62,7 @@
                 </div>
             </div>
             <template lwc:if={pendingFlaggedLabel}>
-                <p class="slds-text-color_weak slds-m-bottom_small">{pendingFlaggedLabel}. Click Save changes to apply.</p>
+                <p class="slds-text-color_weak slds-m-bottom_small">{pendingFlaggedLabel}</p>
             </template>
 
             <div class="hl-scroll" onscroll={handleScroll}>
@@ -102,7 +94,7 @@
                                         value={row.login} placeholder={row.userEmail}
                                         aria-label="Help Lightning email" onchange={handleEmailChange} />
                                     <template lwc:if={row.emailInvalid}>
-                                        <div class="slds-text-color_error slds-text-body_small">Invalid email address</div>
+                                        <div class="slds-text-color_error slds-text-body_small">Invalid email</div>
                                     </template>
                                 </td>
                                 <td>

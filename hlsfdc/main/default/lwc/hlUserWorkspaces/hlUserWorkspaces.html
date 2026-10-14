@@ -1,0 +1,134 @@
+<template>
+    <div class="slds-card slds-p-around_medium">
+        <h1 class="slds-text-heading_medium slds-m-bottom_small">Help Lightning User Workspaces</h1>
+        <p class="slds-text-color_weak slds-m-bottom_medium">
+            Users who have a Help Lightning login or default workspace saved in Salesforce.
+            Rows highlighted in red point to a workspace that is deactivated or no longer exists.
+        </p>
+
+        <template lwc:if={message}>
+            <div class={messageClass} role="alert">
+                <h2>{message}</h2>
+                <div class="slds-notify__close">
+                    <lightning-button-icon icon-name="utility:close" variant="bare-inverse" size="small"
+                        alternative-text="Dismiss" onclick={handleDismissMessage}></lightning-button-icon>
+                </div>
+            </div>
+        </template>
+
+        <template lwc:if={isLoadingContext}>
+            <div class="slds-is-relative hl-spinner-wrap">
+                <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <template lwc:elseif={ready}>
+            <!-- Toolbar stays outside the scroll area so it is always visible -->
+            <div class="hl-toolbar slds-grid slds-wrap slds-grid_vertical-align-end slds-gutters_x-small slds-m-bottom_small">
+                <div class="slds-col slds-grow-none">
+                    <label class="slds-form-element__label" for="bulk-target">Set selected users to</label>
+                    <div class="slds-select_container">
+                        <select class="slds-select" id="bulk-target" onchange={handleBulkTargetChange}>
+                            <template for:each={bulkOptions} for:item="opt">
+                                <option key={opt.value} value={opt.value} selected={opt.selected}>{opt.label}</option>
+                            </template>
+                        </select>
+                    </div>
+                </div>
+                <div class="slds-col slds-grow-none">
+                    <lightning-button label="Apply" variant="brand" disabled={bulkDisabled}
+                        onclick={handleBulkApply}></lightning-button>
+                </div>
+                <div class="slds-col slds-grow-none">
+                    <lightning-button label={saveLabel} disabled={saveDisabled}
+                        onclick={handleSave}></lightning-button>
+                </div>
+                <div class="slds-col slds-grow-none hl-toolbar-text">
+                    <div class="slds-checkbox">
+                        <input type="checkbox" id="flagged-only" checked={flaggedOnly} onchange={handleFlaggedToggle} />
+                        <label class="slds-checkbox__label" for="flagged-only">
+                            <span class="slds-checkbox_faux"></span>
+                            <span class="slds-form-element__label">Show only flagged users</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="slds-col slds-grow hl-toolbar-text slds-text-align_right">
+                    <span class="slds-m-right_small">{selectionLabel}</span>
+                    <template lwc:if={showSelectAllFlagged}>
+                        <button class="slds-button slds-m-right_small" onclick={handleSelectAllFlagged}>{selectAllFlaggedLabel}</button>
+                    </template>
+                    <button class="slds-button" onclick={handleClearSelection}>Clear selection</button>
+                </div>
+            </div>
+
+            <div class="hl-scroll" onscroll={handleScroll}>
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_fixed-layout">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th class="hl-col-check" scope="col">
+                                <input type="checkbox" aria-label="Select all loaded users"
+                                    checked={allLoadedSelected} onchange={handleSelectAllLoaded} />
+                            </th>
+                            <th scope="col">User</th>
+                            <th scope="col">Help Lightning Email</th>
+                            <th scope="col">Default Workspace</th>
+                            <th class="hl-col-status" scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={viewRows} for:item="row">
+                            <tr key={row.configId} class={row.rowClass}>
+                                <td class="hl-col-check">
+                                    <input type="checkbox" aria-label="Select user" data-id={row.configId}
+                                        checked={row.checked} onchange={handleRowSelect} />
+                                </td>
+                                <td>
+                                    <div class="slds-truncate" title={row.displayName}>{row.displayName}</div>
+                                </td>
+                                <td>
+                                    <input type="email" class={row.emailClass} data-id={row.configId}
+                                        value={row.login} placeholder={row.userEmail}
+                                        aria-label="Help Lightning email" onchange={handleEmailChange} />
+                                    <template lwc:if={row.emailInvalid}>
+                                        <div class="slds-text-color_error slds-text-body_small">Invalid email address</div>
+                                    </template>
+                                </td>
+                                <td>
+                                    <div class="slds-select_container">
+                                        <select class="slds-select" data-id={row.configId}
+                                            aria-label="Default workspace" onchange={handleWorkspaceChange}>
+                                            <template for:each={row.options} for:item="opt">
+                                                <option key={opt.value} value={opt.value} selected={opt.selected}>{opt.label}</option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </td>
+                                <td class="hl-col-status">
+                                    <span class={row.badgeClass}>{row.statusLabel}</span>
+                                    <template lwc:if={row.dirty}>
+                                        <span class="slds-badge slds-badge_lightest slds-m-left_xx-small">Unsaved</span>
+                                    </template>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+
+                <template lwc:if={isLoadingRows}>
+                    <div class="slds-is-relative hl-spinner-wrap">
+                        <lightning-spinner alternative-text="Loading more users" size="small"></lightning-spinner>
+                    </div>
+                </template>
+                <template lwc:if={showEmpty}>
+                    <p class="slds-p-around_medium slds-text-color_weak slds-text-align_center">{emptyMessage}</p>
+                </template>
+            </div>
+        </template>
+
+        <template lwc:else>
+            <div class="slds-notify slds-notify_alert slds-theme_warning" role="alert">
+                <h2>{statusMessage}</h2>
+            </div>
+        </template>
+    </div>
+</template>

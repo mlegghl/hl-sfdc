@@ -1,0 +1,29 @@
+<apex:page standardStylesheets="false" applyBodyTag="false" title="Help Lightning User Workspaces">
+    <apex:includeLightning />
+    <apex:slds />
+
+    <style>
+     html, body {
+         margin: 0;
+         padding: 0;
+     }
+     #lightningComponent {width: 100%;}
+    </style>
+
+    <div class="slds-scope">
+        <div class="slds-p-around_small">
+            <a href="{!$Page.HelpLightningSetup}">&larr; Back to Help Lightning configuration</a>
+        </div>
+        <div id="lightningComponent" />
+    </div>
+
+    <script>
+     $Lightning.use("helplightning:HelpLightningAdminApp", function() {
+         $Lightning.createComponent("helplightning:hlUserWorkspaces",
+                                    {},
+                                    "lightningComponent",
+                                    function(cmp) {});
+     });
+    </script>
+
+</apex:page>

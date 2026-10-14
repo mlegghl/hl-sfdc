@@ -14,6 +14,7 @@ public with sharing class HLConfigurationController {
     public Boolean saveAttachments { get; set; }
     public Boolean hasSiteKey { get; set; }
     public String environment { get; set; }
+    public Boolean isConfigured { get; set; }
 
     public HLConfigurationController() {
         config = new Map<String,String>();
@@ -37,6 +38,7 @@ public with sharing class HLConfigurationController {
 
         config.put('enterpriseId', enterpriseId);
         config.put('privateKey', privateKey);
+        isConfigured = (enterpriseId != '' && privateKey != '');
 
         // If not set, default to US
         environment = (hlConfig.helplightning__Environment__c != null) ? hlConfig.helplightning__Environment__c : 'US';
@@ -85,6 +87,8 @@ public with sharing class HLConfigurationController {
         if (schema.SObjectType.helplightning__Help_Lightning_Config__c.isUpdateable() &&
             schema.SObjectType.helplightning__Help_Lightning_Config__c.isCreateable()) {
             upsert hlConfig helplightning__Help_Lightning_Config__c.Id;
+            isConfigured = (hlConfig.helplightning__Enterprise_Id__c != null &&
+                            hlConfig.helplightning__Private_Key_1__c != null);
 
             ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.Info,
                                                        'Configuration Saved!'));

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <classAccesses>
+        <apexClass>HLConfigurationController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>HLUserWorkspacesController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <description>Manage Help Lightning configuration and each user's default workspace.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>HelpLightning Admin</label>
+    <pageAccesses>
+        <apexPage>HelpLightningSetup</apexPage>
+        <enabled>true</enabled>
+    </pageAccesses>
+    <pageAccesses>
+        <apexPage>HelpLightning_UserWorkspaces</apexPage>
+        <enabled>true</enabled>
+    </pageAccesses>
+</PermissionSet>

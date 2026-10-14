@@ -258,8 +258,14 @@ private class HLSessionControllerTest {
         // there is only 1 workspace, but if there are more than
         // that, this will fail unless the user has set a default.
         Integer numWorkspaces;
+        // when true, the first workspace (id 50) is returned as deactivated
+        Boolean firstInactive = false;
         CheckRegistrationMocker(Integer numWorkspaces) {
           this.numWorkspaces = numWorkspaces;
+        }
+        CheckRegistrationMocker(Integer numWorkspaces, Boolean firstInactive) {
+          this.numWorkspaces = numWorkspaces;
+          this.firstInactive = firstInactive;
         }
         public HTTPResponse respond(HTTPRequest req) {
             URL endpoint = new URL(req.getEndpoint());
@@ -324,7 +330,7 @@ private class HLSessionControllerTest {
                           'id' => workspaceId,
                           'name' => 'name_' + workspaceId,
                           'token' => 'valid-token',
-                          'active' => true
+                          'active' => !(firstInactive && i == 0)
                       });
               }
               result.put('entries', entries);
@@ -1926,6 +1932,8 @@ private class HLSessionControllerTest {
         System.RunAs(u1) {
             Boolean result = helplightning.HLSessionController.checkRegistration();
             System.assertEquals(true, result);
+            // a valid saved workspace is kept
+            System.assertEquals('51', HLConfiguration.getWorkspaceId());
         }
 
         Test.stopTest();
@@ -2025,8 +2033,8 @@ private class HLSessionControllerTest {
                            TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
         insert u1;
 
-        // This user will have an invalid defaultWorkspaceId override,
-        // This will cause a login failure
+        // This user will have an unknown defaultWorkspaceId override,
+        //  which should be ignored and replaced with the detected workspace
         System.RunAs(u1) {
             HLConfiguration.setWorkspaceId('23434');
         }
@@ -2044,7 +2052,71 @@ private class HLSessionControllerTest {
 
         System.RunAs(u1) {
             Boolean result = helplightning.HLSessionController.checkRegistration();
+            System.assertEquals(true, result);
+            System.assertEquals('50', HLConfiguration.getWorkspaceId());
+        }
+
+        Test.stopTest();
+    }
+
+    /**
+     * Test checkRegistration when the saved default workspace
+     *  has been deactivated. The user should be moved to the
+     *  next active workspace they belong to.
+     */
+    @isTest
+    static void testCheckRegistrationDeactivatedDefaultWorkspace() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u1 = new User(Alias = 'support', Email='support@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='support@helplightning.com');
+        insert u1;
+
+        System.RunAs(u1) {
+            HLConfiguration.setWorkspaceId('50');
+        }
+
+        Test.startTest();
+
+        // workspace 50 is deactivated, workspace 51 is active
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(2, true));
+
+        System.RunAs(u1) {
+            Boolean result = helplightning.HLSessionController.checkRegistration();
+            System.assertEquals(true, result);
+            System.assertEquals('51', HLConfiguration.getWorkspaceId());
+        }
+
+        Test.stopTest();
+    }
+
+    /**
+     * Test checkRegistration when the saved default workspace
+     *  is stale AND the user isn't in any active workspace.
+     *  The stale workspace should be cleared.
+     */
+    @isTest
+    static void testCheckRegistrationStaleDefaultWorkspaceNoAliases() {
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        User u1 = new User(Alias = 'noexist', Email='noexist@helplightning.com',
+                           EmailEncodingKey='UTF-8', LastName='Support', LanguageLocaleKey='en_US',
+                           LocaleSidKey='en_US', ProfileId = p.Id,
+                           TimeZoneSidKey='America/Chicago', UserName='noexist@helplightning.com');
+        insert u1;
+
+        System.RunAs(u1) {
+            HLConfiguration.setWorkspaceId('23434');
+        }
+
+        Test.startTest();
+
+        Test.setMock(HttpCalloutMock.class, new CheckRegistrationMocker(2));
+
+        System.RunAs(u1) {
+            Boolean result = helplightning.HLSessionController.checkRegistration();
             System.assertEquals(false, result);
+            System.assert(String.isBlank(HLConfiguration.getWorkspaceId()), 'Stale workspace was not cleared');
         }
 
         Test.stopTest();

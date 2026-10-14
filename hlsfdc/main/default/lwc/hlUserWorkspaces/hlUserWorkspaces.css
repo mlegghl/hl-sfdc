@@ -1,0 +1,42 @@
+.hl-scroll {
+    max-height: 70vh;
+    overflow-y: auto;
+    border: 1px solid #dddbda;
+    border-radius: 0.25rem;
+}
+
+.hl-scroll thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #f3f3f3;
+}
+
+.hl-col-check {
+    width: 3rem;
+}
+
+.hl-col-status {
+    width: 11rem;
+}
+
+.hl-toolbar-text {
+    padding-bottom: 0.4rem;
+}
+
+.hl-spinner-wrap {
+    min-height: 4rem;
+}
+
+tr.hl-row-flagged > td {
+    background-color: #fde2e1;
+}
+
+tr.hl-row-dirty > td:first-child {
+    box-shadow: inset 3px 0 0 #0176d3;
+}
+
+.hl-input-error {
+    border-color: #ea001e;
+    box-shadow: 0 0 0 1px #ea001e inset;
+}

@@ -340,6 +340,11 @@ public with sharing class HLSessionController {
             //  for our email.
             if (token == null) {
                 System.debug('No token found. This user doesnt exist');
+                // Clear a saved workspace that is no longer active so
+                //  it is re-detected once the user is added to one.
+                if (workspaces.size() != 0 && !String.isBlank(HLConfiguration.getWorkspaceId())) {
+                    helplightning.HLConfiguration.setWorkspaceId(null);
+                }
                 return false;
             }
             List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(token, myUserEmail);
@@ -348,10 +353,13 @@ public with sharing class HLSessionController {
             if (workspaces.size() != 0) {
               helplightning.HLConfiguration.setHasSiteKey(true);
 
-              // Set the default workspace if it's not in the config.
-              // This will avoid having to loop through each workspace.
-              if (String.isBlank(HLConfiguration.getWorkspaceId())) {
-                helplightning.HLConfiguration.setWorkspaceId(String.valueOf(defaultWorkspace));
+              // Save the detected workspace whenever it differs from the config.
+              // This avoids looping through each workspace next time, and
+              //  replaces (or clears) a saved workspace that is no longer active.
+              String storedId = HLConfiguration.getWorkspaceId();
+              String detectedId = (defaultWorkspace == null) ? null : String.valueOf(defaultWorkspace);
+              if (storedId != detectedId) {
+                helplightning.HLConfiguration.setWorkspaceId(detectedId);
               }
             }
 
@@ -374,12 +382,21 @@ public with sharing class HLSessionController {
           String myUserEmail = helplightning.HLUserHelper.getLogin();
           Integer workspaceId = null;
 
-          if (!String.isBlank(HLConfiguration.getWorkspaceId())) {
-            // If we already have a set workspace id, use that
-            return Integer.valueOf(HLConfiguration.getWorkspaceId());
+          String storedId = HLConfiguration.getWorkspaceId();
+          if (!String.isBlank(storedId)) {
+            // Only trust the saved workspace if it is still active.
+            //  A deactivated or unknown id falls through to re-detection.
+            for (helplightning.HLModelWorkspace w: workspaces) {
+              if (String.valueOf(w.id) == storedId && w.active == true) {
+                return w.id;
+              }
+            }
           }
-          // If we don't have a set default workspace, check for one
+          // If we don't have a valid default workspace, check for one
           for (helplightning.HLModelWorkspace w: workspaces) {
+            if (w.active != true) {
+              continue;
+            }
             List<helplightning.HLModelEnterpriseUser> users = helplightning.HLGaldrClient.searchEnterpriseUsers(w.token, myUserEmail);
             // Find the first user matching our email
             for (helplightning.HLModelEnterpriseUser u: users) {

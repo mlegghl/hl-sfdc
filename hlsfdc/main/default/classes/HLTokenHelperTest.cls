@@ -80,7 +80,9 @@ private class HLTokenHelperTest {
                            LocaleSidKey='en_US', ProfileId = p.Id,
                            TimeZoneSidKey='America/Chicago', UserName='support2@helplightning.com');
       insert u2;
-      List<helplightning.HLModelWorkspace> workspaces = new List<helplightning.HLModelWorkspace>();
+      List<helplightning.HLModelWorkspace> workspaces = new List<helplightning.HLModelWorkspace>{
+        new helplightning.HLModelWorkspace(123, 'name', 'valid-token', true)
+      };
       
       System.RunAs(u1) {
         HLConfiguration.setWorkspaceId('123');

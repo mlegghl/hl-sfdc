@@ -28,6 +28,8 @@ export default class HlUserWorkspaces extends LightningElement {
     allFlaggedSelected = false;
     // workspace staged for every flagged user, including rows not loaded yet
     pendingFlaggedTarget = null;
+    // workspace shown in the bulk dropdown; reset when the selection changes
+    bulkTarget = '';
 
     message = null;
     messageVariant = 'info';
@@ -66,7 +68,10 @@ export default class HlUserWorkspaces extends LightningElement {
     }
 
     get bulkOptions() {
-        return [{ value: '', label: 'Choose a workspace…' }, ...this.activeWorkspaceOptions];
+        return [{ value: '', label: 'Choose a workspace…' }, ...this.activeWorkspaceOptions].map((o) => ({
+            ...o,
+            selected: o.value === this.bulkTarget
+        }));
     }
 
     async resetAndLoad() {
@@ -76,6 +81,7 @@ export default class HlUserWorkspaces extends LightningElement {
         this.totalCount = 0;
         this.allFlaggedSelected = false;
         this.pendingFlaggedTarget = null;
+        this.bulkTarget = '';
         await this.loadMore();
     }
 
@@ -311,6 +317,7 @@ export default class HlUserWorkspaces extends LightningElement {
             this.rows.forEach((r) => { r.selected = true; });
         }
         row.selected = event.target.checked;
+        this.bulkTarget = '';
         this.rows = [...this.rows];
     }
 
@@ -318,16 +325,19 @@ export default class HlUserWorkspaces extends LightningElement {
         const checked = event.target.checked;
         this.leaveAllFlagged();
         this.rows.forEach((r) => { r.selected = checked; });
+        this.bulkTarget = '';
         this.rows = [...this.rows];
     }
 
     handleSelectAllFlagged() {
         this.allFlaggedSelected = true;
+        this.bulkTarget = '';
     }
 
     handleClearSelection() {
         this.leaveAllFlagged();
         this.rows.forEach((r) => { r.selected = false; });
+        this.bulkTarget = '';
         this.rows = [...this.rows];
     }
 
@@ -348,13 +358,11 @@ export default class HlUserWorkspaces extends LightningElement {
 
     handleBulkTargetChange(event) {
         const target = event.target.value;
-        // reset to the prompt so the same workspace can be chosen again for another selection
-        event.target.value = '';
+        this.bulkTarget = target;
         if (!target) {
             return;
         }
 
-        let count;
         if (this.allFlaggedSelected) {
             this.pendingFlaggedTarget = target;
             this.rows.forEach((r) => {
@@ -362,20 +370,15 @@ export default class HlUserWorkspaces extends LightningElement {
                     r.workspaceId = target;
                 }
             });
-            count = this.totalCount;
         } else {
-            const selected = this.selectedRows;
-            selected.forEach((r) => { r.workspaceId = target; });
-            count = selected.length;
+            this.selectedRows.forEach((r) => { r.workspaceId = target; });
         }
         this.rows = [...this.rows];
-        this.showMessage(
-            `${count} user${count === 1 ? '' : 's'} set to ${this.workspaceLabel(target)}. Save to apply.`,
-            'info');
     }
 
     handleDiscard() {
         this.pendingFlaggedTarget = null;
+        this.bulkTarget = '';
         this.rows.forEach((r) => {
             r.login = r.originalLogin;
             r.workspaceId = r.originalWorkspaceId;
@@ -443,6 +446,7 @@ export default class HlUserWorkspaces extends LightningElement {
                 });
             }
 
+            this.bulkTarget = '';
             this.rows = [...this.rows];
             this.showMessage(`Saved ${saved} user${saved === 1 ? '' : 's'}.`, 'success');
             if (usedBulk) {

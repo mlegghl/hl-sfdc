@@ -31,7 +31,7 @@
                         <select class="slds-select" id="bulk-target" disabled={bulkDisabled}
                             onchange={handleBulkTargetChange}>
                             <template for:each={bulkOptions} for:item="opt">
-                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                <option key={opt.value} value={opt.value} selected={opt.selected}>{opt.label}</option>
                             </template>
                         </select>
                     </div>

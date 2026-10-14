@@ -179,7 +179,6 @@ public with sharing class HLUserWorkspacesController {
      *
      * When allFlagged is true, configIds is ignored and every user
      *  whose saved workspace is no longer active is updated.
-     * A blank workspaceId clears the value so the component re-detects it.
      */
     @AuraEnabled
     public static Integer bulkSetWorkspace(List<String> configIds, Boolean allFlagged, String workspaceId) {
@@ -191,7 +190,10 @@ public with sharing class HLUserWorkspacesController {
         }
 
         String target = String.isBlank(workspaceId) ? null : workspaceId.trim();
-        if (target != null && !activeIds.contains(target)) {
+        if (target == null) {
+            throw newError('Select a workspace to assign.');
+        }
+        if (!activeIds.contains(target)) {
             throw newError('Workspace ' + target + ' is not an active workspace.');
         }
 

@@ -1,10 +1,18 @@
 <template>
     <div class="slds-card slds-p-around_medium">
         <h1 class="slds-text-heading_medium slds-m-bottom_small">Help Lightning User Workspaces</h1>
-        <p class="slds-text-color_weak slds-m-bottom_medium">
-            Users who have a Help Lightning login or default workspace saved in Salesforce.
-            Rows highlighted in red point to a workspace that is deactivated or no longer exists.
-        </p>
+        <div class="slds-text-color_weak slds-m-bottom_medium">
+            <p class="slds-m-bottom_x-small">
+                This list shows Salesforce users who have a Help Lightning email or default workspace saved.
+                A default workspace is saved the first time a user opens the Help Lightning component and is
+                found in one of your workspaces. Users can also have one saved from their Help Lightning user settings page.
+            </p>
+            <p class="slds-m-bottom_x-small">
+                Users who have never opened the component, or who aren't in any active workspace, won't appear here.
+                Their workspace is detected automatically the next time they open the component.
+            </p>
+            <p>Rows highlighted in red point to a workspace that is deactivated or no longer exists.</p>
+        </div>
 
         <template lwc:if={message}>
             <div class={messageClass} role="alert">
@@ -28,20 +36,21 @@
                 <div class="slds-col slds-grow-none">
                     <label class="slds-form-element__label" for="bulk-target">Set selected users to</label>
                     <div class="slds-select_container">
-                        <select class="slds-select" id="bulk-target" onchange={handleBulkTargetChange}>
+                        <select class="slds-select" id="bulk-target" disabled={bulkDisabled}
+                            onchange={handleBulkTargetChange}>
                             <template for:each={bulkOptions} for:item="opt">
-                                <option key={opt.value} value={opt.value} selected={opt.selected}>{opt.label}</option>
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>
                             </template>
                         </select>
                     </div>
                 </div>
                 <div class="slds-col slds-grow-none">
-                    <lightning-button label="Apply" variant="brand" disabled={bulkDisabled}
-                        onclick={handleBulkApply}></lightning-button>
+                    <lightning-button label={saveLabel} variant="brand" disabled={saveDisabled}
+                        onclick={handleSave}></lightning-button>
                 </div>
                 <div class="slds-col slds-grow-none">
-                    <lightning-button label={saveLabel} disabled={saveDisabled}
-                        onclick={handleSave}></lightning-button>
+                    <lightning-button label="Discard changes" disabled={discardDisabled}
+                        onclick={handleDiscard}></lightning-button>
                 </div>
                 <div class="slds-col slds-grow-none hl-toolbar-text">
                     <div class="slds-checkbox">
@@ -60,6 +69,9 @@
                     <button class="slds-button" onclick={handleClearSelection}>Clear selection</button>
                 </div>
             </div>
+            <template lwc:if={pendingFlaggedLabel}>
+                <p class="slds-text-color_weak slds-m-bottom_small">{pendingFlaggedLabel}. Click Save changes to apply.</p>
+            </template>
 
             <div class="hl-scroll" onscroll={handleScroll}>
                 <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_fixed-layout">
@@ -94,14 +106,10 @@
                                     </template>
                                 </td>
                                 <td>
-                                    <div class="slds-select_container">
-                                        <select class="slds-select" data-id={row.configId}
-                                            aria-label="Default workspace" onchange={handleWorkspaceChange}>
-                                            <template for:each={row.options} for:item="opt">
-                                                <option key={opt.value} value={opt.value} selected={opt.selected}>{opt.label}</option>
-                                            </template>
-                                        </select>
-                                    </div>
+                                    <div class="slds-truncate" title={row.workspaceText}>{row.workspaceText}</div>
+                                    <template lwc:if={row.previousWorkspaceText}>
+                                        <div class="slds-text-color_weak slds-text-body_small slds-truncate">{row.previousWorkspaceText}</div>
+                                    </template>
                                 </td>
                                 <td class="hl-col-status">
                                     <span class={row.badgeClass}>{row.statusLabel}</span>

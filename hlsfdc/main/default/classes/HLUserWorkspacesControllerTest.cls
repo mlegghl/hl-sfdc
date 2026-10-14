@@ -49,7 +49,7 @@ private class HLUserWorkspacesControllerTest {
     @testSetup static void setup() {
         Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
         List<User> users = new List<User>();
-        for (Integer i = 1; i <= 5; i++) {
+        for (Integer i = 1; i <= 6; i++) {
             users.add(new User(Alias = 'hluw' + i, Email='hluw-user' + i + '@helplightning.com',
                                EmailEncodingKey='UTF-8', LastName='Workspace User ' + i, LanguageLocaleKey='en_US',
                                LocaleSidKey='en_US', ProfileId = p.Id,
@@ -88,6 +88,9 @@ private class HLUserWorkspacesControllerTest {
             // login override only
             configs.add(new helplightning__Help_Lightning_Config__c(
                 SetupOwnerId = users[4].Id, helplightning__Login__c = 'hluw-override5@helplightning.com'));
+            // opened the component but wasn't matched to a workspace, so only the site key flag is saved
+            configs.add(new helplightning__Help_Lightning_Config__c(
+                SetupOwnerId = users[5].Id, helplightning__Has_Site_Key__c = true));
             insert configs;
         }
     }
@@ -181,9 +184,34 @@ private class HLUserWorkspacesControllerTest {
         System.assertNotEquals(null, ctx.statusMessage);
     }
 
+    /**
+     * Only users with a saved Help Lightning email or default workspace are listed.
+     *  Org defaults, profile records, users with neither value saved, and
+     *  users without any record are excluded.
+     */
+    @isTest
+    static void testGetUsersWhoIsListed() {
+        Map<Integer, Id> configIds = configIdsByUser();
+
+        Set<String> listedUsers = new Set<String>();
+        for (HLUserWorkspacesController.UserRow r : HLUserWorkspacesController.getUsers(null, 200, false, null).rows) {
+            listedUsers.add(r.userId);
+        }
+
+        for (User u : [SELECT Id, UserName FROM User WHERE UserName LIKE 'hluw-user%@helplightning.com']) {
+            Boolean expected = !u.UserName.startsWith('hluw-user6@');
+            System.assertEquals(expected, listedUsers.contains(String.valueOf(u.Id)), 'Unexpected listing for ' + u.UserName);
+        }
+        // the running user has no record at all
+        System.assert(!listedUsers.contains(UserInfo.getUserId()), 'User without a record was listed');
+        System.assertNotEquals(null, configIds.get(6), 'Test setup is missing the site key only record');
+    }
+
     @isTest
     static void testGetUsersPaging() {
         Map<Integer, Id> configIds = configIdsByUser();
+        // user 6 only has the site key flag saved and is never listed
+        configIds.remove(6);
         Set<Id> scope = new Set<Id>(configIds.values());
 
         Set<Id> seen = new Set<Id>();
@@ -340,6 +368,15 @@ private class HLUserWorkspacesControllerTest {
         }
         System.assert(failed, 'bulkSetWorkspace should reject a deactivated workspace');
 
+        // a blank target is rejected before any DML
+        failed = false;
+        try {
+            HLUserWorkspacesController.bulkSetWorkspace(new List<String>{ String.valueOf(configIds.get(3)) }, false, '');
+        } catch (AuraHandledException e) {
+            failed = true;
+        }
+        System.assert(failed, 'bulkSetWorkspace should require a workspace');
+
         Integer updated = HLUserWorkspacesController.bulkSetWorkspace(
             new List<String>{ String.valueOf(configIds.get(3)), '' }, false, '51');
         Test.stopTest();
@@ -355,12 +392,12 @@ private class HLUserWorkspacesControllerTest {
 
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new WorkspacesMocker('normal'));
-        Integer updated = HLUserWorkspacesController.bulkSetWorkspace(null, true, '');
+        Integer updated = HLUserWorkspacesController.bulkSetWorkspace(null, true, '50');
         Test.stopTest();
 
         System.assert(updated >= 2, 'Flagged users were not updated');
-        System.assertEquals(null, loadConfig(configIds.get(3)).helplightning__Workspace_Id__c);
-        System.assertEquals(null, loadConfig(configIds.get(4)).helplightning__Workspace_Id__c);
+        System.assertEquals('50', loadConfig(configIds.get(3)).helplightning__Workspace_Id__c);
+        System.assertEquals('50', loadConfig(configIds.get(4)).helplightning__Workspace_Id__c);
         // valid workspaces are untouched
         System.assertEquals('50', loadConfig(configIds.get(1)).helplightning__Workspace_Id__c);
         System.assertEquals('51', loadConfig(configIds.get(2)).helplightning__Workspace_Id__c);

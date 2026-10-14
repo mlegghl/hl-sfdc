@@ -26,7 +26,8 @@ export default class HlUserWorkspaces extends LightningElement {
     totalCount = 0;
     flaggedOnly = false;
     allFlaggedSelected = false;
-    bulkTarget = AUTO_DETECT;
+    // workspace staged for every flagged user, including rows not loaded yet
+    pendingFlaggedTarget = null;
 
     message = null;
     messageVariant = 'info';
@@ -65,10 +66,7 @@ export default class HlUserWorkspaces extends LightningElement {
     }
 
     get bulkOptions() {
-        return [{ value: AUTO_DETECT, label: 'Auto-detect (clear)' }, ...this.activeWorkspaceOptions].map((o) => ({
-            ...o,
-            selected: o.value === this.bulkTarget
-        }));
+        return [{ value: '', label: 'Choose a workspace…' }, ...this.activeWorkspaceOptions];
     }
 
     async resetAndLoad() {
@@ -77,7 +75,26 @@ export default class HlUserWorkspaces extends LightningElement {
         this.hasMore = true;
         this.totalCount = 0;
         this.allFlaggedSelected = false;
+        this.pendingFlaggedTarget = null;
         await this.loadMore();
+    }
+
+    isFlagged(workspaceId) {
+        const status = this.workspaceStatus(workspaceId);
+        return status === 'deactivated' || status === 'notfound';
+    }
+
+    // a row whose only change is the staged "all flagged" workspace is saved by the bulk update
+    isCoveredByPendingFlagged(r) {
+        return this.pendingFlaggedTarget !== null &&
+            this.isFlagged(r.originalWorkspaceId) &&
+            r.workspaceId === this.pendingFlaggedTarget &&
+            r.login === r.originalLogin;
+    }
+
+    workspaceLabel(workspaceId) {
+        const option = this.activeWorkspaceOptions.find((o) => o.value === workspaceId);
+        return option ? option.label : workspaceId;
     }
 
     async loadMore() {
@@ -92,14 +109,18 @@ export default class HlUserWorkspaces extends LightningElement {
                 flaggedOnly: this.flaggedOnly,
                 validIds: this.validIds
             });
-            const newRows = (page.rows || []).map((r) => ({
-                ...r,
-                login: r.login || '',
-                workspaceId: r.workspaceId || AUTO_DETECT,
-                originalLogin: r.login || '',
-                originalWorkspaceId: r.workspaceId || AUTO_DETECT,
-                selected: this.allFlaggedSelected
-            }));
+            const newRows = (page.rows || []).map((r) => {
+                const saved = r.workspaceId || AUTO_DETECT;
+                const staged = this.pendingFlaggedTarget !== null && this.isFlagged(saved);
+                return {
+                    ...r,
+                    login: r.login || '',
+                    workspaceId: staged ? this.pendingFlaggedTarget : saved,
+                    originalLogin: r.login || '',
+                    originalWorkspaceId: saved,
+                    selected: this.allFlaggedSelected
+                };
+            });
             this.rows = [...this.rows, ...newRows];
             this.afterId = page.nextAfterId;
             this.hasMore = page.hasMore;
@@ -125,22 +146,25 @@ export default class HlUserWorkspaces extends LightningElement {
         return w.active ? 'ok' : 'deactivated';
     }
 
+    workspaceDisplay(workspaceId) {
+        const status = this.workspaceStatus(workspaceId);
+        if (status === 'auto') {
+            return 'Auto-detect';
+        }
+        if (status === 'ok') {
+            return this.workspaceLabel(workspaceId);
+        }
+        const w = this.workspaceById.get(workspaceId);
+        return w ? `${w.name} (${workspaceId})` : workspaceId;
+    }
+
     get viewRows() {
-        const activeOptions = this.activeWorkspaceOptions;
         return this.rows.map((r) => {
             const status = this.workspaceStatus(r.workspaceId);
             const flagged = status === 'deactivated' || status === 'notfound';
             const emailInvalid = r.login !== '' && !EMAIL_REGEX.test(r.login);
-            const dirty = r.login !== r.originalLogin || r.workspaceId !== r.originalWorkspaceId;
-
-            const options = [{ value: AUTO_DETECT, label: 'Auto-detect' }, ...activeOptions];
-            // keep invalid saved/current values visible so the dropdown never shows a different value
-            [r.originalWorkspaceId, r.workspaceId].forEach((id) => {
-                if (id && !options.some((o) => o.value === id)) {
-                    const s = this.workspaceStatus(id);
-                    options.push({ value: id, label: `${id} (${s === 'deactivated' ? 'Deactivated' : 'Not found'})` });
-                }
-            });
+            const workspaceChanged = r.workspaceId !== r.originalWorkspaceId;
+            const dirty = r.login !== r.originalLogin || workspaceChanged;
 
             let statusLabel = 'OK';
             let badgeClass = 'slds-badge slds-theme_success';
@@ -166,7 +190,8 @@ export default class HlUserWorkspaces extends LightningElement {
             return {
                 ...r,
                 checked: this.allFlaggedSelected || r.selected,
-                options: options.map((o) => ({ ...o, selected: o.value === r.workspaceId })),
+                workspaceText: this.workspaceDisplay(r.workspaceId),
+                previousWorkspaceText: workspaceChanged ? `was ${this.workspaceDisplay(r.originalWorkspaceId)}` : null,
                 statusLabel,
                 badgeClass,
                 rowClass,
@@ -186,12 +211,24 @@ export default class HlUserWorkspaces extends LightningElement {
         return this.dirtyRows.length;
     }
 
+    get hasChanges() {
+        return this.dirtyCount > 0 || this.pendingFlaggedTarget !== null;
+    }
+
     get saveLabel() {
+        if (this.pendingFlaggedTarget !== null) {
+            const extra = this.dirtyRows.filter((r) => !this.isCoveredByPendingFlagged(r)).length;
+            return `Save changes (${this.totalCount + extra})`;
+        }
         return `Save changes (${this.dirtyCount})`;
     }
 
     get saveDisabled() {
-        return this.dirtyCount === 0 || this.isSaving;
+        return !this.hasChanges || this.isSaving;
+    }
+
+    get discardDisabled() {
+        return !this.hasChanges || this.isSaving;
     }
 
     get selectedRows() {
@@ -207,6 +244,12 @@ export default class HlUserWorkspaces extends LightningElement {
             return `All ${this.totalCount} flagged users selected`;
         }
         return `${this.selectedCount} selected`;
+    }
+
+    get pendingFlaggedLabel() {
+        return this.pendingFlaggedTarget === null
+            ? null
+            : `All ${this.totalCount} flagged users will be set to ${this.workspaceLabel(this.pendingFlaggedTarget)}`;
     }
 
     get bulkDisabled() {
@@ -237,11 +280,12 @@ export default class HlUserWorkspaces extends LightningElement {
     get emptyMessage() {
         return this.flaggedOnly
             ? 'No users have a deactivated or unknown default workspace.'
-            : 'No users have a Help Lightning login or default workspace saved yet.';
+            : 'No users have a Help Lightning email or default workspace saved yet. Users appear here after they open the Help Lightning component.';
     }
 
     get messageClass() {
-        const theme = this.messageVariant === 'error' ? 'slds-theme_error' : 'slds-theme_success';
+        const themes = { error: 'slds-theme_error', success: 'slds-theme_success', info: 'slds-theme_info' };
+        const theme = themes[this.messageVariant] || 'slds-theme_info';
         return `slds-notify slds-notify_alert slds-m-bottom_small ${theme}`;
     }
 
@@ -263,7 +307,7 @@ export default class HlUserWorkspaces extends LightningElement {
         }
         if (this.allFlaggedSelected) {
             // leaving "all flagged" mode keeps every loaded row selected except this one
-            this.allFlaggedSelected = false;
+            this.leaveAllFlagged();
             this.rows.forEach((r) => { r.selected = true; });
         }
         row.selected = event.target.checked;
@@ -272,7 +316,7 @@ export default class HlUserWorkspaces extends LightningElement {
 
     handleSelectAllLoaded(event) {
         const checked = event.target.checked;
-        this.allFlaggedSelected = false;
+        this.leaveAllFlagged();
         this.rows.forEach((r) => { r.selected = checked; });
         this.rows = [...this.rows];
     }
@@ -282,9 +326,16 @@ export default class HlUserWorkspaces extends LightningElement {
     }
 
     handleClearSelection() {
-        this.allFlaggedSelected = false;
+        this.leaveAllFlagged();
         this.rows.forEach((r) => { r.selected = false; });
         this.rows = [...this.rows];
+    }
+
+    // rows already loaded keep their staged workspace as normal row edits;
+    //  rows that were never loaded are no longer included
+    leaveAllFlagged() {
+        this.allFlaggedSelected = false;
+        this.pendingFlaggedTarget = null;
     }
 
     handleEmailChange(event) {
@@ -295,21 +346,47 @@ export default class HlUserWorkspaces extends LightningElement {
         }
     }
 
-    handleWorkspaceChange(event) {
-        const row = this.findRow(event.target.dataset.id);
-        if (row) {
-            row.workspaceId = event.target.value;
-            this.rows = [...this.rows];
+    handleBulkTargetChange(event) {
+        const target = event.target.value;
+        // reset to the prompt so the same workspace can be chosen again for another selection
+        event.target.value = '';
+        if (!target) {
+            return;
         }
+
+        let count;
+        if (this.allFlaggedSelected) {
+            this.pendingFlaggedTarget = target;
+            this.rows.forEach((r) => {
+                if (this.isFlagged(r.originalWorkspaceId)) {
+                    r.workspaceId = target;
+                }
+            });
+            count = this.totalCount;
+        } else {
+            const selected = this.selectedRows;
+            selected.forEach((r) => { r.workspaceId = target; });
+            count = selected.length;
+        }
+        this.rows = [...this.rows];
+        this.showMessage(
+            `${count} user${count === 1 ? '' : 's'} set to ${this.workspaceLabel(target)}. Click Save changes to apply.`,
+            'info');
     }
 
-    handleBulkTargetChange(event) {
-        this.bulkTarget = event.target.value;
+    handleDiscard() {
+        this.pendingFlaggedTarget = null;
+        this.rows.forEach((r) => {
+            r.login = r.originalLogin;
+            r.workspaceId = r.originalWorkspaceId;
+        });
+        this.rows = [...this.rows];
+        this.message = null;
     }
 
     confirmDiscard() {
         // eslint-disable-next-line no-alert
-        return this.dirtyCount === 0 || window.confirm('You have unsaved changes that will be discarded. Continue?');
+        return !this.hasChanges || window.confirm('You have unsaved changes that will be discarded. Continue?');
     }
 
     handleFlaggedToggle(event) {
@@ -323,56 +400,57 @@ export default class HlUserWorkspaces extends LightningElement {
     }
 
     async handleSave() {
-        const dirty = this.dirtyRows;
-        if (dirty.length === 0) {
+        if (!this.hasChanges) {
             return;
         }
-        const invalid = dirty.find((r) => r.login !== '' && !EMAIL_REGEX.test(r.login));
+        const rowEdits = this.dirtyRows.filter((r) => !this.isCoveredByPendingFlagged(r));
+        const invalid = rowEdits.find((r) => r.login !== '' && !EMAIL_REGEX.test(r.login));
         if (invalid) {
             this.showMessage(`Invalid email address for ${invalid.userName}: ${invalid.login}`, 'error');
             return;
         }
 
         this.isSaving = true;
+        let saved = 0;
+        const usedBulk = this.pendingFlaggedTarget !== null;
         try {
-            const count = await saveRows({
-                updates: dirty.map((r) => ({
-                    configId: r.configId,
-                    login: r.login,
-                    workspaceId: r.workspaceId
-                }))
-            });
-            dirty.forEach((r) => {
-                r.originalLogin = r.login;
-                r.originalWorkspaceId = r.workspaceId;
-            });
-            this.rows = [...this.rows];
-            this.showMessage(`Saved ${count} user${count === 1 ? '' : 's'}.`, 'success');
-        } catch (error) {
-            this.showMessage(this.errorText(error, 'Unable to save changes.'), 'error');
-        } finally {
-            this.isSaving = false;
-        }
-    }
+            // the bulk update runs first so individual row edits win over it
+            if (usedBulk) {
+                saved += await bulkSetWorkspace({
+                    configIds: [],
+                    allFlagged: true,
+                    workspaceId: this.pendingFlaggedTarget
+                });
+                this.rows.forEach((r) => {
+                    if (this.isCoveredByPendingFlagged(r)) {
+                        r.originalWorkspaceId = r.workspaceId;
+                    }
+                });
+                this.pendingFlaggedTarget = null;
+            }
 
-    async handleBulkApply() {
-        if (this.selectedCount === 0 || !this.confirmDiscard()) {
-            return;
-        }
-        this.isSaving = true;
-        try {
-            const count = await bulkSetWorkspace({
-                configIds: this.allFlaggedSelected ? [] : this.selectedRows.map((r) => r.configId),
-                allFlagged: this.allFlaggedSelected,
-                workspaceId: this.bulkTarget
-            });
-            const target = this.bulkTarget
-                ? this.activeWorkspaceOptions.find((o) => o.value === this.bulkTarget).label
-                : 'Auto-detect';
-            this.showMessage(`Set ${count} user${count === 1 ? '' : 's'} to ${target}.`, 'success');
-            await this.resetAndLoad();
+            if (rowEdits.length > 0) {
+                saved += await saveRows({
+                    updates: rowEdits.map((r) => ({
+                        configId: r.configId,
+                        login: r.login,
+                        workspaceId: r.workspaceId
+                    }))
+                });
+                rowEdits.forEach((r) => {
+                    r.originalLogin = r.login;
+                    r.originalWorkspaceId = r.workspaceId;
+                });
+            }
+
+            this.rows = [...this.rows];
+            this.showMessage(`Saved ${saved} user${saved === 1 ? '' : 's'}.`, 'success');
+            if (usedBulk) {
+                await this.resetAndLoad();
+            }
         } catch (error) {
-            this.showMessage(this.errorText(error, 'Unable to update the selected users.'), 'error');
+            this.rows = [...this.rows];
+            this.showMessage(this.errorText(error, 'Unable to save changes.'), 'error');
         } finally {
             this.isSaving = false;
         }
